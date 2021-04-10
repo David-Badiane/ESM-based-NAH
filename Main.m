@@ -16,8 +16,12 @@ for ii = 1:length(pressureFields)
     pressFieldsDown{ii} = downsampling(pressureFields{ii}, 8, 8);
 end
 
+for ii = 1:length(hologramInfos)
+    hologramInfosDown{ii} = downsampling(hologramInfos{ii}, 8, 8);
+end
+
 figure(5)
-surf(hologramInfos{1}, hologramInfos{2}, abs(pressFieldsDown{1}));
+surf(hologramInfosDown{1}, hologramInfosDown{2}, abs(pressFieldsDown{1}));
 
 % 
 % 
