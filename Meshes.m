@@ -1,7 +1,9 @@
 close all
 clearvars
 clc
-        
+addpath 'CSV\pressure' 
+addpath 'CSV\velocity' 
+addpath 'functions'
 %% read the csv
 csvvel = readtable("vel_1.csv");
 meshcord = [csvvel(:,1), csvvel(:,2), csvvel(:,3)];
@@ -19,7 +21,7 @@ y = y(1:16);
 platemesh = zeros(length(x), length(y));
 for i = 1:length(x)
     for j = 1:length(y)
-        a = meshcord((16*(i-1)) + j, :);
+        a = meshcord((length*(i-1)) + j, :);
         platemesh(i, j) = a(3);
     end
 end        
@@ -65,7 +67,7 @@ figure
 
 %% pressure field
 
-csvpress = readtable("C:\Users\Andrea\Downloads\violin_nah_example\violin_nah_example\pressure\acpr_1.csv");
+csvpress = readtable("acpr_1.csv");
 
 % reconstruct the field
 csvpressmatrix = zeros(size(csvpress));
