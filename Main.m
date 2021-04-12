@@ -6,13 +6,16 @@ addpath 'CSV\velocity'
 addpath 'functions'
 
 %% read the csv
+
 velocityFileName = 'vel_1.csv'; 
 pressureFileName = 'acpr_1.csv';
 [violinInfos, velocityFields, hologramInfos, pressureFields] = importData(velocityFileName, pressureFileName);
 
 pressFieldsDown = cell(size(pressureFields));
+
+% downsampling the simulated data in order to obtain a 8x8 grid
+
 for ii = 1:length(pressureFields)
-    % Downsampling
     pressFieldsDown{ii} = downsampling(pressureFields{ii}, 8, 8);
 end
 
@@ -22,6 +25,10 @@ end
 
 figure(5)
 surf(hologramInfosDown{1}, hologramInfosDown{2}, abs(pressFieldsDown{1}));
+
+%% Green's functions matrix
+
+
 
 % 
 % 

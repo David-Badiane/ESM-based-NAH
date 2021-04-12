@@ -127,9 +127,10 @@ virtualcord(isnan(virtualcord)) = 0;
 
 lattice = min(abs(presscord(:, 3) - virtualcord(:, 3)));
 
-% points on the pressure field
+% points on the pressure field (surface)
 r_m = presscord;
-% virtual points
+
+% virtual points (equivalent source)
 a_n = virtualcord - [0, 0, lattice];
 
 % extract the eigenfrequencies
