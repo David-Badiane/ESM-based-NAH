@@ -19,9 +19,9 @@ function [x_rec] = Tikhonov_SVD(A , b, alpha)
 
 svals = diag(D); % singular values of the matrix A
 
-D_alpha = zeros(size(D.')); % truncated D initialization
+D_alpha = zeros(size(D.')); % regularized D initialization
 
-for j = 1:k % truncate D (TSVD)
+for j = 1:k % regularized D
     D_alpha(j,j) = svals(j)/(svals(j)^2 + alpha);
 end
 
