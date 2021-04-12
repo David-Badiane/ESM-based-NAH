@@ -127,7 +127,7 @@ virtualcord(isnan(virtualcord)) = 0;
 
 lattice = min(abs(presscord(:, 3) - virtualcord(:, 3)));
 
-% points on the pressure field (surface)
+% points on the pressure field (hologram)
 r_m = presscord;
 
 % virtual points (equivalent source)
