@@ -146,6 +146,7 @@ end
 eigfreq = eigfreqdouble;
 
 G_w = zeros(length(r_m(:, 1)), length(a_n(:, 1)), length(eigfreq(:, 1))); 
+
 for i = 1 : length(r_m(:, 1))
     for j = 1 : length(a_n(:, 1))
         for k = 1 : length(eigfreq(:, 1))
