@@ -1,16 +1,37 @@
-function [violinInfos, velocityFields, hologramInfos, pressureFields] = importData(velocityFileName, pressureFileName)
+function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL  %%%%%%%%%%%%
-%%% VELOCITY, EXTRACTS THEIR DATA AND STORES THEM       %%%%%%%%%%%%
-%%% IN CELLS                                            %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,           %%%%%%%%%%%%
+%%% EXTRACTS THEIR DATA AND STORES THEM IN CELL ARRAYS                     %%%%%%%%%%%%
+%%%                                                                        %%%%%%%%%%%%
+%%% -----------------------------------------------------                  %%%%%%%%%%%%
+%%%                                                                        %%%%%%%%%%%%
+%%% violinInfos = violin {X mesh, Y mesh, Z mesh, unrolled mesh}           %%%%%%%%%%%%
+%%% veleocityFields = cell array with the velocity fields                  %%%%%%%%%%%%
+%%% hologramInfos = hologram cell array, same structure of violinMesh      %%%%%%%%%%%%
+%%% pressureFields = cell array with the pressure fields                   %%%%%%%%%%%% 
+%%%                                                                        %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Reading csv
 csvVel = readtable(velocityFileName);
 csvPress = readtable(pressureFileName);
 violinMesh = table2array(csvVel(:,1:3));
 hologramMesh = table2array(csvPress(:,1:3));
+
+%% Import eigenfrequencies 
+    eigenFreqz = char(csvPress.Properties.VariableNames(4:end));
+    eigenFreqzdouble = zeros(size(eigenFreqz(:,1)));
+    eigenFreqz = eigenFreqz(:,3:end);
+    indexes = find(eigenFreqz == '_');
+    eigenFreqz(indexes) = '.';
+    
+    for ii = 1:length(eigenFreqz(:,1)) 
+        eigenFreqzdouble(ii, :) = str2double(eigenFreqz(ii, :));
+    end
+    
+    eigenFreqz = eigenFreqzdouble;
+
 
 %% Reconconstruct the plate geometry
 gridX = length(unique(violinMesh(:,1)));
@@ -28,7 +49,7 @@ figure(1)
 surf(X,Y,Z);
 title('Violin surface');
 zlim([0,100]);
-violinInfos = {X,Y,Z}; 
+violinInfos = {X,Y,Z, violinMesh}; 
 
 %% Velocity Fields
 numFreqBins = length(table2array(csvVel(1,:)))-3;
@@ -73,5 +94,25 @@ end
 figure(4) 
 surf(X,Y,abs(pressureFields{1}));
 title('Pressure field surface - f1');
+
+for ii = 1:length(pressureFields)
+    pressureFields{ii} = downsampling(pressureFields{ii}, 8, 8);
+end
+
+for ii = 1:length(hologramInfos)
+    hologramInfos{ii} = downsampling(hologramInfos{ii}, 8, 8);
+end
+
+% Show first frequency pressure field
+figure(5)
+surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
+
+hologramMesh =  [reshape(hologramInfos{1}, [64, 1]),...
+                 reshape(hologramInfos{2}, [64, 1]),...
+                 reshape(hologramInfos{3}, [64, 1])];
+             
+hologramInfos = {X,Y,Z,hologramMesh};
+
+
 end
 
