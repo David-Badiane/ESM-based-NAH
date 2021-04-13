@@ -41,14 +41,10 @@ p_n = whiteNoise(p); % add white gaussian noise to the mesurement
 
 G = G_w{mode}; % take the Green's function matrix of the chosen mode
 
-x_TSVD = TSVD(G, p_n , 10); % perform the TSVD -> estimate the source strength
-
-x_TIK = Tikhonov_SVD(G , p_n , 10);  % perform the Tikhonov SVD -> estimate the source strength
+x_TSVD = TSVD(G, p_n , 10);
 
 ext_v = velocityFields{mode}; % exact velocity 
 
-vel_size = numel(ext_v);
-
-
+vel_size = 
 
 
