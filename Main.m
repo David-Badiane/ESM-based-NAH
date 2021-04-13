@@ -35,7 +35,7 @@ platePoints = violinInfos{4};
 
 mode = 2;
 
-omega = eigenFreqz{mode};
+omega = eigenFreqz(mode);
 
 rho = 1.2; % [Kg/m3] air density 
 
