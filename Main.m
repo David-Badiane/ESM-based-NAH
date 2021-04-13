@@ -16,8 +16,10 @@ pressureFileName = 'acpr_1.csv';
 
 % Points on the pressure field (hologram)
 hologramPoints = hologramInfos{4};
+
 % Virtual sources points
 [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints);
+
 % Green's matrices in a cell array ( for each eigenfrequency)
 [G_w] = Green_matrix(hologramPoints , virtualPoints , eigenFreqz);
 
