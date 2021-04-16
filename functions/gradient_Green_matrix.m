@@ -1,19 +1,19 @@
-function [G] = Green_matrix(r , s , omega)
-
+function [G] = gradient_Green_matrix(s , r , omega, n)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION COMPUTES THE GREEN'S FUNCTIONS MATRIX      %%%%%%%
+%%% THIS FUNCTION COMPUTES THE GREEN'S FUNCTIONS             %%%%%%%
+%%% DERIVATIVE ALONG THE NORMAL SURFACE'S DIRECTION          %%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INPUT: s  =   matrix containing the coordinates     %%%%%%%%%%%%
-%%%        of the hologram plane measurement points     %%%%%%%%%%%%
+%%%        of the surface coordinate points             %%%%%%%%%%%%
 %%%        r  =   matrix containing the coordinates     %%%%%%%%%%%%
 %%%        of the equivalent surface points             %%%%%%%%%%%%
 %%%        omega = eigenfrequency array                 %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% OUTPUT: G_w  = cell array containing Green's       %%%%%%%%%%%%%
+%%% OUTPUT: G_v  = cell array containing Green's       %%%%%%%%%%%%%
 %%%                function matrices                   %%%%%%%%%%%%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -29,12 +29,12 @@ G_w = zeros(length(r(:, 1)), length(s(:, 1)));  %Green's function init
 r = r*0.001;
 s = s*0.001;
 
-
 for kk = 1:length(omega)
     k = omega(kk)/c;   % wave number
 
     for ii = 1:length(r(:, 1)) 
         for jj = 1:length(s(:, 1))      
+            
             dist = norm((r(ii, :) - s(jj, :)), 2);            % L2 norm of (xr,yr,zr)-(xs,ys,zs)
             G_w(ii, jj) = (1/4/pi) * exp(-1i*k*dist)/dist;    % Green Matrix cell
         end   
@@ -42,6 +42,7 @@ for kk = 1:length(omega)
     
 G{kk} = G_w;  % fill cell array
 end
+
 
 end
 

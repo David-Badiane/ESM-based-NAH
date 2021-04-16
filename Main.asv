@@ -68,16 +68,13 @@ X =  reshape(platePoints(:,1), [gridY, gridX]).';
 Y =  reshape(platePoints(:,2), [gridY, gridX]).'; 
 Z =  reshape(platePoints(:,3), [gridY, gridX]).';
 
-[nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals 
-                                 % for each point of the surface
-
-normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
-
+[nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals for the surface
+normalPoints = [reshape(nx, [1024,]);reshape(ny, [1024,]);reshape(ny, [1024,]) ];
 % Calculate the derivative of the Green function along the normal direction
 
 % Green's matrices of the plate surface - equivalent sources in a cell array (for each eigenfrequency)
 
-[G_v] = gradient_Green_matrix(platePoints , virtualPoints , eigenFreqz , normalPoints); % here the entries order is important
+[G_v] = gradient_Green_matrix(platePoints , virtualPoints , eigenFreqz); % here the entries order is important
 
 G_v_omega = G_v{mode}; % Green's function equivalent points - surface  for the mode
 
