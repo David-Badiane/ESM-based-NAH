@@ -7,8 +7,9 @@ function [G] = Green_matrix(r , s , omega)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INPUT: r  =   matrix containing the coordinates     %%%%%%%%%%%%
 %%%        of the hologram plane measurement points     %%%%%%%%%%%%
+%%%        or the surface coordinate points             %%%%%%%%%%%%
 %%%        s  =   matrix containing the coordinates     %%%%%%%%%%%%
-%%%        of the surface or equivalent surface points  %%%%%%%%%%%%
+%%%        of the equivalent surface points             %%%%%%%%%%%%
 %%%        omega = eigenfrequency array                 %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

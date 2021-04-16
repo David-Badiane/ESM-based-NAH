@@ -21,7 +21,7 @@ svals = diag(D); % singular values of the matrix A
 
 D_alpha = zeros(size(D.')); % regularized D initialization
 
-for j = 1:k % regularized D
+for j = 1:size(svals) % regularized D
     D_alpha(j,j) = svals(j)/(svals(j)^2 + alpha);
 end
 

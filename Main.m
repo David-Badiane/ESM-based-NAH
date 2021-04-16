@@ -61,6 +61,20 @@ ext_v = velocityFields{mode}; % exact velocity
 
 vel_size = numel(ext_v);
 
+% Get the normal vectors on the plate surface
+
+gridX = length(unique(platePoints(:,1)));
+gridY = length(unique(platePoints(:, 2)));
+X =  reshape(platePoints(:,1), [gridY, gridX]).'; 
+Y =  reshape(platePoints(:,2), [gridY, gridX]).'; 
+Z =  reshape(platePoints(:,3), [gridY, gridX]).';
+
+[nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals for the surface
+
+% Calculate the derivative of the Green function along the normal direction
+
+G_v_omega = G_v{mode}; % Green's function equivalent points - surface  for the mode
+
 
 
 
