@@ -1,4 +1,4 @@
-function [G] = gradient_Green_matrix(s , r , omega, n)
+function [G] = gradient_Green_matrix(s , r , G_in, omega, n)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION COMPUTES THE GREEN'S FUNCTIONS             %%%%%%%
 %%% DERIVATIVE ALONG THE NORMAL SURFACE'S DIRECTION          %%%%%%%
@@ -34,9 +34,7 @@ for kk = 1:length(omega)
 
     for ii = 1:length(r(:, 1)) 
         for jj = 1:length(s(:, 1))      
-            
-            dist = norm((r(ii, :) - s(jj, :)), 2);            % L2 norm of (xr,yr,zr)-(xs,ys,zs)
-            G_w(ii, jj) = (1/4/pi) * exp(-1i*k*dist)/dist;    % Green Matrix cell
+            der_x = (G_in(
         end   
     end
     

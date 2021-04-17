@@ -77,9 +77,11 @@ normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,
 
 % Green's matrices of the plate surface - equivalent sources in a cell array (for each eigenfrequency)
 
-[G_v] = gradient_Green_matrix(platePoints , virtualPoints , eigenFreqz , normalPoints); % here the entries order is important
-
 G_v_omega = G_v{mode}; % Green's function equivalent points - surface  for the mode
+
+[G_v] = gradient_Green_matrix(platePoints , virtualPoints , G_v_omega, eigenFreqz , normalPoints); % here the entries order is important
+
+
 
 
 
