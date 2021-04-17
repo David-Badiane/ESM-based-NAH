@@ -1,17 +1,23 @@
 function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,           %%%%%%%%%%%%
-%%% EXTRACTS THEIR DATA AND STORES THEM IN CELL ARRAYS                     %%%%%%%%%%%%
-%%%                                                                        %%%%%%%%%%%%
-%%% -----------------------------------------------------                  %%%%%%%%%%%%
-%%%                                                                        %%%%%%%%%%%%
-%%% violinInfos = violin {X mesh, Y mesh, Z mesh, unrolled mesh}           %%%%%%%%%%%%
-%%% veleocityFields = cell array with the velocity fields                  %%%%%%%%%%%%
-%%% hologramInfos = hologram cell array, same structure of violinMesh      %%%%%%%%%%%%
-%%% pressureFields = cell array with the pressure fields                   %%%%%%%%%%%% 
-%%%                                                                        %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,             %%%%%%%%%%%%
+%%% EXTRACTS THEIR DATA AND STORES THEM IN CELL ARRAYS                       %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% INPUTS                                                                   %%%%%%%%%%%%
+%%% velocityFileName = filename of the velocity file (string)                %%%%%%%%%%%%
+%%% pressureFileName = filename of the pressure file (string)                %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% OUTPUTS                                                                  %%%%%%%%%%%%
+%%% violinInfos = violin {X mesh, Y mesh, Z mesh, unrolled mesh}(cell array) %%%%%%%%%%%%
+%%% veleocityFields = velocity fields matrices (cell array)                  %%%%%%%%%%%%
+%%% hologramInfos = hologram meshes, same structure of violinMesh(cell array)%%%%%%%%%%%%
+%%% pressureFields = pressure fields matrices (cell array)                   %%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Reading csv
 csvVel = readtable(velocityFileName);
