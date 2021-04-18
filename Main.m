@@ -25,6 +25,7 @@ platePoints = violinInfos{4};
 
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
 [G_p] = Green_matrix(hologramPoints , virtualPoints , eigenFreqzRad);
+
 % [G_components] = Green_matrixComponents(hologramPoints , virtualPoints ,
 % eigenFreqzRad); NOT USEFUL - cancelliamo la funzione ?
 
@@ -72,10 +73,12 @@ Z =  reshape(platePoints(:,3), [gridY, gridX]).';
 normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
 
 % Calculate the derivative of the Green function along the normal direction
-[G_v] = normalGradient(hologramPoints , virtualPoints , eigenFreqzRad, normalPoints);
+[G_v] = normalGradient(virtualPoints, platePoints , eigenFreqzRad, normalPoints);
 
 % Green's matrices of the plate surface - equivalent sources in a cell array (for each eigenfrequency)
 G_v_omega = G_v{mode}; % Green's function equivalent points - surface  for the mode
+
+
 
 
 
