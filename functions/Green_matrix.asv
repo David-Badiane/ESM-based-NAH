@@ -37,7 +37,7 @@ for kk = 1:length(omega)
     for ii = 1:length(hologramPoints(:, 1)) 
         for jj = 1:length(virtualPoints(:, 1))      
             dist = norm((hologramPoints(ii, :) - virtualPoints(jj, :)), 2);  % L2 norm of (xr,yr,zr)-(xs,ys,zs)
-            G_w(ii, jj) = (1/4/pi) * exp(-1i*k*dist)/dist;    % Green Matrix cell
+            G_w(ii , jj) = (1/4/pi) * exp(-1i*k*dist)/dist;    % Green Matrix cell
         end   
     end
     
