@@ -10,7 +10,7 @@ addpath 'functions'
 velocityFileName = 'vel_1.csv'; 
 pressureFileName = 'acpr_1.csv';
 [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName);
-eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
+eigenFreqzRad = 2*pi*eigenFreqz; % convert in 
 
 %% Green's functions matrix
 
