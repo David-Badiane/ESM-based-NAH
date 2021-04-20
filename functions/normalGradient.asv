@@ -58,7 +58,7 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
                     normalPoints(ii,component) = 0;
                 end
                 
-                G_w(ii,jj) = gradient *normalPoints(jj,component);  % scalar product with normal vector component
+                G_w(ii,jj) = gradient *normalPoints(ii,component);  % scalar product with normal vector component
             end   
         end
 

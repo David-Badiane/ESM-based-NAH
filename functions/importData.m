@@ -52,12 +52,14 @@ X =  reshape(violinMesh(:,1), [gridY, gridX]).';
 Y =  reshape(violinMesh(:,2), [gridY, gridX]).'; 
 Z =  reshape(violinMesh(:,3), [gridY, gridX]).';
 
+
 figure(1)
 surf(X,Y,Z);
 title('Violin surface');
-zlim([0,100]);
-violinInfos = {X,Y,Z, violinMesh}; 
+%zlim([0,100]);
 
+
+violinInfos = {X,Y,Z, violinMesh}; 
 %% Velocity Fields
 numFreqBins = length(table2array(csvVel(1,:)))-3;
 velsMatrix = table2array( csvVel(:,4:numFreqBins+3) );
@@ -68,9 +70,11 @@ for ii = 1:numFreqBins
     velocityFields{ii} = reshape(velsMatrix(:,ii), [gridY, gridX]).';   
 end
 
+%{
 figure(2)
 surf(X,Y,abs(velocityFields{1}));
 title('Velocity field surface - f1');
+%}
 
 %% Reconstruct the hologram geometry
 
@@ -85,11 +89,13 @@ X =  reshape(hologramMesh(:,1), [gridY, gridX]).';
 Y =  reshape(hologramMesh(:,2), [gridY, gridX]).'; 
 Z =  reshape(hologramMesh(:,3), [gridY, gridX]).';
 
+%{
 figure(3)
 surf(X,Y,Z);
-hologramInfos = {X,Y,Z}; 
 title('Hologram surface');
+%}
 
+hologramInfos = {X,Y,Z}; 
 %% Pressure Fields 
 
 numFreqBins = length(table2array(csvPress(1,:)))-3;
@@ -101,9 +107,11 @@ for ii = 1:numFreqBins
     pressureFields{ii} = reshape(pressMatrix(:,ii), [gridY, gridX]).';   
 end
 
+%{
 figure(4) 
 surf(X,Y,abs(pressureFields{1}));
 title('Pressure field surface - f1');
+%}
 
 for ii = 1:length(pressureFields)
     pressureFields{ii} = downsampling(pressureFields{ii}, 8, 8);
@@ -115,9 +123,9 @@ for ii = 1:length(hologramInfos)
 end
 
 % Show first frequency pressure field
+
 figure(5)
 surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
-
 hologramMesh =  [reshape(hologramInfos{1}', [64, 1]),...
                  reshape(hologramInfos{2}', [64, 1]),...
                  reshape(hologramInfos{3}, [64, 1])];

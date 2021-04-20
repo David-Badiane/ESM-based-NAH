@@ -50,9 +50,9 @@ p_n = whiteNoise(p); % add white gaussian noise to the mesurement
 G_p_omega = G_p{mode}; % take the Green's function matrix of the chosen mode
 
 % TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p_n , 10); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 64); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p_n , 100);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -70,7 +70,7 @@ Z =  reshape(platePoints(:,3), [gridY, gridX]).';
 
 normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
 
-normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
+%normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
 
 % Calculate the derivative of the Green function along the normal direction
 [G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(1)], normalPoints);
@@ -81,7 +81,8 @@ normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to e
 G_v_omega = G_v{mode}; % Green's function equivalent points - surface  for the mode
 
 G_v_omega(isnan(G_v_omega)) = 0;
-v_TSVD = G_v_omega*q_TSVD; % TO DO: check the zeros, they might result from NaN, so better convert back in NaN
+
+v_TSVD = G_v_omega*q_TSVD; 
 v_TIK = G_v_omega*q_TIK;
 
 %% error evalutation
@@ -116,13 +117,7 @@ title('Tik velocity')
 
 %% to do per martedì: ricostruire la pressione
 
-recP = G_p_omega*q_TIK;
+recP = 1i*omega*rho*G_p_omega*q_TIK;
 surfRecP = reshape( recP , [8, 8]); 
 figure(6543)
 surf(hologramInfos8{1},hologramInfos8{2},abs(surfRecP))
-%%
-
-figure(565)
-
-surf(X,Y,Z);
-zlim([0,100]);
