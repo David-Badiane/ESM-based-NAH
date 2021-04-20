@@ -76,7 +76,9 @@ velsMatrix( velsMatrix == 0) = NaN; % clean the violin border to accident zeros
 velocityFields = cell(numFreqBins,1);
 
 for ii = 1:numFreqBins
-    velocityFields{ii} = reshape(velsMatrix(:,ii), [gridY, gridX]).';   
+    velocityFields{ii} = reshape(velsMatrix(:,ii), [gridY, gridX]).';  
+    velocityFields{ii}(27,2) = NaN; % cleaning undesired velocities!
+    velocityFields{ii}(27,15) = NaN;
 end
 
 %{

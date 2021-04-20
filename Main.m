@@ -52,9 +52,9 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 G_p_omega(isnan(G_p_omega)) = 0; % this is different wrt to have zeros in violin plate's geometry and then in in virtual points
 
 % TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 30); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 64); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 100);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -72,7 +72,7 @@ Z =  reshape(platePoints(:,3), [gridY, gridX]).';
 
 normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
 
-%normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
+% normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
 
 % Calculate the derivative of the Green function along the normal direction
 [G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(mode)], normalPoints);
@@ -99,7 +99,7 @@ v_ex_vector = reshape( v_ex, [vel_size, 1]);
 v_ex_vector(isnan(v_ex_vector))=0;
 
 NCC = (v_TSVD'*v_ex_vector)/(norm(v_ex_vector)*norm(v_TSVD));
-
+NMSE = 10*log10(norm(v_TSVD - v_ex_vector)^2/(norm(v_ex_vector)^2));
 % for the L curve we need to compute the reconstructed pressure
 
 %% plot of the reconstruced velocity field vs. exact velocity field
@@ -107,7 +107,10 @@ NCC = (v_TSVD'*v_ex_vector)/(norm(v_ex_vector)*norm(v_TSVD));
 surfVelRecTSVD = reshape( v_TSVD , [gridY, gridX]).'; 
 surfVelRecTIK = reshape( v_TIK , [gridY, gridX]).'; 
 
-figure(600) % TO DO! applicare una maschera al contorno per rimuovere i punti non del violino
+surfVelRecTSVD( surfVelRecTSVD == 0) = NaN; % apply a mask on the reconstructed velocity
+surfVelRecTIK( surfVelRecTIK == 0) = NaN;
+
+figure(600) 
 subplot 131
 surf(X,Y,abs(v_ex))
 title('Exact velocity')
