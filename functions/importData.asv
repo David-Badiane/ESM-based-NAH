@@ -45,10 +45,9 @@ hologramMesh = table2array(csvPress(:,1:3));
 gridX = length(unique(violinMesh(:, 1)));
 gridY = length(unique(violinMesh(:, 2)));
 
-% clean the violin border to accident zeros
-violinMeshZ = violinMesh(:, 3);
-violinMeshZ( violinMeshZ <= 0) = NaN;
-violinMesh(:,3) = violinMeshZ;
+if violinMesh(:,3) == 0 % clean the violin border to accident zeros
+    violinMesh(:,3) = NaN;
+end 
 
 % reshape into size (16*64) then transpose. because reshape orders the
 % vector by columns --> 

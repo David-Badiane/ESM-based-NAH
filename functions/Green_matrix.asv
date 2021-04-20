@@ -14,20 +14,9 @@ function [G] = Green_matrix(hologramPoints , virtualPoints, omega)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% OUTPUTS                                                                %%%%%%%%%%%%
-%%% G_v = Green's matrices for each omega (cell array)                     %%%%%%%%%%%%
+%%% G = Green's matrices (cell array)  for each omega                      %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% INPUT: s  =   matrix containing the coordinates     %%%%%%%%%%%%
-%%%        of the hologram plane measurement points     %%%%%%%%%%%%
-%%%        r  =   matrix containing the coordinates     %%%%%%%%%%%%
-%%%        of the equivalent surface points             %%%%%%%%%%%%
-%%%        omega = eigenfrequency array                 %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% OUTPUT: G_w  = cell array containing Green's       %%%%%%%%%%%%%
-%%%                function matrices                   %%%%%%%%%%%%% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 c = 343; % [m/s] speed of sound
 
@@ -47,8 +36,8 @@ for kk = 1:length(omega)
 
     for ii = 1:length(hologramPoints(:, 1)) 
         for jj = 1:length(virtualPoints(:, 1))      
-            dist = norm((hologramPoints(ii, :) - virtualPoints(jj, :)), 2);            % L2 norm of (xr,yr,zr)-(xs,ys,zs)
-            G_w(ii, jj) = (1/4/pi) * exp(-1i*k*dist)/dist;    % Green Matrix cell
+            dist = norm((hologramPoints(ii, :) - virtualPoints(jj, :)), 2);  % L2 norm of (xr,yr,zr)-(xs,ys,zs)
+            G_w(ii , jj) = (1/4/pi) * exp(-1i*k*dist)/dist;    % Green Matrix cell
         end   
     end
     

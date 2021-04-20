@@ -22,6 +22,7 @@ c = 343; % [m/s] speed of sound
 Gx = cell(length(omega),1);
 Gy = cell(length(omega),1);
 Gz = cell(length(omega),1);
+
 normalGradientComponents = {Gx,Gy,Gz};
 
 G_v = cell(length(omega),1);
@@ -40,9 +41,11 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
         for ii = 1:length(virtualPoints(:, 1))      % for each virtual points
             for jj = 1:length(platePoints(:, 1))   % for each surface point  
                 % calculation of the distance vector
+                
                 distX = virtualPoints(ii, 1) - platePoints(jj, 1);        
                 distY = virtualPoints(ii, 2) - platePoints(jj, 2); 
                 distZ = virtualPoints(ii, 3) - platePoints(jj, 3); 
+                
                 distVector = [distX, distY, distZ]; 
                 dist = sqrt(distVector(1)^2 + distVector(2)^2 + distVector(3)^2); % as L2 norm
                 
@@ -55,7 +58,7 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
                     normalPoints(ii,component) = 0;
                 end
                 
-                G_w(ii,jj) = gradient *normalPoints(ii,component);  % scalar product with normal vector component
+                G_w(ii,jj) = gradient *normalPoints(jj,component);  % scalar product with normal vector component
             end   
         end
 
