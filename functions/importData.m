@@ -41,8 +41,14 @@ hologramMesh = table2array(csvPress(:,1:3));
 
 
 %% Reconconstruct the plate geometry
+
 gridX = length(unique(violinMesh(:, 1)));
 gridY = length(unique(violinMesh(:, 2)));
+
+% clean the violin border to accident zeros
+violinMeshZ = violinMesh(:, 3);
+violinMeshZ( violinMeshZ <= 0) = NaN;
+violinMesh(:,3) = violinMeshZ;
 
 % reshape into size (16*64) then transpose. because reshape orders the
 % vector by columns --> 
@@ -61,8 +67,11 @@ title('Violin surface');
 
 violinInfos = {X,Y,Z, violinMesh}; 
 %% Velocity Fields
+
 numFreqBins = length(table2array(csvVel(1,:)))-3;
 velsMatrix = table2array( csvVel(:,4:numFreqBins+3) );
+
+velsMatrix( velsMatrix == 0) = NaN; % clean the violin border to accident zeros
 
 velocityFields = cell(numFreqBins,1);
 
@@ -124,8 +133,9 @@ end
 
 % Show first frequency pressure field
 
-figure(5)
+figure(500)
 surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
+title('actual pressure')
 hologramMesh =  [reshape(hologramInfos{1}', [64, 1]),...
                  reshape(hologramInfos{2}', [64, 1]),...
                  reshape(hologramInfos{3}, [64, 1])];

@@ -20,7 +20,7 @@ function [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints)
 
     % Virtual points (equivalent source)
     virtualPoints = violinInfos{4};
-    virtualPoints(isnan(virtualPoints)) = 0;
+    % virtualPoints(isnan(virtualPoints)) = 0; THIS IS AN ERROR!!!!
 
     % The lattice is the minimum distance btw z positions of hologram and
     % equivalent sources. 

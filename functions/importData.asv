@@ -41,8 +41,13 @@ hologramMesh = table2array(csvPress(:,1:3));
 
 
 %% Reconconstruct the plate geometry
+
 gridX = length(unique(violinMesh(:, 1)));
 gridY = length(unique(violinMesh(:, 2)));
+
+if violinMesh(:,3) == 0 % clean the violin border to accident zeros
+    violinMesh(:,3) = NaN;
+end 
 
 % reshape into size (16*64) then transpose. because reshape orders the
 % vector by columns --> 
@@ -52,16 +57,20 @@ X =  reshape(violinMesh(:,1), [gridY, gridX]).';
 Y =  reshape(violinMesh(:,2), [gridY, gridX]).'; 
 Z =  reshape(violinMesh(:,3), [gridY, gridX]).';
 
-%{
+
 figure(1)
 surf(X,Y,Z);
 title('Violin surface');
-zlim([0,100]);
-violinInfos = {X,Y,Z, violinMesh}; 
+%zlim([0,100]);
 
+
+violinInfos = {X,Y,Z, violinMesh}; 
 %% Velocity Fields
+
 numFreqBins = length(table2array(csvVel(1,:)))-3;
 velsMatrix = table2array( csvVel(:,4:numFreqBins+3) );
+
+velsMatrix( velsMatrix == 0) = NaN; % clean the violin border to accident zeros
 
 velocityFields = cell(numFreqBins,1);
 
@@ -69,9 +78,11 @@ for ii = 1:numFreqBins
     velocityFields{ii} = reshape(velsMatrix(:,ii), [gridY, gridX]).';   
 end
 
+%{
 figure(2)
 surf(X,Y,abs(velocityFields{1}));
 title('Velocity field surface - f1');
+%}
 
 %% Reconstruct the hologram geometry
 
@@ -86,11 +97,13 @@ X =  reshape(hologramMesh(:,1), [gridY, gridX]).';
 Y =  reshape(hologramMesh(:,2), [gridY, gridX]).'; 
 Z =  reshape(hologramMesh(:,3), [gridY, gridX]).';
 
+%{
 figure(3)
 surf(X,Y,Z);
-hologramInfos = {X,Y,Z}; 
 title('Hologram surface');
+%}
 
+hologramInfos = {X,Y,Z}; 
 %% Pressure Fields 
 
 numFreqBins = length(table2array(csvPress(1,:)))-3;
@@ -102,9 +115,11 @@ for ii = 1:numFreqBins
     pressureFields{ii} = reshape(pressMatrix(:,ii), [gridY, gridX]).';   
 end
 
+%{
 figure(4) 
 surf(X,Y,abs(pressureFields{1}));
 title('Pressure field surface - f1');
+%}
 
 for ii = 1:length(pressureFields)
     pressureFields{ii} = downsampling(pressureFields{ii}, 8, 8);
@@ -116,9 +131,10 @@ for ii = 1:length(hologramInfos)
 end
 
 % Show first frequency pressure field
-figure(5)
-surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
 
+figure(500)
+surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
+title('actual pressure')
 hologramMesh =  [reshape(hologramInfos{1}', [64, 1]),...
                  reshape(hologramInfos{2}', [64, 1]),...
                  reshape(hologramInfos{3}, [64, 1])];
