@@ -50,9 +50,9 @@ p_n = whiteNoise(p); % add white gaussian noise to the mesurement
 G_p_omega = G_p{mode}; % take the Green's function matrix of the chosen mode
 
 % TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 10); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p_n , 10); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p_n , 100);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -117,6 +117,12 @@ title('Tik velocity')
 %% to do per martedì: ricostruire la pressione
 
 recP = G_p_omega*q_TIK;
-surfRecP = reshape( recP , [8, 8]).'; 
+surfRecP = reshape( recP , [8, 8]); 
 figure(6543)
 surf(hologramInfos8{1},hologramInfos8{2},abs(surfRecP))
+%%
+
+figure(565)
+
+surf(X,Y,Z);
+zlim([0,100]);

@@ -41,7 +41,7 @@ hologramMesh = table2array(csvPress(:,1:3));
 
 
 %% Reconconstruct the plate geometry
-gridX = length(unique(violinMesh(:,1)));
+gridX = length(unique(violinMesh(:, 1)));
 gridY = length(unique(violinMesh(:, 2)));
 
 % reshape into size (16*64) then transpose. because reshape orders the
