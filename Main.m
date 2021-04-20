@@ -9,7 +9,7 @@ addpath 'functions'
 
 velocityFileName = 'vel_1.csv'; 
 pressureFileName = 'acpr_1.csv';
-[violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName);
+[violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz, hologramInfos8] = importData(velocityFileName, pressureFileName);
 eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 %% Green's functions matrix
@@ -24,7 +24,7 @@ platePoints = violinInfos{4};
 [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints);
 
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
-[G_p] = Green_matrix(hologramPoints , virtualPoints , eigenFreqzRad);
+[G_p] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(1)]);
 
 % [G_components] = Green_matrixComponents(hologramPoints , virtualPoints ,
 % eigenFreqzRad); NOT USEFUL - cancelliamo la funzione ?
@@ -33,7 +33,7 @@ platePoints = violinInfos{4};
 
 % choose the mode 
 
-mode = 5;
+mode = 1;
 
 omega = eigenFreqzRad(mode);
 
@@ -49,9 +49,10 @@ p_n = whiteNoise(p); % add white gaussian noise to the mesurement
 
 G_p_omega = G_p{mode}; % take the Green's function matrix of the chosen mode
 
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p_n , 10); % perform the TSVD -> estimate the source strength
+% TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
+q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 10); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p_n , 10);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -72,7 +73,7 @@ normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,
 normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
 
 % Calculate the derivative of the Green function along the normal direction
-[G_v] = normalGradient(virtualPoints, platePoints , eigenFreqzRad, normalPoints);
+[G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(1)], normalPoints);
 
 %% direct problem - reconstruction
 
@@ -113,5 +114,9 @@ subplot 133
 surf(X, Y, abs(surfVelRecTIK))
 title('Tik velocity')
 
-% to do per martedì: ricostruire la pressione
+%% to do per martedì: ricostruire la pressione
 
+recP = G_p_omega*q_TIK;
+surfRecP = reshape( recP , [8, 8]).'; 
+figure(6543)
+surf(hologramInfos8{1},hologramInfos8{2},abs(surfRecP))

@@ -1,4 +1,4 @@
-function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName)
+function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz, hologramInfos8] = importData(velocityFileName, pressureFileName)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,             %%%%%%%%%%%%
@@ -26,6 +26,7 @@ violinMesh = table2array(csvVel(:,1:3));
 hologramMesh = table2array(csvPress(:,1:3));
 
 %% Import eigenfrequencies 
+
     eigenFreqz = char(csvPress.Properties.VariableNames(4:end));
     eigenFreqzdouble = zeros(size(eigenFreqz(:,1)));
     eigenFreqz = eigenFreqz(:,3:end);
@@ -110,6 +111,7 @@ end
 
 for ii = 1:length(hologramInfos)
     hologramInfos{ii} = downsampling(hologramInfos{ii}, 8, 8);
+    hologramInfos8{ii} = hologramInfos{ii}; % to save downsampled x, y coordinates
 end
 
 % Show first frequency pressure field
