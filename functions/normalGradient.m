@@ -42,9 +42,9 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
             for jj = 1:length(platePoints(:, 1))   % for each surface point  
                 % calculation of the distance vector
                 
-                distX = virtualPoints(ii, 1) - platePoints(jj, 1);        
-                distY = virtualPoints(ii, 2) - platePoints(jj, 2); 
-                distZ = virtualPoints(ii, 3) - platePoints(jj, 3); 
+                distX =  virtualPoints(ii, 1) - platePoints(jj, 1);        
+                distY =  virtualPoints(ii, 2) - platePoints(jj, 2); 
+                distZ =  virtualPoints(ii, 3) - platePoints(jj, 3); 
                 
                 distVector = [distX, distY, distZ]; 
                 dist = sqrt(distVector(1)^2 + distVector(2)^2 + distVector(3)^2); % as L2 norm
@@ -52,7 +52,7 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
                 alpha = -(1i*k*dist + 1)/(dist^2);   % constant term from the derivative calculation
                 G = (1/4/pi) * exp(-1i*k*dist)/dist;    % actual Green's function   
                 
-                gradient = distVector(component)*alpha* G;   % gradient is analytically like this
+                gradient = distVector(component)*alpha*G;   % gradient is analytically like this
                 
                 if isnan(normalPoints(ii,component))   % multiply by zero if is a NaN
                     normalPoints(ii,component) = 0;

@@ -30,8 +30,6 @@ platePoints = violinInfos{4};
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
 [G_p] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(mode)]);
 
-% [G_components] = Green_matrixComponents(hologramPoints , virtualPoints ,
-% eigenFreqzRad); NOT USEFUL - cancelliamo la funzione ?
 
 %% Inverse problem
 
@@ -52,15 +50,15 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 G_p_omega(isnan(G_p_omega)) = 0; % this is different wrt to have zeros in violin plate's geometry and then in in virtual points
 
 % TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 64); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 40); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 10);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
 % Get the normal vectors on the plate surface
 
-gridX = length(unique(platePoints(:,1)));
+gridX = length(unique(platePoints(:, 1)));
 gridY = length(unique(platePoints(:, 2)));
 
 X =  reshape(platePoints(:,1), [gridY, gridX]).'; 
@@ -112,7 +110,7 @@ surfVelRecTIK( surfVelRecTIK == 0) = NaN;
 
 figure(600) 
 subplot 131
-surf(X,Y,abs(v_ex))
+surf(X, Y, abs(v_ex))
 title('Exact velocity')
 subplot 132
 surf(X, Y, abs(surfVelRecTSVD))
@@ -121,7 +119,7 @@ subplot 133
 surf(X, Y, abs(surfVelRecTIK))
 title('Tik velocity')
 
-%% to do per martedì: ricostruire la pressione
+%% reconstructed pressure
 
 recP = 1i*omega*rho*G_p_omega*q_TIK;
 surfRecP = reshape( recP , [8, 8]); 
