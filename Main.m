@@ -66,8 +66,10 @@ Y =  reshape(platePoints(:,2), [gridY, gridX]).';
 Z =  reshape(platePoints(:,3), [gridY, gridX]).';
 
 [nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals 
-                                 % for each point of the surface
-
+                                 % for each point of the surface.
+                                 % surfnorm(X',Y',Z') to invert the vector
+                                 % direction
+%quiver3(X,Y,Z,nx,ny,nz)        % to plot the normal vectors
 normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
 
 % normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
@@ -126,3 +128,4 @@ surfRecP = reshape( recP , [8, 8]);
 figure(6543)
 surf(hologramInfos8{1},hologramInfos8{2},abs(surfRecP))
 title('reconstructed pressure')
+
