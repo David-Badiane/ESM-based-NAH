@@ -51,9 +51,9 @@ G_p_omega(isnan(G_p_omega)) = 0; % this is different wrt to have zeros in violin
 
 % TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
 
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 40); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 64); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 1e-2);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIKr= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0.0000001);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 

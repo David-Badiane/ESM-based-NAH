@@ -17,11 +17,6 @@ function [x_rec] = Tikhonov_SVD(A , b, alpha)
 
 [U,D,V] = svd(A); % SVD decomposition
 
-%{
-svals = diag(D); % singular values of the matrix A
-D_alpha = svals./(svals.^2 + alpha*ones(size(svals)));
-D_alpha = diag(D_alpha);
-%}
 
 %{
 svals = diag(D); % singular values of the matrix A
@@ -29,7 +24,7 @@ D_alpha = zeros(size(D.')); % regularized D initialization
 for j = 1:size(svals) % regularized D
     D_alpha(j,j) = svals(j)/(svals(j)^2 + alpha);
 end
-x_rec = 
+x_rec =  V*D_alpha*U'*b;
 %}
 
 x_rec = V*((D'*D + alpha^2*eye(size(V)))\(D'*U'*b)); 
