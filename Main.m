@@ -53,7 +53,7 @@ G_p_omega(isnan(G_p_omega)) = 0; % this is different wrt to have zeros in violin
 
 q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 64); % perform the TSVD -> estimate the source strength
 
-q_TIKr= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0.0000001);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 0.0000001);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -87,7 +87,7 @@ G_v_omega(isnan(G_v_omega)) = 0;
 v_TSVD = G_v_omega*q_TSVD; 
 v_TIK = G_v_omega*q_TIK;
 
-%% error evalutation
+%% error evalutation - velocity 
 
 v_ex = velocityFields{mode}; % exact velocity IMPORTANT!!!!!!!! ASK THE UNITY OF MEASURE HERE BECAUSE THE VALUES ARE TOO SMALL
 
@@ -98,15 +98,15 @@ v_ex_vector = reshape( v_ex, [vel_size, 1]);
 v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
  
 
-NCC = (v_TSVD'*v_ex_vector)/(norm(v_ex_vector)*norm(v_TSVD));
-NMSE = 10*log10(norm(v_TSVD - v_ex_vector)^2/(norm(v_ex_vector)^2));
+NCC_v = (v_TSVD'*v_ex_vector)/(norm(v_ex_vector)*norm(v_TSVD));
+NMSE_v = 10*log10(norm(v_TSVD - v_ex_vector)^2/(norm(v_ex_vector)^2));
 
 %% L curve (Tikhonov)
 % the L curve computed with the reconstructed pressure
 
-range = [0, 1]; % range of value for the regularization parameter
+range = [0.000001, 100]; % range of value for the regularization parameter
 
-numberParameters = 3;
+numberParameters = 1e3;
 
 L_Curve(G_p_omega, p, range, numberParameters);
 
