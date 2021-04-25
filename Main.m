@@ -50,9 +50,10 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 G_p_omega(isnan(G_p_omega)) = 0; % this is different wrt to have zeros in violin plate's geometry and then in in virtual points
 
 % TO DO: REMEBER TO ADD THE NOISE INTO THE FOLLOWING
+
 q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p , 40); % perform the TSVD -> estimate the source strength
 
-q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 10);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK = (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p , 1e-2);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -71,8 +72,6 @@ Z =  reshape(platePoints(:,3), [gridY, gridX]).';
                                  % direction
 %quiver3(X,Y,Z,nx,ny,nz)        % to plot the normal vectors
 normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
-
-% normalPoints(isnan(normalPoints)) = 0; % surfnorm generates NaN and we need to eliminate such entries to perform the next operations
 
 % Calculate the derivative of the Green function along the normal direction
 [G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(mode)], normalPoints);
@@ -96,11 +95,20 @@ vel_size = numel(v_ex);
 
 v_ex_vector = reshape( v_ex, [vel_size, 1]);
 
-v_ex_vector(isnan(v_ex_vector))=0;
+v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
+ 
 
 NCC = (v_TSVD'*v_ex_vector)/(norm(v_ex_vector)*norm(v_TSVD));
 NMSE = 10*log10(norm(v_TSVD - v_ex_vector)^2/(norm(v_ex_vector)^2));
-% for the L curve we need to compute the reconstructed pressure
+
+%% L curve (Tikhonov)
+% the L curve computed with the reconstructed pressure
+
+range = [0, 1]; % range of value for the regularization parameter
+
+numberParameters = 3;
+
+L_Curve(G_p_omega, p, range, numberParameters);
 
 %% plot of the reconstruced velocity field vs. exact velocity field
 
@@ -121,7 +129,7 @@ subplot 133
 surf(X, Y, abs(surfVelRecTIK))
 title('Tik velocity')
 
-%% reconstructed pressure
+%% reconstructed pressure vs actual frequency
 
 recP = 1i*omega*rho*G_p_omega*q_TIK;
 surfRecP = reshape( recP , [8, 8]); 
@@ -129,3 +137,6 @@ figure(6543)
 surf(hologramInfos8{1},hologramInfos8{2},abs(surfRecP))
 title('reconstructed pressure')
 
+figure(6544)
+surf(hologramInfos8{1},hologramInfos8{2},abs(pressureFields{mode}))
+title('actual pressure')

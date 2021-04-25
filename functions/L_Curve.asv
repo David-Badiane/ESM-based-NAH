@@ -33,9 +33,6 @@ for j = 1:N                 %norms are all norm-2
     scatter(res_norm , seminorm) 
 end
 set(gca,'xscale','log','yscale','log')
-xlabel('|A xr - b|')
-ylabel('|xr|')
-
 grid on
 hold off
 end

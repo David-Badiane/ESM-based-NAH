@@ -134,10 +134,12 @@ for ii = 1:length(hologramInfos)
 end
 
 % Show first frequency pressure field
-
+%{
 figure(500)
 surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
 title('actual pressure')
+%}
+
 hologramMesh =  [reshape(hologramInfos{1}', [64, 1]),...
                  reshape(hologramInfos{2}', [64, 1]),...
                  reshape(hologramInfos{3}, [64, 1])];
