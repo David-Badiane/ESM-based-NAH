@@ -53,7 +53,7 @@ G_p_omega(isnan(G_p_omega)) = 0; % this is different wrt to have zeros in violin
 
 q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, p_n , 64); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p_n , 10);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , p_n , 0.0000001);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -126,13 +126,13 @@ surfVelRecTIK( surfVelRecTIK == 0) = NaN;
 
 figure(600) 
 subplot 131
-surf(X, Y, abs(v_ex)./max(abs(v_ex)))
+surf(X, Y, abs(v_ex))
 title('Exact velocity')
 subplot 132
-surf(X, Y, abs(surfVelRecTSVD)./max(abs(surfVelRecTSVD)))
+surf(X, Y, abs(surfVelRecTSVD))
 title('TSVD velocity')
 subplot 133
-surf(X, Y, abs(surfVelRecTIK)./max(abs(surfVelRecTIK)))
+surf(X, Y, abs(surfVelRecTIK))
 title('Tik velocity')
 
 %% plot of the reconstruced pressure field vs. exact pressure field

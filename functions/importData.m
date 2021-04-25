@@ -58,12 +58,12 @@ X =  reshape(violinMesh(:,1), [gridY, gridX]).';
 Y =  reshape(violinMesh(:,2), [gridY, gridX]).'; 
 Z =  reshape(violinMesh(:,3), [gridY, gridX]).';
 
-
+%{
 figure(1)
 surf(X,Y,Z);
 title('Violin surface');
 %zlim([0,100]);
-
+%}
 
 violinInfos = {X,Y,Z, violinMesh}; 
 %% Velocity Fields

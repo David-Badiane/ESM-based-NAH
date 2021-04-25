@@ -1,8 +1,8 @@
 function [NCC,NMSE] = errorEvaluation(x,xr)
 
 % normalize the input vector
-x = x./max(v);
-xr = xr./mar(xr);
+x = x./max(x);
+xr = xr./max(xr);
 
 % compute the normalized cross correlation
 NCC = (xr'*x)/(norm(x)*norm(xr));
