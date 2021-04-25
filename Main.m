@@ -97,9 +97,7 @@ v_ex_vector = reshape( v_ex, [vel_size, 1]);
 
 v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
  
-
-NCC_v = (v_TSVD'*v_ex_vector)/(norm(v_ex_vector)*norm(v_TSVD));
-NMSE_v = 10*log10(norm(v_TSVD - v_ex_vector)^2/(norm(v_ex_vector)^2));
+[NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK);
 
 %% L curve (Tikhonov)
 % the L curve computed with the reconstructed pressure
@@ -140,3 +138,7 @@ title('reconstructed pressure')
 figure(6544)
 surf(hologramInfos8{1},hologramInfos8{2},abs(pressureFields{mode}))
 title('actual pressure')
+
+%% error evaluation - pressure
+
+[NCCp , NMSEp] = errorEvaluation(p, recP);
