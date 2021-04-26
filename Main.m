@@ -16,7 +16,7 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 % choose the mode 
 
-mode = 5;
+for mode = 1:5;
 
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
@@ -54,9 +54,9 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 G_p_omega(isnan(G_p_omega)) = 0; 
 
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, measuredPressureN  , 64); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 64); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 1e-5);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 5);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -156,5 +156,5 @@ title('reconstructed pressure')
 figure(6544)
 surf(hologramInfos{1},hologramInfos{2},abs(pressureFields{mode}))
 title('actual pressure')
-
+end
 
