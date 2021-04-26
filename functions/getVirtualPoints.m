@@ -1,4 +1,4 @@
-function [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints)
+function [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, plotData)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION CALCULATES THE VIRTUAL POINTS GRID                       %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,12 +25,26 @@ function [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints)
     % The lattice is the minimum distance btw z positions of hologram and
     % equivalent sources. 
     %Since the array have different sizes, a for cycle is necessary
-    diff = zeros(length(virtualPoints(:,3)));
-    for ii = 1:length(virtualPoints(:,3))
-        diff(ii) = min(abs(hologramPoints(:, 3) - virtualPoints(ii, 3)));
-    end
-    lattice = min(diff(diff~=0));
+    x = unique(hologramPoints(:,1));
+    y = unique(hologramPoints(:,2));
+    diffX = min( abs(x - circshift(x,1)));
+    diffY = min(abs(y - circshift(y,1)));
+    lattice = min([diffX, diffY]);
     
     virtualPoints = virtualPoints - [0, 0, lattice];
+    
+    X =  reshape(virtualPoints(:,1), [16, 64]).'; 
+    Y =  reshape(virtualPoints(:,2), [16, 64]).'; 
+    Z =  reshape(virtualPoints(:,3), [16, 64]).';
+    
+    if plotData
+    figure()
+    surf(violinInfos{1},violinInfos{2},violinInfos{3});
+    title('Violin surface');
+    zlim([-100,100]);
+    hold on 
+    surf(X,Y,Z);
+    end
+    
 end
 

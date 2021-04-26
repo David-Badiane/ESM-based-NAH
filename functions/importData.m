@@ -1,4 +1,4 @@
-function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz, hologramInfos8] = importData(velocityFileName, pressureFileName)
+function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,             %%%%%%%%%%%%
@@ -89,16 +89,16 @@ title('Velocity field surface - f1');
 
 %% Reconstruct the hologram geometry
 
-gridX = length(unique(hologramMesh(:,1)));
-gridY = length(unique(hologramMesh(:,2)));
+gridX = length(unique(hologramMesh(:,1))); % useless?
+gridY = length(unique(hologramMesh(:,2))); % useless?
 
 % reshape into size (16*64) then transpose. because reshape orders the
 % vector by columns --> 
 % ex. try  reshape(1:10,[5,2])  what we actuallly want is  reshape(1:10,[2,5])'
 
-X =  reshape(hologramMesh(:,1), [gridY, gridX]).'; 
-Y =  reshape(hologramMesh(:,2), [gridY, gridX]).'; 
-Z =  reshape(hologramMesh(:,3), [gridY, gridX]).';
+X =  reshape(hologramMesh(:,1), [gridY, gridX]).'; % useless?
+Y =  reshape(hologramMesh(:,2), [gridY, gridX]).'; % useless?
+Z =  reshape(hologramMesh(:,3), [gridY, gridX]).';  % rename?
 
 %{
 figure(3)
@@ -106,31 +106,24 @@ surf(X,Y,Z);
 title('Hologram surface');
 %}
 
-hologramInfos = {X,Y,Z}; 
+hologramInfos = {X,Y,Z}; % rename Z ad Zh?
 %% Pressure Fields 
 
-numFreqBins = length(table2array(csvPress(1,:)))-3;
+numFreqBins = length(table2array(csvPress(1,:)))-3; % useless?
 pressMatrix = table2array( csvPress(:,4:numFreqBins+3) );
-
 pressureFields = cell(numFreqBins,1);
 
 for ii = 1:numFreqBins
     pressureFields{ii} = reshape(pressMatrix(:,ii), [gridY, gridX]).';   
 end
 
-%{
-figure(4) 
-surf(X,Y,abs(pressureFields{1}));
-title('Pressure field surface - f1');
-%}
-
 for ii = 1:length(pressureFields)
     pressureFields{ii} = downsampling(pressureFields{ii}, 8, 8);
 end
 
-for ii = 1:length(hologramInfos)
+for ii = 1:length(hologramInfos) % useful to plot the reconstructed pressure.
     hologramInfos{ii} = downsampling(hologramInfos{ii}, 8, 8);
-    hologramInfos8{ii} = hologramInfos{ii}; % to save downsampled x, y coordinates
+    
 end
 
 % Show first frequency pressure field
@@ -144,7 +137,7 @@ hologramMesh =  [reshape(hologramInfos{1}', [64, 1]),...
                  reshape(hologramInfos{2}', [64, 1]),...
                  reshape(hologramInfos{3}, [64, 1])];
              
-hologramInfos = {X,Y,Z,hologramMesh};
+hologramInfos = {hologramInfos{1},hologramInfos{2},hologramInfos{3},hologramMesh};
 
 
 end

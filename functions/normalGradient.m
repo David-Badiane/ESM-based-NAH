@@ -29,10 +29,6 @@ G_v = cell(length(omega),1);
 % preallocate temporary matrix
 G_w = zeros(length(virtualPoints(:, 1)), length(platePoints(:, 1)));  %Green's function init
 
-%conversion from [mm] to [m]
-virtualPoints = virtualPoints*0.001;
-platePoints = platePoints*0.001;
-
 
 for component = 1:length(normalGradientComponents)   % for each component (x,y,z)
     for kk = 1:length(omega)            % for each eigenfrequency

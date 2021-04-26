@@ -26,7 +26,7 @@ for j = 1:k % truncate D (TSVD)
     D_k(j,j) = 1/svals(j);
 end
 
-x_rec = V*D_k*U.'*b; 
+x_rec = V*D_k*U'*b; 
 
 end
 
