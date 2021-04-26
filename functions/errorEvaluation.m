@@ -1,5 +1,8 @@
 function [NCC,NMSE] = errorEvaluation(x,xr)
 
+x = abs(x);
+xr = abs(xr);
+
 % normalize the input vector
 x = x./max(x);
 xr = xr./max(xr);
