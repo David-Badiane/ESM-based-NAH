@@ -16,7 +16,7 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 % choose the mode 
 
-for mode = 1:5;
+for mode = 1:5
 
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
@@ -54,7 +54,7 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 G_p_omega(isnan(G_p_omega)) = 0; 
 
-q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 64); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 10); % perform the TSVD -> estimate the source strength
 
 q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 5);  % perform the Tikhonov SVD -> estimate the source strength
 
@@ -119,11 +119,11 @@ p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
 %% L curve (Tikhonov)
 % the L curve computed with the reconstructed pressure
 
-range = [1e-10, 1e-3]; % range of value for the regularization parameter
+range = [1e-10, 1e2]; % range of value for the regularization parameter
 
-numberParameters = 1e2;
+numberParameters = 2e2;
 
-%L_Curve(G_p_omega, measuredPressureN , range, numberParameters);
+% L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
 
 %% plot of the reconstruced velocity field vs. exact velocity field
 

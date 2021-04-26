@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = L_Curve(A, b, range, N)
+function [outputArg1,outputArg2] = L_Curve(A, b, range, N, rho, omega)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION PLOTS THE L-CURVE. USEFUL TO CHOOSE THE    %%%%%%%
@@ -27,14 +27,14 @@ hold on
 
 for j = 1:N                 %norms are all norm-2
     alpha = alpha_array(j); %current regularization parameter
-    [x_rec] = Tikhonov_SVD(A , b, alpha);
+    [x_rec] = (1i*rho*omega)*Tikhonov_SVD(A , b, alpha);
     seminorm = norm(x_rec); % seminorm of the regularized solution
     res_norm = norm(A*x_rec - b); % norm the residual
-    scatter(res_norm , seminorm) 
+    scatter(res_norm , seminorm); 
 end
 set(gca,'xscale','log','yscale','log')
-xlabel('|A xr - b|')
-ylabel('|xr|')
+xlabel('||A xr - b||_2')
+ylabel('||xr||_2')
 
 grid on
 hold off

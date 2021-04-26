@@ -16,7 +16,7 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 % choose the mode 
 
-mode = 1;
+for mode = 1:5
 
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
@@ -54,9 +54,9 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 G_p_omega(isnan(G_p_omega)) = 0; 
 
-q_TSVD = (1/1i*omega*rho).*TSVD(G_p_omega, measuredPressureN  , 64); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 10); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/1i*omega*rho).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 0.00001);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 5);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -68,6 +68,11 @@ gridY = length(unique(platePoints(:, 2)));
 X =  violinInfos{1}; 
 Y =  violinInfos{2}; 
 Z =  violinInfos{3}; 
+
+X =  X*0.001; 
+Y =  Y*0.001; 
+Z =  Z*0.001; 
+
 Z(isnan(Z)) = 0;
 
 [nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals 
@@ -105,20 +110,24 @@ v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, p
  
 [NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK);
 
+
+
 %% error evaluation - pressure
 
 p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
 
 [NCCp , NMSEp] = errorEvaluation(measuredPressure, p_TIK);
 
-%% L curve (Tikhonov)
+%% L curve (Tikhonov) or similar 
 % the L curve computed with the reconstructed pressure
 
-range = [0.000001, 10]; % range of value for the regularization parameter
+range = [1e-10, 1e2]; % range of value for the regularization parameter
 
-numberParameters = 1e3;
+numberParameters = 2e2;
 
-L_Curve(G_p_omega, measuredPressureN , range, numberParameters);
+% L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
+
+plotError(v_ex_vector, v_TIK, range, numberParameters);
 
 %% plot of the reconstruced velocity field vs. exact velocity field
 
@@ -151,5 +160,5 @@ title('reconstructed pressure')
 figure(6544)
 surf(hologramInfos{1},hologramInfos{2},abs(pressureFields{mode}))
 title('actual pressure')
-
+end
 
