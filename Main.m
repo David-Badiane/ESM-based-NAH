@@ -19,14 +19,10 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 mode = 2;
 
 %conversion from [mm] to [m]
-hologramInfos{1} = hologramInfos{1}*0.001;
-hologramInfos{2} = hologramInfos{2}*0.001;
-hologramInfos{3} = hologramInfos{3}*0.001;
-hologramInfos{4} = hologramInfos{4}*0.001;
-violinInfos{1} = violinInfos{1}*0.001;
-violinInfos{2} = violinInfos{2}*0.001;
-violinInfos{3} = violinInfos{3}*0.001;
-violinInfos{4} = violinInfos{4}*0.001;
+for ii =1:4
+hologramInfos{ii} = hologramInfos{ii}*0.001;
+violinInfos{ii} = violinInfos{ii}*0.001;
+end
 
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
@@ -59,7 +55,7 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 G_p_omega(isnan(G_p_omega)) = 0; 
 
-q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 60); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 49); % perform the TSVD -> estimate the source strength
 
 q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 1);  % perform the Tikhonov SVD -> estimate the source strength
 
@@ -123,14 +119,15 @@ p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
 %% L curve (Tikhonov) or similar 
 % the L curve computed with the reconstructed pressure
 
-range = [1e-5, 2]; % range of value for the regularization parameter
-
-numberParameters = 2e2;
-
+rangeTIK = [1e-5,1e2 ]; % range of value for the regularization parameter
+rangeTSVD = [1,64 ]; % range of value for the regularization parameter
+numParamsTIK = 2e2;
+numParamsTSVD = 64;
 % L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
 % plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, range, numberParameters, omega, rho);
 
-plotErrorPressure(measuredPressure, G_p_omega , measuredPressureN , omega , rho , range , numberParameters  )
+%[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressureN , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
+
 %% plot of the reconstruced velocity field vs. exact velocity field
 
 surfVelRecTSVD = reshape( v_TSVD , [gridY, gridX]).'; 
