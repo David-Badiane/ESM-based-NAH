@@ -14,7 +14,7 @@ for j = 1:numParamsTIK                 %norms are all norm-2
     
     normV = norm(v_ex_vector ,2);    
     nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
-    nccTIK(j)   = abs((v_TIK'*v_ex_vector) / (norm(v_TIK,2)*normV));    
+    nccTIK(j)   = abs(v_TIK'*v_ex_vector) / (norm(v_TIK,2)*normV);    
 end
 
 
@@ -25,7 +25,7 @@ for j = 1:numParamsTSVD
     
     normV = norm(v_ex_vector ,2);
     nmseTSVD(j) = 10*log(norm(v_TSVD - v_ex_vector)^2 / (normV^2));
-    nccTSVD(j)  = abs(v_TSVD'*v_ex_vector) / (norm(v_TSVD,2)* normV);
+    nccTSVD(j)  = (v_TSVD'*v_ex_vector) / (norm(v_TSVD,2)* normV);
 end
 
 errors = {nmseTIK, nccTIK, nmseTSVD, nccTSVD};

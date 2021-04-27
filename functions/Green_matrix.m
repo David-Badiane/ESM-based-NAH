@@ -1,4 +1,4 @@
-function [G] = Green_matrix(hologramPoints , virtualPoints, omega)
+function [G, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints, omega)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
