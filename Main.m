@@ -16,7 +16,7 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 % choose the mode 
 
-mode = 2;
+mode = 30;
 
 %conversion from [mm] to [m]
 for ii =1:4
@@ -52,7 +52,7 @@ measuredPressureN = whiteNoise(measuredPressure, 20); % add white gaussian noise
 
 G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
-q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 60); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 6); % perform the TSVD -> estimate the source strength
 
 q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 7.035);  % perform the Tikhonov SVD -> estimate the source strength
 
@@ -85,8 +85,6 @@ normalPoints = [reshape(nx', [1024,1]), reshape(ny', [1024,1]), reshape(nz', [10
 % Green's matrices of the plate surface - equivalent sources in a cell array (for each eigenfrequency)
 G_v_omega = G_v{1}; % Green's function (equivalent points - surface) for the mode
 
-G_v_omega(isnan(G_v_omega)) = 0; % NaN points in Green's function can't be be used for reconstruction
-
 v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
 
 v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
@@ -100,7 +98,6 @@ vel_size = numel(v_ex);
 v_ex_vector = reshape( v_ex.', [vel_size, 1]);
 
 v_ex_vector(deleteIndexesVirt) = [];
-% v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
  
 [NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK);
 
@@ -118,7 +115,7 @@ rangeTIK = [1e-5,1e2 ]; % range of value for the regularization parameter
 rangeTSVD = [1,64 ]; % range of value for the regularization parameter
 numParamsTIK = 2e2;
 numParamsTSVD = 64;
-% L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
+% L_Curve(G_p_omega, measuredPressure , rangeTIK , numParamsTIK, rho, omega);
 [velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt);
 
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );

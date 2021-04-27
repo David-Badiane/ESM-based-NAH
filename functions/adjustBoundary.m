@@ -1,7 +1,8 @@
 %function [outputArg1,outputArg2] = adjustBoundary(violinInfos, plotData)
 %ADJUSTBOUNDARY Summary of this function goes here
 %   Detailed explanation goes here
-violinPoints = violinInfos{4}*0.001;
+plotData = true;
+violinPoints = violinInfos{4};
 index  = find(isnan(violinPoints(:,3)));
 
 violinPoints(index,:) = [];
