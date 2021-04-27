@@ -92,7 +92,7 @@ normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,
 
 G_v_omega = G_v{1}; % Green's function (equivalent points - surface) for the mode
 
-%G_v_omega(isnan(G_v_omega)) = 0; % NaN points in Green's function can't be be used for reconstruction
+G_v_omega(isnan(G_v_omega)) = 0; % NaN points in Green's function can't be be used for reconstruction
 
 v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
 
