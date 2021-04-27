@@ -1,6 +1,7 @@
 function [NCC,NMSE] = errorEvaluation(x,xr)
 
 x = abs(x);
+x(isnan(x)) = [];
 xr = abs(xr);
 
 % normalize the input vector

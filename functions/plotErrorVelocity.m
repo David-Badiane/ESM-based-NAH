@@ -1,6 +1,6 @@
 function [velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho)
 
-
+v_ex_vector(isnan(v_ex_vector)) = [];
 alphaTIK  = linspace(rangeTIK(1), rangeTIK(2), numParamsTIK);
 alphaTSVD = round(linspace(rangeTSVD(1), rangeTSVD(2), numParamsTSVD));
 
@@ -9,10 +9,10 @@ nccTIK  = zeros(1, numParamsTIK);
 nmseTSVD = zeros(1, numParamsTSVD);
 nccTSVD = zeros(1, numParamsTSVD);
 
-
 for j = 1:numParamsTIK                 %norms are all norm-2
     q_TIK = (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , alphaTIK(j)); % reconstructed source streght
-    v_TIK = G_v_omega*q_TIK;     
+    v_TIK = G_v_omega*q_TIK; 
+    v_TIK = abs(v_TIK)/max(abs(v_TIK));
     normV = norm(v_ex_vector ,2);    
     nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
     nccTIK(j)   = (v_TIK'*v_ex_vector) / (norm(v_TIK,2)*normV);    
@@ -22,6 +22,8 @@ end
 for j = 1:numParamsTSVD
     q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , alphaTSVD(j)); 
     v_TSVD = G_v_omega*q_TSVD;   
+    v_TSVD = abs(v_TSVD);
+    
     normV = norm(v_ex_vector ,2);
     nmseTSVD(j) = 10*log(norm(v_TSVD - v_ex_vector)^2 / (normV^2));
     nccTSVD(j)  = (v_TSVD'*v_ex_vector) / (norm(v_TSVD,2)* normV);

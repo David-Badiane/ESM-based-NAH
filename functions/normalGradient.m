@@ -25,6 +25,13 @@ Gz = cell(length(omega),1);
 
 normalGradientComponents = {Gx,Gy,Gz};
 
+deleteIndexesVirt = find(isnan(virtualPoints(:,3)));
+virtualPoints(deleteIndexesVirt,:) = [];
+
+deleteIndexesPlate = find(isnan(platePoints(:,3)));
+platePoints(deleteIndexesVirt,:) = [];
+
+
 G_v = cell(length(omega),1);
 % preallocate temporary matrix
 G_w = zeros(length(virtualPoints(:, 1)), length(platePoints(:, 1)));  %Green's function init
