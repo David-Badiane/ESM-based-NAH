@@ -44,10 +44,9 @@ omega = eigenFreqzRad(mode);
 rho = 1.2; % [Kg/m3] air density 
 
 % measurements of pressure vector
-
 measuredPressure = pressureFields{mode};
 meshSize = numel(measuredPressure);
-measuredPressure = reshape(abs(measuredPressure) , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
+measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
 
 measuredPressureN = whiteNoise(measuredPressure, 20); % add white gaussian noise to the mesurement
 
@@ -55,7 +54,7 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 60); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 6.53);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 7.035);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
