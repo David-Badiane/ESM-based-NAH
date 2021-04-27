@@ -31,7 +31,7 @@ hologramPoints = hologramInfos{4};
 platePoints = violinInfos{4};
 
 % Virtual sources points
-[virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, true); % to change: here HologramPOints are not used
+[virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, true); 
 
 
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
