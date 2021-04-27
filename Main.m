@@ -124,7 +124,7 @@ rangeTSVD = [1,64 ]; % range of value for the regularization parameter
 numParamsTIK = 2e2;
 numParamsTSVD = 64;
 % L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
-% plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, range, numberParameters, omega, rho);
+ [velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho)
 
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressureN , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
 
