@@ -18,6 +18,16 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 mode = 2;
 
+%conversion from [mm] to [m]
+hologramInfos{1} = hologramInfos{1}*0.001;
+hologramInfos{2} = hologramInfos{2}*0.001;
+hologramInfos{3} = hologramInfos{3}*0.001;
+hologramInfos{4} = hologramInfos{4}*0.001;
+violinInfos{1} = violinInfos{1}*0.001;
+violinInfos{2} = violinInfos{2}*0.001;
+violinInfos{3} = violinInfos{3}*0.001;
+violinInfos{4} = violinInfos{4}*0.001;
+
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
 
@@ -26,11 +36,6 @@ platePoints = violinInfos{4};
 
 % Virtual sources points
 [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, true); % to change: here HologramPOints are not used
-
-%conversion from [mm] to [m]
-hologramPoints = hologramPoints*0.001;
-virtualPoints = virtualPoints*0.001;
-platePoints = platePoints*0.001;
 
 
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
@@ -54,9 +59,9 @@ G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 G_p_omega(isnan(G_p_omega)) = 0; 
 
-q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 10); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 60); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 5);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 1);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -68,10 +73,6 @@ gridY = length(unique(platePoints(:, 2)));
 X =  violinInfos{1}; 
 Y =  violinInfos{2}; 
 Z =  violinInfos{3}; 
-
-X =  X*0.001; 
-Y =  Y*0.001; 
-Z =  Z*0.001; 
 
 Z(isnan(Z)) = 0;
 

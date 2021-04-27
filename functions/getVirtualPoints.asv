@@ -42,8 +42,7 @@ function [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints,
     title('Violin surface');
     zlim([-0.1, 0.1]);
     xlabel('[m]')
-    ylabel('[m]')
-    zlabel('[m]')
+    ylabel('')
     hold on 
     surf(X,Y,Z);
     end

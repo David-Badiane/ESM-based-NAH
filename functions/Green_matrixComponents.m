@@ -28,10 +28,6 @@ G = {Gx,Gy,Gz};
 % preallocate temporary matrix
 G_w = zeros(length(hologramPoints(:, 1)), length(virtualPoints(:, 1)));  %Green's function init
 
-%conversion from [mm] to [m]
-hologramPoints = hologramPoints*0.001;
-virtualPoints = virtualPoints*0.001;
-
 
 for component = 1:length(G)
     for kk = 1:length(omega)
