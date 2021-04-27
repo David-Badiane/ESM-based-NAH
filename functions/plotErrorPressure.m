@@ -57,6 +57,7 @@ for ii = 1:length(errors)
     stem(alphaVectors{alphaIndex}(loc), val);
     xlabel(namesAlpha{alphaIndex});
     ylabel(names{ii});
+    desiredAlpha(ii,1) = alphaVectors{alphaIndex}(loc);
 end   
 
 pressureErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, nmseTSVD, names{4}, nccTSVD);

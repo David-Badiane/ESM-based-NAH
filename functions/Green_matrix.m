@@ -17,6 +17,8 @@ function [G] = Green_matrix(hologramPoints , virtualPoints, omega)
 %%% G = Green's matrices (cell array)  for each omega                      %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+deleteIndexesVirt = find(isnan(virtualPoints(:,3)));
+virtualPoints(deleteIndexesVirt,:) = [];
 
 c = 343; % [m/s] speed of sound
 

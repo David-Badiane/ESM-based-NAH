@@ -16,7 +16,7 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 % choose the mode 
 
-mode = 2;
+mode = 5;
 
 %conversion from [mm] to [m]
 for ii =1:4
@@ -49,15 +49,15 @@ measuredPressure = pressureFields{mode};
 meshSize = numel(measuredPressure);
 measuredPressure = reshape(abs(measuredPressure) , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
 
-measuredPressureN = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
+measuredPressureN = whiteNoise(measuredPressure, 20); % add white gaussian noise to the mesurement
 
 G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
 G_p_omega(isnan(G_p_omega)) = 0; 
 
-q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , 49); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 60); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , 1);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 0.58);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -86,7 +86,6 @@ normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,
 %% direct problem - reconstruction
 
 % Green's matrices of the plate surface - equivalent sources in a cell array (for each eigenfrequency)
-
 G_v_omega = G_v{1}; % Green's function (equivalent points - surface) for the mode
 
 G_v_omega(isnan(G_v_omega)) = 0; % NaN points in Green's function can't be be used for reconstruction
@@ -103,11 +102,9 @@ vel_size = numel(v_ex);
 
 v_ex_vector = reshape( v_ex, [vel_size, 1]);
 
-v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
+% v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
  
 [NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK);
-
-
 
 %% error evaluation - pressure
 
@@ -124,27 +121,29 @@ rangeTSVD = [1,64 ]; % range of value for the regularization parameter
 numParamsTIK = 2e2;
 numParamsTSVD = 64;
 % L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
-% plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, range, numberParameters, omega, rho);
+[velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho);
 
-%[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressureN , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
+%[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
 
 %% plot of the reconstruced velocity field vs. exact velocity field
+v_TSVD_Fin = addNans(virtualPoints, v_TSVD);
+v_TIK_Fin = addNans(virtualPoints, v_TIK);
 
-surfVelRecTSVD = reshape( v_TSVD , [gridY, gridX]).'; 
-surfVelRecTIK = reshape( v_TIK , [gridY, gridX]).'; 
+surfVelRecTSVD = reshape( v_TSVD_Fin , [gridY, gridX]).'; 
+surfVelRecTIK = reshape( v_TIK_Fin , [gridY, gridX]).'; 
 
 surfVelRecTSVD( surfVelRecTSVD == 0) = NaN; % apply a mask on the reconstructed velocity
 surfVelRecTIK( surfVelRecTIK == 0) = NaN;
 
 figure(600) 
 subplot 131
-surf(X, Y, abs(v_ex)./max(abs(v_ex)))
+surf(X, Y, abs(v_ex))
 title('Exact velocity')
 subplot 132
-surf(X, Y, abs(surfVelRecTSVD)./max(abs(surfVelRecTSVD)))
+surf(X, Y, abs(surfVelRecTSVD))
 title('TSVD velocity')
 subplot 133
-surf(X, Y, abs(surfVelRecTIK)./max(abs(surfVelRecTIK)))
+surf(X, Y, abs(surfVelRecTIK))
 title('Tik velocity')
 
 %% plot of the reconstruced pressure field vs. exact pressure field

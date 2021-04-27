@@ -1,32 +1,69 @@
-function [outputArg1,outputArg2] = plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, range, numberParameters, omega, rho)
+function [velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressureN, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho)
 
-min = range(1); % the lowest regularization parameter
-max = range(2); % the highest regularization parameter
+v_ex_vector(isnan(v_ex_vector)) = [];
+alphaTIK  = linspace(rangeTIK(1), rangeTIK(2), numParamsTIK);
+alphaTSVD = round(linspace(rangeTSVD(1), rangeTSVD(2), numParamsTSVD));
 
-alpha_array = linspace(min, max, numberParameters);
-NCC_array = zeros(1, length(alpha_array));
-NMSE_array = zeros(1, length(alpha_array));
+nmseTIK  = zeros(1, numParamsTIK);
+nccTIK  = zeros(1, numParamsTIK);
+nmseTSVD = zeros(1, numParamsTSVD);
+nccTSVD = zeros(1, numParamsTSVD);
 
-for j = 1:numberParameters                 %norms are all norm-2
-    alpha = alpha_array(j); %current regularization parameter
-    q_TIK = (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , alpha); % reconstructed source streght
-    v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
-%     v_ex_vector(v_ex_vector==0) = [];
-%     v_TIK(v_TIK==0)=[];
-%     v_TIK(1) = [];
-    [NCC , NMSE] = errorEvaluation(v_ex_vector, v_TIK);
-    NCC_array(j) = NCC;
-    NMSE_array(j) = NMSE;
+for j = 1:numParamsTIK                 %norms are all norm-2
+    q_TIK = (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , alphaTIK(j)); % reconstructed source streght
+    v_TIK = G_v_omega*q_TIK; 
+    v_TIK = abs(v_TIK)/max(abs(v_TIK));
+    normV = norm(v_ex_vector ,2);    
+    nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
+    nccTIK(j)   = (v_TIK'*v_ex_vector) / (norm(v_TIK,2)*normV);    
 end
 
-figure(111) %NCC 
-plot(alpha_array, NCC_array)
-hold on
-plot(alpha_array, NMSE_array)
-hold off
-legend('NCC' , 'NMSE')
-xlabel('alpha')
-ylabel('NCC')
+
+for j = 1:numParamsTSVD
+    q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , alphaTSVD(j)); 
+    v_TSVD = G_v_omega*q_TSVD;   
+    v_TSVD = abs(v_TSVD);
+    
+    normV = norm(v_ex_vector ,2);
+    nmseTSVD(j) = 10*log(norm(v_TSVD - v_ex_vector)^2 / (normV^2));
+    nccTSVD(j)  = (v_TSVD'*v_ex_vector) / (norm(v_TSVD,2)* normV);
+end
+
+errors = {nmseTIK, nccTIK, nmseTSVD, nccTSVD};
+alphaVectors = {alphaTIK; alphaTSVD};
+
+desiredAlpha = zeros(4,2);
+names = {'nmseTIK' 'nccTIK' 'nmseTSVD' 'nccTSVD'};
+namesAlpha = {'alphaTIK' 'alphaTSVD' };
+
+for ii = 1:length(errors)
+    discriminator = mod(ii,2);
+    if discriminator == 1
+      [val, loc] =  min( errors{ii});   % NMSE    
+    else
+      [val, loc] =  max( errors{ii});   %NCC
+    end
+    desiredAlpha(ii,:) = [val,loc];
+    
+    figure(661)
+    
+    if ii == 1 || ii == 2
+        alphaIndex = 1;
+    else 
+        alphaIndex = 2;
+    end
+    
+    subplot (2,2, ii)
+    plot(alphaVectors{alphaIndex}, errors{ii});
+    hold on
+    stem(alphaVectors{alphaIndex}(loc), val);
+    xlabel(namesAlpha{alphaIndex});
+    ylabel(names{ii});
+    desiredAlpha(ii,1) = alphaVectors{alphaIndex}(loc);
+end   
+
+velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, nmseTSVD, names{4}, nccTSVD);
+desiredAlpha = desiredAlpha(:,1);
 
 end
 
