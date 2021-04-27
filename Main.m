@@ -25,7 +25,7 @@ hologramPoints = hologramInfos{4};
 platePoints = violinInfos{4};
 
 % Virtual sources points
-[virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, false); % to change: here HologramPOints are not used
+[virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, true); % to change: here HologramPOints are not used
 
 %conversion from [mm] to [m]
 hologramPoints = hologramPoints*0.001;

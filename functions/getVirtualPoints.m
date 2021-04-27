@@ -24,12 +24,12 @@ function [virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints,
 
     % The lattice is the minimum distance btw z positions of hologram and
     % equivalent sources. 
-    %Since the array have different sizes, a for cycle is necessary
     x = unique(hologramPoints(:,1));
     y = unique(hologramPoints(:,2));
     diffX = min( abs(x - circshift(x,1)));
     diffY = min(abs(y - circshift(y,1)));
     lattice = min([diffX, diffY]);
+    lattice = lattice * 0.001;
     
     virtualPoints = virtualPoints - [0, 0, lattice];
     
