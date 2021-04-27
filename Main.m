@@ -16,7 +16,7 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 % choose the mode 
 
-mode = 5;
+mode = 2;
 
 %conversion from [mm] to [m]
 for ii =1:4
@@ -35,7 +35,7 @@ platePoints = violinInfos{4};
 
 
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
-[G_p] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(mode)]);
+[G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(mode)]);
 
 %% Inverse problem
 
@@ -53,11 +53,9 @@ measuredPressureN = whiteNoise(measuredPressure, 20); % add white gaussian noise
 
 G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
-G_p_omega(isnan(G_p_omega)) = 0; 
-
 q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 60); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 0.58);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 6.53);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -70,7 +68,7 @@ X =  violinInfos{1};
 Y =  violinInfos{2}; 
 Z =  violinInfos{3}; 
 
-Z(isnan(Z)) = 0;
+Z(isnan(Z)) = 0; % for boundaries normal vector
 
 [nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals 
                                  % for each point of the surface.
@@ -78,7 +76,7 @@ Z(isnan(Z)) = 0;
                                  % direction
 %quiver3(X,Y,Z,nx,ny,nz)         % to plot the normal vectors
 
-normalPoints = [reshape(nx, [1024,1]), reshape(ny, [1024,1]), reshape(nz, [1024,1]) ];
+normalPoints = [reshape(nx', [1024,1]), reshape(ny', [1024,1]), reshape(nz', [1024,1]) ];
 
 % Calculate the derivative of the Green function along the normal direction
 [G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(mode)], normalPoints);
@@ -100,8 +98,9 @@ v_ex = velocityFields{mode};
 
 vel_size = numel(v_ex);
 
-v_ex_vector = reshape( v_ex, [vel_size, 1]);
+v_ex_vector = reshape( v_ex.', [vel_size, 1]);
 
+v_ex_vector(deleteIndexesVirt) = [];
 % v_ex_vector(isnan(v_ex_vector))=0; %this may cause the metrics to be very low, probably we must delete the NaN from the vector instead
  
 [NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK);
@@ -121,23 +120,22 @@ rangeTSVD = [1,64 ]; % range of value for the regularization parameter
 numParamsTIK = 2e2;
 numParamsTSVD = 64;
 % L_Curve(G_p_omega, measuredPressureN , range, numberParameters, rho, omega);
-[velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho);
+[velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt);
 
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
 
 %% plot of the reconstruced velocity field vs. exact velocity field
 v_TSVD_Fin = addNans(virtualPoints, v_TSVD);
 v_TIK_Fin = addNans(virtualPoints, v_TIK);
+v_ex_Fin = addNans(virtualPoints, v_ex_vector);
 
 surfVelRecTSVD = reshape( v_TSVD_Fin , [gridY, gridX]).'; 
 surfVelRecTIK = reshape( v_TIK_Fin , [gridY, gridX]).'; 
-
-surfVelRecTSVD( surfVelRecTSVD == 0) = NaN; % apply a mask on the reconstructed velocity
-surfVelRecTIK( surfVelRecTIK == 0) = NaN;
+surfVel = reshape( v_ex_Fin , [gridY, gridX]).';
 
 figure(600) 
 subplot 131
-surf(X, Y, abs(v_ex))
+surf(X, Y, abs(surfVel))
 title('Exact velocity')
 subplot 132
 surf(X, Y, abs(surfVelRecTSVD))

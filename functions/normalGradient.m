@@ -29,8 +29,9 @@ deleteIndexesVirt = find(isnan(virtualPoints(:,3)));
 virtualPoints(deleteIndexesVirt,:) = [];
 
 deleteIndexesPlate = find(isnan(platePoints(:,3)));
-platePoints(deleteIndexesVirt,:) = [];
+platePoints(deleteIndexesPlate,:) = [];
 
+normalPoints(deleteIndexesPlate, :) = [];
 
 G_v = cell(length(omega),1);
 % preallocate temporary matrix
@@ -56,11 +57,7 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
                 G = (1/4/pi) * exp(-1i*k*dist)/dist;    % actual Green's function   
                 
                 gradient = distVector(component)*alpha*G;   % gradient is analytically like this
-                
-                if isnan(normalPoints(ii,component))   % multiply by zero if is a NaN
-                    normalPoints(ii,component) = 0;
-                end
-                
+                                
                 G_w(ii,jj) = gradient *normalPoints(jj,component);  % scalar product with normal vector component
             end   
         end
