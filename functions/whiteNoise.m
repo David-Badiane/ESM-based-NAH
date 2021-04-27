@@ -1,4 +1,4 @@
-function [out] = whiteNoise(in)
+function [out] = whiteNoise(in, SNR)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION ADDS WHITE GAUSSIAN NOISE TO THE VECTOR IN %%%%%%%
@@ -8,7 +8,7 @@ function [out] = whiteNoise(in)
 %%% ATTENTION: COMUNICATION TOOLBOX IN NEEDED                %%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-snr = 20; % [dB] Signal to Noise ratio
+snr = SNR; % [dB] Signal to Noise ratio
 
 out = awgn( in , snr, 'measured');
 
