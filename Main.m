@@ -123,7 +123,7 @@ p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
 %% L curve (Tikhonov) or similar 
 % the L curve computed with the reconstructed pressure
 
-range = [1e-5, 2]; % range of value for the regularization parameter
+range = [1e-5, 10]; % range of value for the regularization parameter
 
 numberParameters = 2e2;
 
