@@ -12,17 +12,26 @@ pressureFileName = 'acpr_1.csv';
 [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName);
 eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
-%% Green's functions matrix
-
-% choose the mode 
-
-mode = 30;
-
-%conversion from [mm] to [m]
 for ii =1:4
 hologramInfos{ii} = hologramInfos{ii}*0.001;
 violinInfos{ii} = violinInfos{ii}*0.001;
 end
+
+%% Green's functions matrix
+
+% choose the mode 
+nModes = 2;
+alphas = zeros(8,nModes);
+rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
+freqzNames = cell(nModes,1);
+
+for ii = 1:nModes
+    freqzNames{ii} = ['f', int2str(ii)];
+end
+
+for mode = 1:nModes
+%conversion from [mm] to [m]
+
 
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
@@ -31,8 +40,7 @@ hologramPoints = hologramInfos{4};
 platePoints = violinInfos{4};
 
 % Virtual sources points
-[virtualPoints, lattice] = getVirtualPoints(violinInfos,hologramPoints, true); 
-
+[virtualPoints, lattice, deleteIndexes] = getVirtualPoints(violinInfos,hologramPoints, true); 
 
 % Green's matrices of the hologram-equivalent sources in a cell array (for each eigenfrequency)
 [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(mode)]);
@@ -48,13 +56,13 @@ measuredPressure = pressureFields{mode};
 meshSize = numel(measuredPressure);
 measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
 
-measuredPressureN = whiteNoise(measuredPressure, 20); % add white gaussian noise to the mesurement
+measuredPressureN = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
 
 G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
 
-q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 6); % perform the TSVD -> estimate the source strength
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  , 1); % perform the TSVD -> estimate the source strength
 
-q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 7.035);  % perform the Tikhonov SVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 0.5);  % perform the Tikhonov SVD -> estimate the source strength
 
 %% direct problem - green function computation
 
@@ -85,9 +93,9 @@ normalPoints = [reshape(nx', [1024,1]), reshape(ny', [1024,1]), reshape(nz', [10
 % Green's matrices of the plate surface - equivalent sources in a cell array (for each eigenfrequency)
 G_v_omega = G_v{1}; % Green's function (equivalent points - surface) for the mode
 
-v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
+v_TSVD = G_v_omega.'*q_TSVD; % reconstructed velocity with truncated SVD
 
-v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
+v_TIK = G_v_omega.'*q_TIK; % reconstructed velocity with Tikhonov
 
 %% error evalutation - velocity 
 
@@ -96,10 +104,8 @@ v_ex = velocityFields{mode};
 vel_size = numel(v_ex);
 
 v_ex_vector = reshape( v_ex.', [vel_size, 1]);
-
-v_ex_vector(deleteIndexesVirt) = [];
- 
-[NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK);
+v_ex_vector(deleteIndexes,:) = [];
+%[NCCv , NMSEv] = errorEvaluation(v_ex_vector, v_TIK.');
 
 %% error evaluation - pressure
 
@@ -111,19 +117,28 @@ p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
 %% L curve (Tikhonov) or similar 
 % the L curve computed with the reconstructed pressure
 
-rangeTIK = [1e-5,1e2 ]; % range of value for the regularization parameter
+rangeTIK = [1e-5,100]; % range of value for the regularization parameter
 rangeTSVD = [1,64 ]; % range of value for the regularization parameter
-numParamsTIK = 2e2;
+numParamsTIK = 1e2;
 numParamsTSVD = 64;
-% L_Curve(G_p_omega, measuredPressure , rangeTIK , numParamsTIK, rho, omega);
-[velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt);
+%points =  L_Curve(G_p_omega, measuredPressure, rangeTIK, numParamsTIK, rho, omega);
+%points =  L_CurveV(G_p_omega, measuredPressure, G_v_omega, v_ex_vector, rangeTIK, numParamsTIK, rho, omega);
+[velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho, deleteIndexes);
 
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
 
+%% Recalculation
+%[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
+q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressure  ,desiredAlpha(4,2)); % perform the TSVD -> estimate the source strength
+q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  ,desiredAlpha(2,2));  % perform the Tikhonov SVD -> estimate the source strength
+v_TSVD = G_v_omega.'*q_TSVD; % reconstructed velocity with truncated SVD
+v_TIK = G_v_omega.'*q_TIK; % reconstructed velocity with Tikhonov
+
+
 %% plot of the reconstruced velocity field vs. exact velocity field
-v_TSVD_Fin = addNans(virtualPoints, v_TSVD);
-v_TIK_Fin = addNans(virtualPoints, v_TIK);
-v_ex_Fin = addNans(virtualPoints, v_ex_vector);
+v_TSVD_Fin = addNans(platePoints, v_TSVD);
+v_TIK_Fin = addNans(platePoints, v_TIK);
+v_ex_Fin = addNans(platePoints, v_ex_vector);
 
 surfVelRecTSVD = reshape( v_TSVD_Fin , [gridY, gridX]).'; 
 surfVelRecTIK = reshape( v_TIK_Fin , [gridY, gridX]).'; 
@@ -153,4 +168,7 @@ figure(6544)
 surf(hologramInfos{1},hologramInfos{2},abs(pressureFields{mode}))
 title('actual pressure')
 
+alphas(:,mode) = desiredAlpha(:);
+end
 
+alphasTable = array2table(alphas, 'rowNames', rowsNames,'variableNames', freqzNames)

@@ -1,4 +1,4 @@
-function [points] = L_Curve(A, b, range, N, rho, omega)
+function [points] = L_CurveV(A, b, G_v_omega, v_ex_vector, range, N, rho, omega)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION PLOTS THE L-CURVE. USEFUL TO CHOOSE THE    %%%%%%%
@@ -22,15 +22,15 @@ max = range(2); % the highest regularization parameter
 
 alpha_array = logspace(min, max, N);
 
-figure(111) %L curve
+figure(112) %L curve
 hold on
 points = zeros(N,3);
 
 for j = 1:N                 %norms are all norm-2
     alpha = alpha_array(j); %current regularization parameter
     [x_rec] = (1/(1i*omega*rho))*Tikhonov_SVD(A , b, alpha);
-    seminorm = norm(x_rec); % seminorm of the regularized solution
-    res_norm = norm(1i*omega*rho*A*x_rec - b); % norm the residual
+    seminorm = norm(alpha*x_rec); % seminorm of the regularized solution
+    res_norm = norm(G_v_omega*x_rec - v_ex_vector); % norm the residual
     s = scatter(res_norm , seminorm); 
     points(j,1:3) = [res_norm, seminorm, alpha];
 end

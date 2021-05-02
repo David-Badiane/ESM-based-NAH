@@ -27,7 +27,7 @@ end
 x_rec =  V*D_alpha*U'*b;
 %}
 
-x_rec = V*((D'*D + alpha^2*eye(size(V)))\(D'*U'*b)); 
+x_rec = V*inv(D'*D + alpha^2*eye(size(V)))*(D'*U'*b); 
 
 end
 

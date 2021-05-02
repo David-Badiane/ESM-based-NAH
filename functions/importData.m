@@ -70,9 +70,9 @@ violinInfos = {X,Y,Z, violinMesh};
 
 numFreqBins = length(table2array(csvVel(1,:)))-3;
 velsMatrix = table2array( csvVel(:,4:numFreqBins+3) );
-
-%velsMatrix( velsMatrix == 0) = NaN; % clean the violin border to accident zeros
-
+% for ii = 1:length(velsMatrix(1,:))
+%     idxs = find( velsMatrix(:,ii) == 0); % clean the violin border to accident zeros
+% end
 velocityFields = cell(numFreqBins,1);
 
 for ii = 1:numFreqBins

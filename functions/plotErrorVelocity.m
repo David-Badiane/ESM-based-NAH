@@ -10,7 +10,7 @@ nccTSVD = zeros(1, numParamsTSVD);
 
 for j = 1:numParamsTIK                 %norms are all norm-2
     q_TIK = (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , alphaTIK(j)); % reconstructed source streght
-    v_TIK = G_v_omega*q_TIK; 
+    v_TIK = G_v_omega.'*q_TIK; 
     
     normV = norm(v_ex_vector ,2);    
     nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
@@ -20,7 +20,7 @@ end
 
 for j = 1:numParamsTSVD
     q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , alphaTSVD(j)); 
-    v_TSVD = G_v_omega*q_TSVD;   
+    v_TSVD = G_v_omega.'*q_TSVD;   
     v_TSVD = abs(v_TSVD);
     
     normV = norm(v_ex_vector ,2);
@@ -35,6 +35,7 @@ desiredAlpha = zeros(4,2);
 names = {'nmseTIK' 'nccTIK' 'nmseTSVD' 'nccTSVD'};
 namesAlpha = {'alphaTIK' 'alphaTSVD' };
 
+figure()
 for ii = 1:length(errors)
     discriminator = mod(ii,2);
     if discriminator == 1
@@ -44,7 +45,7 @@ for ii = 1:length(errors)
     end
     desiredAlpha(ii,:) = [val,loc];
     
-    figure(661)
+ 
     
     if ii == 1 || ii == 2
         alphaIndex = 1;
@@ -58,11 +59,12 @@ for ii = 1:length(errors)
     stem(alphaVectors{alphaIndex}(loc), val);
     xlabel(namesAlpha{alphaIndex});
     ylabel(names{ii});
-    desiredAlpha(ii,1) = alphaVectors{alphaIndex}(loc);
+    
+    desiredAlpha(ii,2) = alphaVectors{alphaIndex}(loc);
 end   
 
 velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, nmseTSVD, names{4}, nccTSVD);
-desiredAlpha = desiredAlpha(:,1);
+
 
 end
 
