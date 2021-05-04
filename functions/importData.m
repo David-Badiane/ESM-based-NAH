@@ -1,4 +1,4 @@
-function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName)
+function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName, resampleX, resampleY)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,             %%%%%%%%%%%%
@@ -118,11 +118,12 @@ for ii = 1:numFreqBins
 end
 
 for ii = 1:length(pressureFields)
-    pressureFields{ii} = downsampling(pressureFields{ii}, 8, 8);
+    pressureFields{ii} = downsampling(pressureFields{ii}, resampleX, resampleY);
+    
 end
 
 for ii = 1:length(hologramInfos) % useful to plot the reconstructed pressure.
-    hologramInfos{ii} = downsampling(hologramInfos{ii}, 8, 8);
+    hologramInfos{ii} = downsampling(hologramInfos{ii}, resampleX, resampleY);
     
 end
 
@@ -133,9 +134,9 @@ surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
 title('actual pressure')
 %}
 
-hologramMesh =  [reshape(hologramInfos{1}', [64, 1]),...
-                 reshape(hologramInfos{2}', [64, 1]),...
-                 reshape(hologramInfos{3}, [64, 1])];
+hologramMesh =  [reshape(hologramInfos{1}', [resampleX*resampleY, 1]),...
+                 reshape(hologramInfos{2}', [resampleX*resampleY, 1]),...
+                 reshape(hologramInfos{3}', [resampleX*resampleY, 1])];
              
 hologramInfos = {hologramInfos{1},hologramInfos{2},hologramInfos{3},hologramMesh};
 

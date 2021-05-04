@@ -35,20 +35,20 @@ normalPoints(deleteIndexesPlate, :) = [];
 
 G_v = cell(length(omega),1);
 % preallocate temporary matrix
-G_w = zeros(length(virtualPoints(:, 1)), length(platePoints(:, 1)));  %Green's function init
+G_w = zeros(length(platePoints(:, 1)), length(virtualPoints(:, 1)));  %Green's function init
 
 
 for component = 1:length(normalGradientComponents)   % for each component (x,y,z)
     for kk = 1:length(omega)            % for each eigenfrequency
         k = omega(kk)/c;   % wave number
 
-        for ii = 1:length(virtualPoints(:, 1))      % for each virtual points
-            for jj = 1:length(platePoints(:, 1))   % for each surface point  
+        for ii = 1:length(platePoints(:, 1))      % for each virtual points
+            for jj =  1:length(virtualPoints(:, 1))  % for each surface point  
                 % calculation of the distance vector
                 
-                distX =  virtualPoints(ii, 1) - platePoints(jj, 1);        
-                distY =  virtualPoints(ii, 2) - platePoints(jj, 2); 
-                distZ =  virtualPoints(ii, 3) - platePoints(jj, 3); 
+                distX =  virtualPoints(jj, 1) - platePoints(ii, 1);        
+                distY =  virtualPoints(jj, 2) - platePoints(ii, 2); 
+                distZ =  virtualPoints(jj, 3) - platePoints(ii, 3); 
                 
                 distVector = [distX, distY, distZ]; 
                 dist = sqrt(distVector(1)^2 + distVector(2)^2 + distVector(3)^2); % as L2 norm
@@ -58,7 +58,7 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
                 
                 gradient = distVector(component)*alpha*G;   % gradient is analytically like this
                                 
-                G_w(ii,jj) = gradient *normalPoints(jj,component);  % scalar product with normal vector component
+                G_w(ii,jj) = gradient *normalPoints(ii,component);  % scalar product with normal vector component
             end   
         end
 
@@ -68,8 +68,8 @@ end
 
 
 for kk = 1:length(omega)
-    for ii = 1:length(virtualPoints(:, 1))      % for each virtual point
-        for jj = 1:length(platePoints(:, 1))   % for each surface point 
+    for ii =  1:length(platePoints(:, 1))  % for each virtual point
+        for jj = 1:length(virtualPoints(:, 1))  % for each surface point 
             % retrieve G_v cell with L2 norm
             G_w(ii,jj) = sqrt(normalGradientComponents{1}{kk}(ii,jj)^2 +... 
                               normalGradientComponents{2}{kk}(ii,jj)^2 +...

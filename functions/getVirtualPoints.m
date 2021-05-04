@@ -54,22 +54,22 @@ function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,h
 %         end
 %     end
     
-    for ii = 1:length(yUnique)
-        idxs = find(y==yUnique(ii));
-        xCheck = x(idxs);
-        for jj = 1:length(xCheck)
-            if ii >4 && ii < length(yUnique)-3
-                if jj > 7 && jj < length(xCheck)-5
-                    if mod(jj,3) == 1
-                    else
-                        z(idxs(jj)) = nan;
-                    end
-                end
-            end
-        end
-    end
+%     for ii = 1:length(yUnique)
+%         idxs = find(y==yUnique(ii));
+%         xCheck = x(idxs);
+%         for jj = 1:length(xCheck)
+%             if ii >4 && ii < length(yUnique)-3
+%                 if jj > 7 && jj < length(xCheck)-5
+%                     if mod(jj,5) == 1
+%                     else
+%                         z(idxs(jj)) = nan;
+%                     end
+%                 end
+%             end
+%         end
+%     end
     
-    scale = 1.2;
+    scale = 1;
     virtualPoints = [scale *x(:), scale*y(:), z(:)];
     %virtualPoints = virtualPoints - [0, 0, lattice];
     %virtualPoints = sort(downsampling(virtualPoints, 440, 3));

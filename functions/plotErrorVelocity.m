@@ -7,10 +7,11 @@ nmseTIK  = zeros(1, numParamsTIK);
 nccTIK  = zeros(1, numParamsTIK);
 nmseTSVD = zeros(1, numParamsTSVD);
 nccTSVD = zeros(1, numParamsTSVD);
+[U,s,V] = csvd (G_p_omega);
 
 for j = 1:numParamsTIK                 %norms are all norm-2
-    q_TIK = (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , alphaTIK(j)); % reconstructed source streght
-    v_TIK = G_v_omega.'*q_TIK; 
+    q_TIK = (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressureN  , alphaTIK(j)); % reconstructed source streght
+    v_TIK = G_v_omega*q_TIK; 
     
     normV = norm(v_ex_vector ,2);    
     nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
@@ -19,8 +20,8 @@ end
 
 
 for j = 1:numParamsTSVD
-    q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , alphaTSVD(j)); 
-    v_TSVD = G_v_omega.'*q_TSVD;   
+    q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressureN  , alphaTSVD(j)); 
+    v_TSVD = G_v_omega*q_TSVD;   
     v_TSVD = abs(v_TSVD);
     
     normV = norm(v_ex_vector ,2);
