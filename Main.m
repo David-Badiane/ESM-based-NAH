@@ -33,54 +33,13 @@ for ii = 1:nModes
     freqzNames{ii} = ['f', int2str(ii)];
 end
 
-%% START
-for mode = 1:nModes
-
-% Setup of local variables
-omega = eigenFreqzRad(mode);
 rho = 1.2; % [Kg/m3] air density 
 
 % Coordinates of the pressure field (hologram)
 hologramPoints = hologramInfos{4};
+
 % Coordinates of the plate surface
 platePoints = violinInfos{4};
-% Virtual sources points
-[virtualPoints, lattice, deleteIndexes] = getVirtualPoints(violinInfos,hologramPoints, true); 
-
-% pressure vector setup
-measuredPressure = pressureFields{mode};
-meshSize = numel(measuredPressure);
-measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-measuredPressureN = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
-
-% velocity vector setup
-v_ex = velocityFields{mode};
-vel_size = numel(v_ex);
-v_ex_vector = reshape( v_ex.', [vel_size, 1]);
-v_ex_vector(deleteIndexes,:) = [];
-check = find(abs(v_ex_vector) == 0);
-v_ex_vector(check) = v_ex_vector(check-1);
-
-%% Inverse problem (individuation of ES weights)
-
-% 1) Green's functions matrix
-[G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(mode)]);
-G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
-
-% 2) individuation of regularization parameter (lambda)
-[U,s,V] = csvd (G_p_omega);
-figure(2)
-lambda_l = l_curve (U,s,measuredPressure)
-figure(3)
-k_l = l_curve (U,s,measuredPressure,'tsvd')
-
-
-% 3) calculation of equivalent sources weights
-q_TIK =  (1/(1i*omega*rho)) * tikhonov (U,s,V,measuredPressure,4.5);
-q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V,measuredPressure,k_l); % perform the TSVD -> estimate the source strength
-% q_TIK= (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega, measuredPressure  , 0.5);  % perform the Tikhonov SVD -> estimate the source strength
-
-%% direct problem - reconstruction
 
 % 1) Get the normal vectors on the plate surface
 gridX = length(unique(platePoints(:, 1)));
@@ -98,11 +57,56 @@ normalPoints = [reshape(nx', [nNormPoints,1]),...
                 reshape(ny', [nNormPoints,1]),...
                 reshape(nz', [nNormPoints,1]) ];
 
-% 2) Calculate the gradient of G along the normal vectors
+%% START
+for mode = 1:nModes
+
+% Setup of local variables
+omega = eigenFreqzRad(mode);
+
+% Virtual sources points
+virtnames = {'scale' 'offset' 'cutX' 'cutY' 'borderX' 'borderY' 'active' 'plotData'};
+params = {1.15,5,1,3,3,true};
+[virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,hologramPoints, params, true)
+
+% pressure vector setup
+measuredPressure = pressureFields{mode};
+meshSize = numel(measuredPressure);
+measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
+measuredPressureN = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
+
+% velocity vector setup
+v_ex = velocityFields{mode};
+vel_size = numel(v_ex);
+v_ex_vector = reshape( v_ex.', [vel_size, 1]);
+v_ex_vector(deleteIndexes,:) = [];
+check = find(abs(v_ex_vector) == 0);
+v_ex_vector(check) = v_ex_vector(check-1);
+
+
+%% Inverse problem (individuation of ES weights)
+
+% 1) Green's functions matrix
+[G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , [eigenFreqzRad(mode)]);
+G_p_omega = G_p{1}; % take the Green's function matrix of the chosen mode
+
+% 2) individuation of regularization parameter (lambda)
+[U,s,V] = csvd (G_p_omega);
+figure(2)
+lambda_l = l_curve (U,s,measuredPressure);
+figure(3)
+k_l = l_curve (U,s,measuredPressure,'tsvd');
+
+% 3) calculation of equivalent sources weights
+q_TIK =  (1/(1i*omega*rho)) * tikhonov (U,s,V,measuredPressure,lambda_l);
+q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V,measuredPressure,k_l); % perform the TSVD -> estimate the source strength
+
+%% direct problem - reconstruction
+
+% 1) Calculate the gradient of G along the normal vectors
 [G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(mode)], normalPoints);
 G_v_omega = G_v{1};
 
-% 3) Reconstruction
+% 2) Reconstruction
 v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
 v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
 
@@ -110,7 +114,7 @@ v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
 % the L curve computed with the reconstructed pressure
 
 rangeTIK = [0,100]; % range of value for the regularization parameter
-rangeTSVD = [1,64 ]; % range of value for the regularization parameter
+rangeTSVD = [1,32 ]; % range of value for the regularization parameter
 numParamsTIK = 1e2;
 numParamsTSVD = 64;
 % points =  L_Curve(G_p_omega, measuredPressure, rangeTIK, numParamsTIK, rho, omega);
@@ -123,6 +127,7 @@ numParamsTSVD = 64;
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
  q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressure  ,desiredAlpha(4,2)); % perform the TSVD -> estimate the source strength
  q_TIK= (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressure,desiredAlpha(2,2));  % perform the Tikhonov SVD -> estimate the source strength
+
  v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
  v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
 
@@ -164,3 +169,12 @@ title('actual pressure')
 end
 
 alphasTable = array2table(alphas, 'rowNames', rowsNames,'variableNames', freqzNames)
+
+
+%% SEE Virtual Points grids
+figure(150)
+for ii = 1:20
+  virtualPoints = table2array(readtable(['VP_', int2str(ii),'.csv']));  
+  plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 10);
+  pause(3);
+end
