@@ -20,7 +20,7 @@ end
 %% Green's functions matrix
 
 % choose the mode 
-nModes = 2;
+nModes = 1;
 alphas = zeros(8,nModes);
 rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
 freqzNames = cell(nModes,1);
