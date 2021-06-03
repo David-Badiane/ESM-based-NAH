@@ -1,4 +1,4 @@
-function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,hologramPoints, plotData)
+function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,hologramPoints, params, plotData)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION CALCULATES THE VIRTUAL POINTS GRID                       %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,60 +35,21 @@ function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,h
     deleteIndexes = find(isnan(virtualPoints(:,3)));
     virtualPoints(idxs,3) = minZ - lattice;
     
-    x = virtualPoints(:,1);
-    y = virtualPoints(:,2);
-    z = virtualPoints(:,3);
+% [virtualPoints] = formVirtualPoints(virtualPoints, scale, offSet, xCut,yCut ,deleteX, deleteY,xBorder, yBorder, active)
 
-    xUnique = unique(x);
-    yUnique = unique(y);
-
-%     for ii = 1:length(xUnique)
-%         idxs = find(x==xUnique(ii));
-%         yCheck = y(idxs);
-%         for jj = 1:length(yCheck)
-%             if ii >2 || ii < length(xUnique) -2
-%                 if mod(jj,2) ==1
-%                     z(idxs(jj)) = nan;
-%                 end
-%             end
-%         end
-%     end
-    
-    for ii = 1:length(yUnique)
-        idxs = find(y==yUnique(ii));
-        xCheck = x(idxs);
-        for jj = 1:length(xCheck)
-            if ii >4 && ii < length(yUnique)-3
-                if jj > 7 && jj < length(xCheck)-5
-                    if mod(jj,3) == 1
-                    else
-                        z(idxs(jj)) = nan;
-                    end
-                end
-            end
-        end
-    end
-    
-    scale = 1.2;
-    virtualPoints = [scale *x(:), scale*y(:), z(:)];
-    %virtualPoints = virtualPoints - [0, 0, lattice];
-    %virtualPoints = sort(downsampling(virtualPoints, 440, 3));
-
-%     X =  reshape(virtualPoints(:,1), [8, 8]).'; 
-%     Y =  reshape(virtualPoints(:,2), [8, 8]).'; 
-%     Z =  reshape(virtualPoints(:,3), [8, 8]).';
+    [virtualPoints] = formVirtualPoints(virtualPoints, params{1}, params{2},params{3}, params{4}, params{5}, params{6});   
     
     if plotData
-    figure()
-    surf(violinInfos{1},violinInfos{2},violinInfos{3});
-    title('Violin surface');
-    zlim([-0.1, 0.1]);
-    xlabel('x [m]')
-    ylabel('y [m]')
-    zlabel('z [m]')
-    hold on 
-    %surf(X,Y,Z);
-    plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3),'.', 'markerSize',10 );
+        figure()
+        surf(violinInfos{1},violinInfos{2},violinInfos{3});
+        title('Violin surface');
+        zlim([-0.1, 0.1]);
+        xlabel('x [m]')
+        ylabel('y [m]')
+        zlabel('z [m]')
+        hold on 
+        %surf(X,Y,Z);
+        plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3),'.', 'markerSize',10 );
     end
     
 end

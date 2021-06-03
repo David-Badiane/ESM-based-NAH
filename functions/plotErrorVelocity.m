@@ -7,25 +7,29 @@ nmseTIK  = zeros(1, numParamsTIK);
 nccTIK  = zeros(1, numParamsTIK);
 nmseTSVD = zeros(1, numParamsTSVD);
 nccTSVD = zeros(1, numParamsTSVD);
+[U,s,V] = csvd (G_p_omega);
 
 for j = 1:numParamsTIK                 %norms are all norm-2
-    q_TIK = (1/(1i*omega*rho)).*Tikhonov_SVD(G_p_omega , measuredPressureN  , alphaTIK(j)); % reconstructed source streght
-    v_TIK = G_v_omega.'*q_TIK; 
+    q_TIK = (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressureN  , alphaTIK(j)); % reconstructed source streght
+    v_TIK = G_v_omega*q_TIK; 
     
     normV = norm(v_ex_vector ,2);    
     nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
-    nccTIK(j)   = abs((v_TIK'*v_ex_vector) / (norm(v_TIK,2)*normV));    
+    
+    nccTIK(j) = (abs(v_TIK)'*abs(v_ex_vector)) / (norm(abs(v_TIK),2)*norm(abs(v_ex_vector),2));
+%     nccTIK(j) = ((real(v_TIK)'*real(v_ex_vector)) / (norm(real(v_TIK),2)*norm(real(v_ex_vector),2)) + ...
+%                 (imag(v_TIK)'*imag(v_ex_vector)) / (norm(imag(v_TIK),2)*norm(imag(v_ex_vector),2)))/2; 
 end
 
 
 for j = 1:numParamsTSVD
-    q_TSVD = (1/(1i*omega*rho)).*TSVD(G_p_omega, measuredPressureN  , alphaTSVD(j)); 
-    v_TSVD = G_v_omega.'*q_TSVD;   
-    v_TSVD = abs(v_TSVD);
+    q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressureN  , alphaTSVD(j)); 
+    v_TSVD = G_v_omega*q_TSVD;   
     
     normV = norm(v_ex_vector ,2);
     nmseTSVD(j) = 10*log(norm(v_TSVD - v_ex_vector)^2 / (normV^2));
-    nccTSVD(j)  = abs(v_TSVD'*v_ex_vector) / (norm(v_TSVD,2)* normV);
+    nccTSVD(j)  = ((real(v_TSVD)'*real(v_ex_vector)) / (norm(real(v_TSVD),2)*norm(real(v_ex_vector),2)) + ...
+                (imag(v_TSVD)'*imag(v_ex_vector)) / (norm(imag(v_TSVD),2)*norm(imag(v_ex_vector),2)))/2;
 end
 
 errors = {nmseTIK, nccTIK, nmseTSVD, nccTSVD};
