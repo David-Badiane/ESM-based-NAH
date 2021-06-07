@@ -1,4 +1,4 @@
-function [HvSVD, threshold,singularVals] = SVD(frf, freq, M, thresholdPerc, sampleNames, counter)
+function [HvSVD, threshold,singularVals] = SVD(frf, freq, M, thresholdPerc, plotData)
 % SVD Summary of this function goes here
 %
 % frf  (array)  = signal on which perform SVD,
@@ -34,14 +34,15 @@ Vp = V';
 H = U(:,1:nRec)*S(1:nRec,1:nRec)*Vp(1:nRec,:);
 
 % e) Plot singular values and threshold
-figure()
-stem(axis,singularVals);
-hold on;
-plot(axis,th);
-xlabel('n° singular value');
-ylabel('singular values');
-title(['SVD', sampleNames{counter}]);
-
+if plotData
+    figure()
+    stem(axis,singularVals);
+    hold on;
+    plot(axis,th);
+    xlabel('n° singular value');
+    ylabel('singular values');
+    title(['SVD']);
+end
 
 % f) Retrieve the spectrum
 HvSVD = zeros(size(frf));
@@ -60,13 +61,14 @@ for ii = 1:N
     HvSVD(ii) = 1/(k-l+1)*sum; 
 end
 
+if plotData
     figure()
     semilogy(freq, abs(frf(1:length(freq))));
     hold on
     semilogy(freq,abs(HvSVD(1:length(freq))));
     xlabel('f');
     ylabel('|H|');
-    title(['Noisy and cleaned frfs ', sampleNames{counter}]);
-
+    title(['Noisy and cleaned frfs ']);
+end
 end
 
