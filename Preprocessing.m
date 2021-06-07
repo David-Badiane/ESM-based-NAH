@@ -2,7 +2,7 @@ close all
 clear all
 clc
 %% Preprocessing for NAH
-
+%{
 % import raw files
 
 addpath('measurements'); % contains the hologram measurements
@@ -215,8 +215,16 @@ Hcheck = H1{2}(:,4);
 save('H1.mat','H1');
 
 save('H1_cleaned.mat','H1_cleaned');
+%}
+%%
 
 %% Pressure amplitude computation
+
+% import frequency bins,  H1 estimator and forces
+load('H1.mat');
+load('H1_cleaned.mat');
+load('forces.mat');
+Hcheck = H1{2}(:,4);
 
 [fAmps, fLocs] = findpeaks(abs(Hcheck),'minPeakProminence', 1e-2, 'MinPeakWidth',3);
 f0 = f(fLocs);
