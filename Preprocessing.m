@@ -216,41 +216,38 @@ save('H1.mat','H1');
 
 save('H1_cleaned.mat','H1_cleaned');
 %}
-%%
+%% measured FRF of the acceleration
+
+
 
 %% Pressure amplitude computation
 
 % import frequency bins,  H1 estimator and forces
+load('f.mat');
 load('H1.mat');
 load('H1_cleaned.mat');
 load('forces.mat');
+
+% TEMPORARY CODE BELOW (WAITING FOR THE FRF)
 Hcheck = H1{2}(:,4);
+Fs = 48000;
+thresholdPerc = 5;
+addpath('functions')
 
 [fAmps, fLocs] = findpeaks(abs(Hcheck),'minPeakProminence', 1e-2, 'MinPeakWidth',3);
 f0 = f(fLocs);
 
  figure()
- subplot 211
  semilogy(f,abs(Hcheck));
- hold on;
- 
+hold on
  for ii = 1:length(fLocs)
      stem(f0, abs(Hcheck(fLocs)));
  end
  
-[fAmps, fLocs] = findpeaks(abs(H1_est),'MinPeakWidth',6);
-f0 = f(fLocs);
- subplot 212
- semilogy(f,abs(H1_est));
- hold on;
- for ii = 1:length(fLocs)
-     stem(f0, abs(H1_est(fLocs)));
- end
- 
+
  fUse = fLocs(3);
  pressureMatrix = zeros(8,8);
  
-
  for ii = 1:8
     
     forceSig = mean(forces{ii});
@@ -260,22 +257,11 @@ f0 = f(fLocs);
     P1 = P2(:,1:L/2+1);
     P1(:,2:end-1) = 2*P1(:,2:end-1);
     fAxis = Fs*(0:(L/2))/L;
-    [F_clean,threshold,singularVals] = SVD(P1(1:3000), f(1:3000), 100, thresholdPerc, true);
+    [F_clean,threshold,singularVals] = SVD(P1(1:3000), f(1:3000), 100, thresholdPerc, false);
     pressureMatrix(ii,:) = H1{ii}(fUse,:)*F_clean(fUse);
     
  end
  
- 
- %% compute and save the hologram pressure
- 
- xHologram = linspace(-178, 176, 8); % measures in mm
- centerCoordinateY = 133;
- yHologram = linspace(0, 7*51.5, 8);
- yHologram = yHologram - centerCoordinateY;
- zHologram = 20*ones(8,1);
 
- 
- [X,Y] = meshgrid(xHologram,yHologram);
- figure(234)
- surf(X,Y,abs(pressureMatrix))
+
  
