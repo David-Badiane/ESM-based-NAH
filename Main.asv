@@ -25,7 +25,7 @@ end
 %% Setup of global variables 
 
 % choose the mode 
-nModes = 2;
+nModes = 1;
 alphas = zeros(8,nModes); % arrray of regulation parameters and error metrics
 rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
 freqzNames = cell(nModes,1);
@@ -58,7 +58,7 @@ normalPoints = [reshape(nx', [nNormPoints,1]),...
                 reshape(nz', [nNormPoints,1]) ];
 
 %% START
-mode = nModes;
+for mode = 1:nModes
 
 % Setup of local variables
 omega = eigenFreqzRad(mode); % current eigenfreq mode
@@ -166,7 +166,7 @@ surf(hologramInfos{1},hologramInfos{2},abs(pressureFields{mode}))
 title('actual pressure')
 
 % alphas(:,mode) = desiredAlpha(:);
-
+end
 
 alphasTable = array2table(alphas, 'rowNames', rowsNames,'variableNames', freqzNames);
 
