@@ -15,9 +15,8 @@ function [outMatrix] = downsampling(inputMatrix, nrows, ncols)
 %%% outMatrix = resampled matrix or array (2DArray)                        %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[X, Y] = meshgrid(1:length(inputMatrix(1, :)), 1:length(inputMatrix(:, 1)));
-[xq,yq] = meshgrid(linspace(1,length(inputMatrix(1, :)),ncols),...
-    linspace(1,length(inputMatrix(:, 1)),nrows));
+[X, Y] = meshgrid(1:length(inputMatrix(1,:)));
+[xq,yq] = meshgrid(linspace(1,8,5));
 outMatrix = interp2(X, Y, inputMatrix, xq, yq);
 
 end

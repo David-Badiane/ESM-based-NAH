@@ -1,4 +1,4 @@
-function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,hologramPoints, params, plotData)
+function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos, hologramPoints, params, plotData)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION CALCULATES THE VIRTUAL POINTS GRID                       %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,7 +27,7 @@ function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos,h
     x = unique(hologramPoints(:,1));
     y = unique(hologramPoints(:,2));
     diffX = min( abs(x - circshift(x,1)));
-    diffY = min(abs(y - circshift(y,1)));
+    diffY = min( abs(y - circshift(y,1)));
     lattice = min([diffX, diffY]);
     minZ = min(virtualPoints(:,3));
 %     virtualPoints(isnan(virtualPoints(:,3))) = [];
