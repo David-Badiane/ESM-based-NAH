@@ -106,7 +106,7 @@ q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V,measuredPressure,k_l); % perform the TS
 [G_v] = normalGradient(virtualPoints, platePoints , [eigenFreqzRad(mode)], normalPoints);
 G_v_omega = G_v{1};
 
-% 2) Reconstruction
+% 2) Reconstruction %%%%%% INUTILE POSSIAMO TOGLIERLO %%%%%%%
 v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
 v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
 
@@ -122,7 +122,7 @@ numParamsTSVD = 64;
 [velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho, deleteIndexes);
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
 
-%% Recalculation of solution with best metrics
+%% Recalculation of solution with best metrics %%%% CALCULATION OF SOLUTION %%%%%
 
 %[pressureErrors, desiredAlpha] = plotErrorPressure(measuredPressure, G_p_omega , measuredPressure , omega , rho , rangeTIK, rangeTSVD , numParamsTIK, numParamsTSVD   );
  q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressure  ,desiredAlpha(4,2)); % perform the TSVD -> estimate the source strength
