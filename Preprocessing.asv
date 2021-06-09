@@ -228,7 +228,6 @@ load('H1.mat');
 load('H1_cleaned.mat');
 load('forces.mat');
 
-%%
 % TEMPORARY CODE BELOW (WAITING FOR THE FRF)
 Hcheck = H1{2}(:,4);
 Fs = 48000;
@@ -239,11 +238,11 @@ addpath('functions')
 f0 = f(fLocs);
 
  figure()
- plot(f,20*log10(abs(Hcheck)));
+ semilogy(f,abs(Hcheck));
 hold on
-%  for ii = 1:length(fLocs)
-%      stem(f0, abs(Hcheck(fLocs)));
-%  end
+ for ii = 1:length(fLocs)
+     stem(f0, abs(Hcheck(fLocs)));
+ end
  
 
  fUse = fLocs(3);
@@ -284,6 +283,7 @@ w = w';
 V = abs(1./(1i.*w).*fft(accelerationZero, Fs));
 F = abs(fft(hammerZero, Fs));
 FRF = 10*log10(V./F);
+figure()
 plot(w./(2*pi), FRF)
 xlim([0 2000])
 hold off
