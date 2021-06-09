@@ -218,7 +218,93 @@ save('H1_cleaned.mat','H1_cleaned');
 %}
 %% measured FRF of the acceleration
 
+Fs = 48000;
+duration = 2;
+signalLength = duration*Fs;
 
+numberAcquisitions = 6;
+
+% SVD Parameters
+M = 10;
+thresholdPerc = 30;
+
+% EstimatorCell = cell(6,3);
+estimatorMatrix = zeros(3989,18);
+cleanEstimatorMatrix = zeros(3989,18);
+frfMatrix = zeros(3989,18);
+
+listPath = {'-2_0_-2_-2', '-2_4_-2_2', '-2_-4_-2_-6', '0_0_2_0', '0_2_2_2', '0_4_2_4', '0_-2_2_-2', '0_-4_2_-4', '0_-6_2_-6'};
+firstIndexes = [1,3,5,7,9,11,13,15,17];
+secondIndexes = [2,4,6,8,10,12,14,16,18];
+
+forceTemp = zeros(signalLength, numberAcquisitions);
+firstTemp = zeros(signalLength, numberAcquisitions);
+secondTemp = zeros(signalLength, numberAcquisitions);
+firstFRFTemp = zeros(signalLength, numberAcquisitions);
+secondFRFTemp = zeros(signalLength, numberAcquisitions);
+
+for jj = 1:9
+    currentPath = listPath{jj};
+    addpath(strcat('accelerations/', currentPath))
+    
+    for ii = 1:numberAcquisitions
+        
+        rawTemp = importdata(strcat( currentPath, '_frf_acc', int2str(ii-1) , '.txt'));
+        rawTemp = strrep(rawTemp, ',', '.');
+        rawMes = zeros(length(rawTemp), 3);
+        
+        for k = 1:length(rawTemp)
+            rawMes(k,:) = str2num(rawTemp{k});
+        end
+        
+        forceTemp(:,ii) = rawMes(:,1);
+        firstTemp(:,ii) = rawMes(:,2);
+        secondTemp(:,ii) = rawMes(:,3);
+        
+        firstFRFTemp(:,ii) = fft(rawMes(:,2))./ftt(rawMes(:,1));
+        secondFRFTemp(:,ii) = fft(rawMes(:,3))./ftt(rawMes(:,1));
+        %%%%%% GUARDARE DOCUMEMTAZIONE DI MATçLAB PER LA FFT %%%%%%%
+        
+    end
+    
+    [pxy1, f] = cpsd(firstTemp, forceTemp,[],[],signalLength, Fs);
+    [pxy2, f] = cpsd(secondTemp, forceTemp,[],[],signalLength, Fs);
+    [pxx, f] = cpsd(forceTemp,forceTemp,[],[],signalLength, Fs);
+    
+        
+    cutIdxs = find(f <2000 & f>5 );
+    f = f(cutIdxs); pxx = pxx(cutIdxs,:);pxy1 = pxy1(cutIdxs,:); pxy2 = pxy2(cutIdxs,:);
+    
+    pxy1 = 1./(1i*2*pi*f).*pxy1;
+    pxy2 = 1./(1i*2*pi*f).*pxy2;
+    
+    H1 = sum(pxy1,2)./sum(pxx,2);
+    H2 = sum(pxy2,2)./sum(pxx,2);
+    
+    
+    
+    [H1_clean,threshold,singularVals] = SVD(H1.', f, M, thresholdPerc, false);
+    [H2_clean,threshold,singularVals] = SVD(H2.', f, M, thresholdPerc, false);
+    
+    % EstimatorCell{3,2} = H1_clean;
+    % EstimatorCell{3,3} = H2_clean;
+    
+    estimatorMatrix(:,firstIndexes(jj)) = H1;
+    estimatorMatrix(:,secondIndexes(jj)) = H2;
+    
+    cleanEstimatorMatrix(:,firstIndexes(jj)) = H1_clean;
+    cleanEstimatorMatrix(:,firstIndexes(jj)) = H2_clean;
+    
+    
+end
+
+figure(808)
+subplot 211
+plot(f, 10*log10(abs(estimatorMatrix)))
+title('H1 without SVD')
+subplot 212
+plot(f, 10*log10(abs(cleanEstimatorMatrix)))
+title('H1 with SVD')
 
 %% Pressure amplitude computation
 
@@ -245,7 +331,7 @@ hold on
 %      stem(f0, abs(Hcheck(fLocs)));
 %  end
  
-
+%{
  fUse = fLocs(3);
  pressureMatrix = zeros(8,8);
  
@@ -264,7 +350,7 @@ hold on
  end
  
 
-
+%}
  %% velocity trial
 
 
