@@ -59,7 +59,7 @@ function [Hv,f0, fLocs, csis, Q] = EMASimple(HvSVD, fAxis,minPeakVal, minPeakWid
             c=2*w_nat(ii)*csis(ii);
             shapes(ii) = -imag(Hv(fLocs(ii))*c*w_nat(ii));
         end
-        plotData = false; %%%
+
        if plotData 
         subplot(5,5,ii)
           

@@ -129,16 +129,6 @@ resInterval = find(f>360&f<390); % indx
 
 % take the velocity (H1 value) at that resonance
 velocities = zeros(1,18);
-
 for ii = 1:length(velocities)
-    checkEstimator = cleanEstimatorMatrix(:,ii);
-    [pks, locs] = findpeaks(abs(checkEstimator(resInterval)), f(resInterval),'MinPeakProminence',2e-4);
-    velocities(ii) = pks;
-    %debug
-%     figure()
-%     semilogy(f, abs(checkEstimator))
-%     hold on
-%     xline(locs)
-%     hold off
-end
-
+    
+    [[pks, locs] = findpeaks(abs(checkEstimator), f,'MinPeakProminence',2e-4);
