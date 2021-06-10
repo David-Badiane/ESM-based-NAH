@@ -2,7 +2,7 @@ close all
 clear all
 clc
 %% Ground truth computation
-
+addpath('functions')
 % compute FRF of the velocity
 
 Fs = 48000; % sampling frequency
@@ -143,11 +143,25 @@ for ii = 1:length(velocities)
     xline(locs)
     hold off
 end
+%% export the velocity grid
 
-xCoord = 10*[-5, -4.7, -4, -4.1, -4.8, -5.1, 0, 0, 0, 0, 0, 0, 5 ,4.8, 4, 4.2, 5, 4.9];
+xCoord = 10*[-5, -4.7, -4, -4.1, -4.8, -5.1, 0, 0, 0, 0, 0, 0, 4.9 ,5, 4.2, 4, 4.8, 5];
 xCoord = xCoord';
 
 yCoord = 10*[8, 4.6, 0, -4.1, -8, -12.1, 8, 5, 0, -4, -7.9, -11.9, 7.9, 4.9, 0 , -4.1, -8.1, -12.1];
 yCoord = yCoord';
-	figure()
-plot(xCoord, yCoord,'.');
+
+velocities = [velocities(3), velocities(4), velocities(1),  velocities(2),  velocities(5), ...
+       velocities(6) ,   velocities(11),   velocities(9),   velocities(7),   velocities(13), ...
+       velocities(15),   velocities(17),    velocities(12),   velocities(10),   velocities(8), ...
+       velocities(14),   velocities(16),   velocities(18)]';
+ 
+   
+figure()
+plot3(xCoord, yCoord, velocities, '.');
+
+XX = reshape(xCoord, [3,6])'
+YY = reshape(yCoord, [3,6])'
+ZZ = reshape(velocities, [3,6])'
+figure(999)
+surf(XX,YY,ZZ)

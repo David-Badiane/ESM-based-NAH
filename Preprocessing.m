@@ -284,3 +284,5 @@ figure(908)
 surf(X,Y,abs(pressure))
 xlabel('x'); ylabel('y')
 
+pressureTrial = [X(:), Y(:), pressure(:)];
+writeMat2File(pressureTrial, 'pressureTrial.csv', {'x', 'y', 'p'}, 3, true);
