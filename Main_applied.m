@@ -22,8 +22,9 @@ counter
 [Hv,f0, fLocs, csis, Q] = EMASimple(vSVD, f,minPeakVal, minPeakWidth)
 % Get pressure signals
 
-fv = stlread('NAH_ESM_mesh_fin.stl');
-points = sortrows(fv.vertices);
+fv1 = stlread('NAH_ESM_mesh_light v15.stl');
+fv = stlread('NAH_ESM_mesh_A.stl');
+points = sortrows(fv.Points);
 [outMatrix] = downsampling_regular(points, 128, 128)
 [pts] = downsampling_regular(outMatrix, 128, 128)
 
