@@ -219,72 +219,68 @@ save('H1.mat','H1');
 
 save('H1_cleaned.mat','H1_cleaned');
 
+%% import data
 
-
-%% Pressure amplitude computation
-
-% import frequency bins,  H1 estimator and forces
 load('f.mat');
 load('H1.mat');
 load('H1_cleaned.mat');
 load('forces.mat');
 
-%%
-% TEMPORARY CODE BELOW (WAITING FOR THE FRF)
-Hcheck = H1{2}(:,4);
-Fs = 48000;
-thresholdPerc = 5;
-addpath('functions')
+figure(474)
 
-[fAmps, fLocs] = findpeaks(abs(Hcheck),'minPeakProminence', 1e-2, 'MinPeakWidth',3);
-f0 = f(fLocs);
-
- figure()
- plot(f,20*log10(abs(Hcheck)));
-hold on
-%  for ii = 1:length(fLocs)
-%      stem(f0, abs(Hcheck(fLocs)));
-%  end
- 
-%{
- fUse = fLocs(3);
- pressureMatrix = zeros(8,8);
- 
- for ii = 1:8
+for k = 1:8
     
-    forceSig = mean(forces{ii});
-    F = fft(forceSig);
-    L = length(F);
-    P2 = abs(F/L);
-    P1 = P2(:,1:L/2+1);
-    P1(:,2:end-1) = 2*P1(:,2:end-1);
-    fAxis = Fs*(0:(L/2))/L;
-    [F_clean,threshold,singularVals] = SVD(P1(1:3000), f(1:3000), 100, thresholdPerc, false);
-    pressureMatrix(ii,:) = H1{ii}(fUse,:);
+    H1plot = H1{k};
+    H1cleanplot = H1_cleaned{k};
     
- end
- 
-
-%}
- %% velocity trial
-
-
-addpath('accelerations/0_0_2_0')
-velocityTrial = importdata('0_0_2_0_frf_acc0.txt');
-velocityTrial = strrep(velocityTrial, ',', '.');
-velocityMes = zeros(length(velocityTrial), 3);
-for k = 1:length(velocityTrial)
-    velocityMes(k,:) = str2num(velocityTrial{k});
+    subplot 211
+    semilogy(f, abs(H1plot));
+    title('H1 w/o SVD')
+    
+    subplot 212
+    semilogy(f, abs(H1cleanplot));
+    title('H1 w/ SVD')
+    
+    hold on
 end
-accelerationZero = velocityMes(:,2);
-hammerZero = velocityMes(:,1);
-Fs = 48000;
-w = 1:48000;
-w = 2*pi*w;
-w = w';
-V = abs(1./(1i.*w).*fft(accelerationZero, Fs));
-F = abs(fft(hammerZero, Fs));
-FRF = 10*log10(V./F);
-plot(w./(2*pi), FRF)
-xlim([0 2000])
+
 hold off
+%% Pressure field 
+
+addpath('functions')
+Fs = 48000;
+cutIdxs = find(f <2000 & f>5 );
+f = f(cutIdxs);
+
+yElemends = 8;
+xElements = 8;
+
+% take one single resonance frequency anound the interval 
+resInterval = find(f>360&f<390); % indx
+
+% take the velocity (H1 value) at that resonance
+pressure = zeros(8,8);
+
+checkEstimator = H1_cleaned{4};
+checkEstimator = checkEstimator(:,4);
+[pks, locs] = findpeaks(abs(checkEstimator(resInterval)), f(resInterval),'MinPeakHeight',1e-3);
+
+resFreq = locs;
+resFreq = 377;
+resIdx = find(f == resFreq);
+
+for jj = 1:yElemends
+    for ii = 1:xElements
+        pressure(ii,jj) = H1_cleaned{jj}(resIdx,ii);
+    end
+end
+
+xHologram = [176, 126, 74, 23, -27, -76 -126, -178];
+yHologram = linspace(0, 8*51.5, 8);
+yHologram = yHologram -   211.3280;
+
+[X,Y] = meshgrid(xHologram, yHologram);
+figure(908)
+surf(X,Y,abs(pressure))
+xlabel('x'); ylabel('y')
+
