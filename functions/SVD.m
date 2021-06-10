@@ -1,4 +1,4 @@
-function [HvSVD, threshold,singularVals] = SVD(frf, freq, M, thresholdPerc, plotData)
+function [HvSVD, singularVals] = SVD(frf, freq, M, thresholdIdx, plotData)
 % SVD Summary of this function goes here
 %
 % frf  (array)  = signal on which perform SVD,
@@ -23,10 +23,8 @@ axis = 1:index;
 singularVals = diag(S);
 
 % c) Set threshold in percentage of maximum value between all singular values
-maxSingVal = max(singularVals);
-threshold = thresholdPerc/100*maxSingVal;
-th = ones(size(axis))*threshold;
-singVals = singularVals(singularVals>= threshold);
+
+singVals = singularVals(thresholdIdx);
 nRec = length(singVals);
 Vp = V';
 
@@ -37,8 +35,8 @@ H = U(:,1:nRec)*S(1:nRec,1:nRec)*Vp(1:nRec,:);
 if plotData
     figure()
     stem(axis,singularVals);
-    hold on;
-    plot(axis,th);
+    hold on
+    stem(1:length(singVals), singVals)
     xlabel('n° singular value');
     ylabel('singular values');
     title(['SVD']);
