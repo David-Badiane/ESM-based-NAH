@@ -178,8 +178,8 @@ subplot 121
 plot3(x, y, z, '.');
 subplot 122
 surf(xData, yData, zData);
-% write approach
 
+% write approach
 xCoord = 10*[-5, -4.7, -4, -4.1, -4.8, -5.1, 0, 0, 0, 0, 0, 0, 4.9 ,5, 4.2, 4, 4.8, 5];
 xCoord = xCoord';
 
