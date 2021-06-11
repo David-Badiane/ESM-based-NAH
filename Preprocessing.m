@@ -269,7 +269,7 @@ resFreq = locs;
 resFreq = 377;
 resIdx = find(f == resFreq);
 
-for jj = 1:yElemends
+for jj = 1:yElements
     for ii = 1:xElements
         pressure(ii,jj) = H1_cleaned{jj}(resIdx,ii);
     end
