@@ -146,24 +146,24 @@ end
 %% export the velocity grid
 
 % auto approach 
+geomData = readtable('geometryVelocity.xlsx');
 msrPoints = [-2  0; -2 -2; -2  4; -2  2;
              -2 -4; -2 -6;  0  0;  2  0;
               0  2;  2  2;  0  4;  2  4;
               0 -2;  2 -2;  0 -2;  2 -4;  
               0 -6;  2  6];
+          
 nMsrPoints = length(msrPoints(:,1));
 
-geomData = readtable('geometryVelocity.xlsx');
-
-centerData = table2array(geomData(1:6,1:3
+centerData = table2array(geomData(1:6,1:3));
 XX = table2array(geomData(11:16,7:9));
 YY = table2array(geomData(11:16,11:13));
 
 xData = table2array(geomData(1:6,7:9)).*sign(XX);
 yData = table2array(geomData(1:3,11:16)).'.*sign(YY);
 
-
 zData = zeros(size(xData));
+
 for ii = 1: nMsrPoints
     [xx, yy] = find(XX == msrPoints(ii,1) & YY == msrPoints(ii,2));
     zData(xx,yy) = velocities(ii);
