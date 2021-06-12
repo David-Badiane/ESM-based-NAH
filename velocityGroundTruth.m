@@ -131,25 +131,27 @@ title('Mobility with SVD')
 
 %% find resonance frequencies
 
-referenceFreqValues = [108, 183, 283, 375, ... % approximate position of peaks in Hz
-                       497, 678, 729, 839, ...
-                       981, 1196, 1373, 1630 ];
+referenceFreqValues = [283, 375, ... % approximate position of peaks in Hz
+                       498,682, 729, 839, ...
+                       983, 1197, 1374, 1630 ];
+referenceFreqValues = referenceFreqValues -4;
+                  
 intervalResonance = 10; % Hz to look around the reference to find resonances
 
 % peakPositions = zeros(numberPoints,length(referenceFreqValues)); % store the resonance frequencies
-% peakValues = zeros(numberPoints,length(referenceFreqValues));
-peakPositions = zeros(100);
-peakValues = zeros(100);
+peakValues = zeros(numberPoints,length(referenceFreqValues));
+% peakPositions = zeros(100);
+% peakValues = zeros(100);
 
 % frequency resolution 
 fResolution = ((f(end) - f(1))/(length(f)-1));
 
 % EMA simple parameters
 MinPeakProminence = 2e-4;
-MinPeakWidth = 30;
+MinPeakWidth = 20;
 
 for k = 1:numberPoints
-    checkMobility = cleanMobilityMatrix(:, k);
+      checkMobility = cleanMobilityMatrix(:, k);
     
 %         minSample = (referenceFreqValues(j)-intervalResonance)/fResolution;
 %         maxSample = (referenceFreqValues(j)+intervalResonance)/fResolution;
@@ -157,9 +159,13 @@ for k = 1:numberPoints
 %         peakPositions = [peakPositions; fLocs];
 %         peakValues = [peakValues; Hv(fLocs)];
 
-        [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  false); 
-        peakPositions(k,1:length(fLocs)) = fLocs.';
-        peakValues(k, 1:length(fLocs))= checkMobility(fLocs).';
+%         [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  false); 
+%         peakPositions(k,1:length(fLocs)) = fLocs.';
+%         peakValues(k, 1:length(fLocs))= checkMobility(fLocs).';
+           
+          for jj = 1:length(referenceFreqValues)
+              peakValues(k,jj) = checkMobility(round(referenceFreqValues(jj)/fResolution));
+          end
 
 end
 
@@ -168,14 +174,17 @@ figure(899)
 semilogy(f, (abs(cleanMobilityMatrix)))
 hold on
 for hh = 1:numberPoints
-    iddx = find(peakPositions(hh,:) ~= 0);
+%     iddx = find(peakPositions(hh,:) ~= 0);
     
-    stem(f(peakPositions(hh,iddx)), abs(peakValues(hh,iddx)))
+    stem(f(round(referenceFreqValues/fResolution)), abs(peakValues(hh,:)))
 end
 hold off
 title('Mobility with SVD')
 
-%% velocity field
+%% store velocities in the grid points
+
+
+%% THIS IS A BACKUP CODE for THE VIOLIN GRID
 
 % take one single resonance frequency anound the interval 
 resInterval = find(f>360&f<390); % indx
@@ -196,6 +205,8 @@ for ii = 1:length(velocities)
     xline(locs)
     hold off
 end
+
+
 %% export the velocity grid
 
 % auto approach 
