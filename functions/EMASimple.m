@@ -1,4 +1,4 @@
-function [Hv,f0, fLocs, csis, Q] = EMASimple(HvSVD, fAxis,minPeakVal, minPeakWidth, plotData)
+function [Hv,f0, fLocs] = EMASimple(HvSVD, fAxis,minPeakVal, minPeakWidth, plotData)
 %EMASimple
 %
 %   Simplified modal analysis algorithm retrieving eigenfrequencies, modal
@@ -15,6 +15,7 @@ function [Hv,f0, fLocs, csis, Q] = EMASimple(HvSVD, fAxis,minPeakVal, minPeakWid
     fLocs = fLocs(:);
     Hv = Hv(:);
     f0 = fAxis(fLocs);
+    
     if plotData
          figure()
          semilogy(fAxis, abs(Hv));

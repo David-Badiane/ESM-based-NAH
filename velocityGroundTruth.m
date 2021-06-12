@@ -6,6 +6,7 @@ clc
 addpath('functions')
 % compute FRF of the velocity
 
+
 baseFolder = pwd;
 accFolder = [baseFolder, '\acq_11_06'];
 
@@ -15,9 +16,10 @@ signalLength = duration*Fs;
 numberPoints = 27; % number of measurement points in the violin plate
 numberAcquisitions = 6; % number of measurements for each point
 
-estimatorMatrix = zeros(3989,18); % store the H1 estimator
-cleanEstimatorMatrix = zeros(3989,18); % store the H1 estimator denoised
-frfMatrix = zeros(3989,18); % store the mobility transfer function (fft(Y)/fft(X))
+estimatorMatrix = zeros(3989,numberPoints); % store the H1 estimator
+cleanEstimatorMatrix = zeros(3989,numberPoints); % store the H1 estimator denoised
+MobilityMatrix = zeros(3989,numberPoints); % store the mobility transfer function (fft(Y)/fft(X))
+cleanMobilityMatrix = zeros(3989,numberPoints);% store the Mobility denoised
 
 % import raw data 
 
@@ -84,7 +86,7 @@ for jj = 1:numberPoints
     
     estimatorMatrix(:,jj) = H1;
     
-    frfMatrix(:,jj) = mean(FRFTemp(cutIdxs,:),2);
+    MobilityMatrix(:,jj) = mean(FRFTemp(cutIdxs,:),2);
     
 end
 
@@ -93,10 +95,10 @@ subplot 211
 semilogy(f, (abs(estimatorMatrix)))
 title('H1 without SVD')
 subplot 212
-semilogy(f, (abs(frfMatrix)))
+semilogy(f, (abs(MobilityMatrix)))
 title('Y/X')
 
-%% apply SVD to H1 estimator
+%% apply SVD to H1 estimator and Mobility function
 
 % SVD Parameters
 M = 10;
@@ -104,7 +106,7 @@ thresholdIdx = 1;
 
 for ii = 1:numberPoints
     H1Temp = estimatorMatrix(:,ii);
-    [H1_clean,singularVals] = SVD(H1Temp.', f, M, thresholdIdx, true);
+    [H1_clean,singularVals] = SVD(H1Temp.', f, M, thresholdIdx, false);
     cleanEstimatorMatrix(:,ii) = H1_clean;
 end
 
@@ -112,20 +114,38 @@ figure(809)
 semilogy(f, (abs(cleanEstimatorMatrix)))
 title('H1 with SVD')
 
+for ii = 1:numberPoints
+    H1Temp = MobilityMatrix(:,ii);
+    [H1_clean,singularVals] = SVD(H1Temp.', f, M, thresholdIdx, false);
+    cleanMobilityMatrix(:,ii) = H1_clean;
+end
+
 save('velocityH1.mat','estimatorMatrix');
 save('velocityH1cleaned.mat','cleanEstimatorMatrix');
-save('velocityMobility.mat','frfMatrix');
+save('velocityMobility.mat','MobilityMatrix');
+save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
 
+figure(890)
+semilogy(f, (abs(cleanMobilityMatrix)))
+title('H1 with SVD')
 
 %% find resonance frequencies
 
-peakMat = zeros(numberPoints, 28);
+referenceFreqValues = [];
+intervalResonance = 20; % sample to look around the reference to find resonances
 
+peakPositions = zeros(numberPoints,16); % store the resonance frequencies
+peakValues = zeros(numberPoints,16);
+
+% EMA simple parameters
+MinPeakProminence = 1e-4;
+MinPeakWidth = 10;
 
 for k = 1:numberPoints
-    checkEstimator = cleanEstimatorMatrix(:, k);
-    [Hv,f0, fLocs, csis, Q] = EMASimple(checkEstimator, f, 0.0001, 10,  true);
-    peakMat(k, 1:length(locs)) = locs';
+    checkMobility = MobilityMatrix(:, k);
+    [Hv,f0, fLocs] = EMASimple(H1_clean, f, MinPeakProminence, MinPeakWidth,  true);
+    peakPositions(k,:) = fLocs';
+    peakValues(k,:) = Hv(fLocs).';
 end
 
 %% velocity field
