@@ -200,39 +200,40 @@ end
 
 % auto approach 
 geomData = readtable('geometryVelocity.xlsx');
-msrPoints = [-2  0; -2 -2; -2  4; -2  2;
-             -2 -4; -2 -6;  0  0;  2  0;
-              0  2;  2  2;  0  4;  2  4;
-              0 -2;  2 -2;  0 -2;  2 -4;  
-              0 -6;  2  6];
-          
-nMsrPoints = length(msrPoints(:,1));
 
-centerData = table2array(geomData(1:6,1:3));
-XX = table2array(geomData(11:16,7:9));
-YY = table2array(geomData(11:16,11:13));
+centerData = table2array(geomData(1:5,1:3));
+XX = table2array(geomData(12:21,7:13));
+YY = table2array(geomData(12:21,16:22));
 
-xData = table2array(geomData(1:6,7:9)).*sign(XX);
-yData = table2array(geomData(1:3,11:16)).'.*sign(YY);
+xData = table2array(geomData(1:10,7:13)).*sign(XX);
+yData = table2array(geomData(1:10,16:22)).*sign(YY);
+
 
 zData = zeros(size(xData));
+orderedPoints = zeros(numberPoints, 3);
 
-for ii = 1: nMsrPoints
-    [xx, yy] = find(XX == msrPoints(ii,1) & YY == msrPoints(ii,2));
-    zData(xx,yy) = velocities(ii);
+for ii = 1: numberPoints
+    [xx, yy] = find(XX == measurementPts(ii,1) & YY == measurementPts(ii,2));
+    orderedPoints(ii,1) = xData(xx,yy);
+    orderedPoints(ii,2) = yData(xx,yy);
+    disp(orderedPoints(ii,:));
+    disp([xx,yy]);
+%     orderedPoints(ii,3) = velocities(ii); 
+%     zData(xx,yy) = velocities(ii);
 end  
 
-x = reshape(xData, nMsrPoints,1);
-y = reshape(yData, nMsrPoints,1);
-z = reshape(zData, nMsrPoints, 1);
+writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true )
+% x = reshape(xData, numberPoints,1);
+% y = reshape(yData, numberPoints,1);
+% z = reshape(zData, numberPoints, 1);
+% 
+% figure()
+% subplot 121
+% plot3(x, y, z, '.');
+% subplot 122
+% surf(xData, yData, zData);
 
-figure()
-subplot 121
-plot3(x, y, z, '.');
-subplot 122
-surf(xData, yData, zData);
-
-% write approach
+%% write approach
 xCoord = 10*[-5, -4.7, -4, -4.1, -4.8, -5.1, 0, 0, 0, 0, 0, 0, 4.9 ,5, 4.2, 4, 4.8, 5];
 xCoord = xCoord';
 
