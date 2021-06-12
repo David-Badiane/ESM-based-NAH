@@ -39,7 +39,6 @@ nModes = length(eigenFreqz);
 
 violinMesh = table2array(readtable('grid128x128clean')); 
 violinMesh = violinMesh.*0.001; % convert in meter
-violinMesh(:,1:2) = -1.*violinMesh(:,1:2);
 
 % get normal points for Green's fxs gradient
 X = reshape(violinMesh(:,1), pX, pY);
@@ -56,15 +55,12 @@ normalPoints = [reshape(nx', [nViolinPoints,1]),...
 
 pressureData = table2array(readtable('pressureData.csv'));
 measuredPressure = pressureData(:,3:end);
-hologramDistance = 0.02;
-zHologram = max(Z(:)) + hologramDistance; 
-hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
+zHologram = max(Z(:)) + 20; 
+hologramPoints =  [pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
 
-velocityData = table2array(readtable('velocityData.csv'));   
-velocityData(:,1:2) = 0.001.*velocityData(:,1:2);
-nEqSourceGrids = 1;
+velocityData = table2array(readtable('velocityData.csv'));            
+nEqSourceGrids = 0;
  
-
 %% COMPUTATION LOOP 
 
 metricsTSVD = [];
@@ -74,7 +70,6 @@ alphaTSVD = [];
 alphaTIK = [];
 
  for ii = 1:length(eigenFreqz)
-     
   nccTIKs = [];
   nccTSVDs = [];
   qTSVDs = cell(1,2);
