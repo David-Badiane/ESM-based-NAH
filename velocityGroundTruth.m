@@ -147,10 +147,10 @@ end
 hold off
 title('Mobility with SVD')
 
-velocitiesMatrix = zeros(numberPoints, length(peakPositions));
+velocitiesMatrix = zeros(numberPoints, length(fpeakPositions));
 
 for ii = 1:numberPoints
-    for jj = 1:length(peakPositions)
+    for jj = 1:length(fpeakPositions)
         velocitiesMatrix(ii,jj)= abs(cleanMobilityMatrix(peakPositions(jj),ii));
     end
 end
@@ -159,10 +159,19 @@ end
 
 xyCoord = readmatrix('velocityPoints.csv');
 xyCoord(:,3) = [];
+xyCoord = xyCoord*10;
 
+for ii = 1:length(fpeakPositions)
+    xyCoord = [xyCoord velocitiesMatrix(:,ii)];
+end
 
-for ii = 1:length(referenceFreqValues)
-    xyCoord = [xyCoord peakValues(:,ii)];
+xyCoordSorted = sortrows(xyCoord);
+
+label ={'x' 'y'};
+    freqLabel = round(fpeakPositions);
+
+for ii = 1: length(fpeakPositions)
+    label{ii+2} = ['f',num2str(ii),' = ', num2str(freqLabel(ii))];
 end
 
 
@@ -177,7 +186,7 @@ YY = table2array(geomData(12:21,16:22));
 
 xData = table2array(geomData(1:10,7:13)).*sign(XX)*10;
 yData = table2array(geomData(1:10,16:22)).*sign(YY)*10;
-[iMask, jMask] = find(isnan(xData);
+[iMask, jMask] = find(isnan(xData));
 
 zData =nan*ones(length(xData(:,1)),length(xData(1,:)), length(peakPositions));
 orderedPoints = zeros(numberPoints, 3);
@@ -193,8 +202,9 @@ for ii = 1: numberPoints
 %   orderedPoints(ii,3) = velocities(ii); 
 %   zData(xx,yy) = velocities(ii);
 end  
+save('zDataVInMeasurements', 'zData');
 
-writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true )
+writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true );
 % x = reshape(xData, numberPoints,1);
 % y = reshape(yData, numberPoints,1);
 % z = reshape(zData, numberPoints, 1);
