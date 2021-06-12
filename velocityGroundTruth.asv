@@ -39,11 +39,11 @@ secondFRFTemp = zeros(signalLength/2, numberAcquisitions);
 
 for jj = 1:numberPoints
     cd(accFolder)
-    fileName = ['x=', int2str(measurementPts(jj,1)),' y=',int2str(measurementPts(jj,2)),'_acq_'];
+    fileName = ['x=', int2str(),'y=',int2str(),'_acq_'];
     
     for ii = 1:numberAcquisitions
-        tempFileName = [fileName, int2str(ii-1),'.txt'];
-        rawTemp = importdata([accFolder,'\', tempFileName]);
+        tempFile
+        rawTemp = importdata(strcat( currentPath, '_frf_acc', int2str(ii-1) , '.txt'));
         rawTemp = strrep(rawTemp, ',', '.');
         rawMes = zeros(length(rawTemp), 3);
         
