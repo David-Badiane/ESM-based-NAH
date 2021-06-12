@@ -1,4 +1,4 @@
-function [outMatrix] = downsampling_regular(inputMatrix, nrows, ncols)
+function [outMatrix] = downsampling_regular(inputMatrix, nrows, ncols, fileName)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION PERFORMS DOWNSAMPLING ON A MATRIX OR ARRAY               %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,5 +75,6 @@ plot3(xRect, yRect, zeros(size(xRect)), '.', 'markerSize', 1);
 
 
 outMatrix = pts;
+writeMat2File(outMatrix, [fileName,'.csv'], {'x' 'y' 'z'}, 3, true );
 end
 
