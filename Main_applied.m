@@ -2,7 +2,9 @@
 fv1 = stlread('NAH_ESM_mesh_light v15.stl');
 fv = stlread('NAH_ESM_mesh_A.stl');
 points = sortrows(fv.Points);
-[outMatrix] = downsampling_regular(points, 128, 128)
+
+nrows = 45; ncols = 15; fileName = ['grid',int2str(nrows),'x',int2str(ncols)];
+[outMatrix] = downsampling_regular(pts, nrows, ncols, fileName);
 [pts] = downsampling_regular(outMatrix, 128, 128)
 
 
@@ -47,7 +49,7 @@ normalPoints = [reshape(nx', [nViolinPoints,1]),...
 
 pressureTrial = table2array(readtable('pressureTrial.csv'));
 measuredPressure = pressureTrial(:,3);
-zHologram = 2.5;
+zHologram = 25; % !!! cambiare !!!
 hologramPoints =  [pressureTrial(:,1:2), zHologram*ones(size(pressureTrial(:,1)))] ; 
 
 velocityFields = table2array(readtable('accpoints.csv'));            
@@ -140,8 +142,8 @@ alphaTIK = [];
     metricsTSVD = [metricsTSVD; TSVDval];
     metricsTIK = [metricsTIK;   TIKval];
     
-    alphaTSVD = [alphaTSVD;];
-    alphaTIK = [alphaTIK;];
+    alphaTSVD = [alphaTSVD;   ];
+    alphaTIK = [alphaTIK;    ];
     % .... .....
     
     % once individuated the best, let's represent them
