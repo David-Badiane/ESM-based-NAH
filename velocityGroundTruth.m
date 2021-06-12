@@ -17,7 +17,7 @@ numberAcquisitions = 6; % number of measurements for each point
 
 estimatorMatrix = zeros(3989,18); % store the H1 estimator
 cleanEstimatorMatrix = zeros(3989,18); % store the H1 estimator denoised
-frfMatrix = zeros(3989,18); % store the standard FRF (fft(Y)/fft(X))
+frfMatrix = zeros(3989,18); % store the mobility transfer function (fft(Y)/fft(X))
 
 % import raw data 
 
@@ -30,7 +30,7 @@ measurementPts = [-3 4; -2 4; 0 4; 2 4; 3 4; %coordinates of the measurement poi
                   -2 -4; 0 -4; 2 -4;
                   -3 -5; 3 -5;
                   -2 -6; 0 -6; 2 -6;
-                   0 8];
+                   0 -8];
 
 % temportary file to compute the frequency responces
 forceTemp = zeros(signalLength, numberAcquisitions);
@@ -112,17 +112,22 @@ figure(809)
 semilogy(f, (abs(cleanEstimatorMatrix)))
 title('H1 with SVD')
 
+save('velocityH1.mat','estimatorMatrix');
+save('velocityH1cleaned.mat','cleanEstimatorMatrix');
+save('velocityMobility.mat','frfMatrix');
+
+
 %% find resonance frequencies
-% impossible with our data :(
-% peakMat = zeros(numberPoints, 28);
-% 
-% for k = 1:numberPoints
-%     checkEstimator = cleanEstimatorMatrix(:, k);
-%     checkEstimator = lowpass(checkEstimator, 1000 , 2*length(checkEstimator));  
-% %     [Hv,f0, fLocs, csis, Q] = EMASimple(checkEstimator, f, 0.0001, 10,  true);
-%     [pks, locs] = findpeaks(abs(checkEstimator), f,'MinPeakProminence',2e-4);
-%     peakMat(k, 1:length(locs)) = locs';
-% end
+
+peakMat = zeros(numberPoints, 28);
+
+for k = 1:numberPoints
+    checkEstimator = cleanEstimatorMatrix(:, k);
+    checkEstimator = lowpass(checkEstimator, 1000 , 2*length(checkEstimator));  
+%     [Hv,f0, fLocs, csis, Q] = EMASimple(checkEstimator, f, 0.0001, 10,  true);
+    [pks, locs] = findpeaks(abs(checkEstimator), f,'MinPeakProminence',2e-4);
+    peakMat(k, 1:length(locs)) = locs';
+end
 
 %% velocity field
 
