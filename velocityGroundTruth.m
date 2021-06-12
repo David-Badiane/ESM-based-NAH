@@ -136,42 +136,23 @@ referenceFreqValues = [108, 183, 283, 375, ... % approximate position of peaks i
                        981, 1196, 1373, 1630 ];
 intervalResonance = 10; % Hz to look around the reference to find resonances
 
-% peakPositions = zeros(numberPoints,length(referenceFreqValues)); % store the resonance frequencies
-% peakValues = zeros(numberPoints,length(referenceFreqValues));
-peakPositions = zeros(100);
-peakValues = zeros(100);
-
 % frequency resolution 
 fResolution = ((f(end) - f(1))/(length(f)-1));
 
-% EMA simple parameters
-MinPeakProminence = 2e-4;
-MinPeakWidth = 30;
-
-for k = 1:numberPoints
-    checkMobility = cleanMobilityMatrix(:, k);
-    
-%         minSample = (referenceFreqValues(j)-intervalResonance)/fResolution;
-%         maxSample = (referenceFreqValues(j)+intervalResonance)/fResolution;
-%         [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  true);   
-%         peakPositions = [peakPositions; fLocs];
-%         peakValues = [peakValues; Hv(fLocs)];
-
-        [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  false); 
-        peakPositions(k,1:length(fLocs)) = fLocs.';
-        peakValues(k, 1:length(fLocs))= checkMobility(fLocs).';
-
-end
-
+[peakPositions] = peaks(cleanMobilityMatrix);
+fpeakPositions = f(peakPositions);
+idxPks = find(fpeakPositions > 1400);
+fpeakPositions(idxPks) = [];
 
 figure(899)
 semilogy(f, (abs(cleanMobilityMatrix)))
 hold on
-for hh = 1:numberPoints
-    iddx = find(peakPositions(hh,:) ~= 0);
+for i = 1:length(fpeakPositions)
     
-    stem(f(peakPositions(hh,iddx)), abs(peakValues(hh,iddx)))
+    xline(fpeakPositions(i))
+    
 end
+
 hold off
 title('Mobility with SVD')
 
