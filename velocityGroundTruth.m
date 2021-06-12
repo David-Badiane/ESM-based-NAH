@@ -127,26 +127,53 @@ save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
 
 figure(890)
 semilogy(f, (abs(cleanMobilityMatrix)))
-title('H1 with SVD')
+title('Mobility with SVD')
 
 %% find resonance frequencies
 
-referenceFreqValues = [];
-intervalResonance = 20; % sample to look around the reference to find resonances
+referenceFreqValues = [108, 183, 283, 375, ... % approximate position of peaks in Hz
+                       497, 678, 729, 839, ...
+                       981, 1196, 1373, 1630 ];
+intervalResonance = 10; % Hz to look around the reference to find resonances
 
-peakPositions = zeros(numberPoints,16); % store the resonance frequencies
-peakValues = zeros(numberPoints,16);
+% peakPositions = zeros(numberPoints,length(referenceFreqValues)); % store the resonance frequencies
+% peakValues = zeros(numberPoints,length(referenceFreqValues));
+peakPositions = zeros(100);
+peakValues = zeros(100);
+
+% frequency resolution 
+fResolution = ((f(end) - f(1))/(length(f)-1));
 
 % EMA simple parameters
-MinPeakProminence = 1e-4;
-MinPeakWidth = 10;
+MinPeakProminence = 2e-4;
+MinPeakWidth = 30;
 
 for k = 1:numberPoints
-    checkMobility = MobilityMatrix(:, k);
-    [Hv,f0, fLocs] = EMASimple(H1_clean, f, MinPeakProminence, MinPeakWidth,  true);
-    peakPositions(k,:) = fLocs';
-    peakValues(k,:) = Hv(fLocs).';
+    checkMobility = cleanMobilityMatrix(:, k);
+    
+%         minSample = (referenceFreqValues(j)-intervalResonance)/fResolution;
+%         maxSample = (referenceFreqValues(j)+intervalResonance)/fResolution;
+%         [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  true);   
+%         peakPositions = [peakPositions; fLocs];
+%         peakValues = [peakValues; Hv(fLocs)];
+
+        [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  false); 
+        peakPositions(k,1:length(fLocs)) = fLocs.';
+        peakValues(k, 1:length(fLocs))= checkMobility(fLocs).';
+
 end
+
+
+figure(899)
+semilogy(f, (abs(cleanMobilityMatrix)))
+hold on
+for hh = 1:numberPoints
+    iddx = find(peakPositions(hh,:) ~= 0);
+    
+    stem(f(peakPositions(hh,iddx)), abs(peakValues(hh,iddx)))
+end
+hold off
+title('Mobility with SVD')
 
 %% velocity field
 
