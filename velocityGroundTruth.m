@@ -186,8 +186,8 @@ centerData = table2array(geomData(1:5,1:3));
 XX = table2array(geomData(12:21,7:13));
 YY = table2array(geomData(12:21,16:22));
 
-xData = table2array(geomData(1:10,7:13)).*sign(XX);
-yData = table2array(geomData(1:10,16:22)).*sign(YY);
+xData = table2array(geomData(1:10,7:13)).*sign(XX)*10;
+yData = table2array(geomData(1:10,16:22)).*sign(YY)*10;
 
 
 zData = zeros(size(xData));
