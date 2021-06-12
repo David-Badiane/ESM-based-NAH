@@ -183,6 +183,12 @@ title('Mobility with SVD')
 
 %% store velocities in the grid points
 
+xyCoord = readmatrix('velocityPoints.csv');
+xyCoord(:,3) = [];
+
+for ii = 1:length(referenceFreqValues)
+    xyCoord = [xyCoord peakValues(:,ii)];
+end
 
 %% THIS IS A BACKUP CODE for THE VIOLIN GRID
 
