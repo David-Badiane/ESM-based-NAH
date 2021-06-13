@@ -117,29 +117,33 @@ nEqSourceGrids = 10;
  
 load('xDataVlnMeasurements.mat');
 load('yDataVlnMeasurements.mat');
+
+%% STRUCT AND TABLE INIT
+gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
+                    'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
+                    'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
+                    'nmseTIK_M', 'nccTIK_M'};
+                
+
 %% COMPUTATION LOOP 
 
-metricsTSVD = [];
-metricsTIK = [];
-
-alphaTSVD = [];
-alphaTIK = [];
-
  for ii = 1:length(eigenFreqz)
-  % store the metrics for each grid
-  nccTIKs = [];
-  nccTSVDs = [];
-  qTSVDs = cell(1,2);
-  qTIKs = cell(1,2);
-  
+
+    
   omega = eigenFreqz(ii);
   measuredPressure = measuredPressureData(:,ii);
   v_ex_vector = velocityData(:, 2 + ii);
-  
+
+  % store the metrics for each grid
+  gridNumber = zeros(nEqSourceGrids);
+  lambda_L = [];  k_L = []; nmseTSVD_L = []; nccTSVD_L = []; nmseTIK_L = []; nccTIK_L = []; 
+  lambda_nmse_M = []; k_nmse_M = []; k_ncc_M = []; lambda_ncc_M = []; nmseTSVD_M = [];
+  nccTSVD_M = []; nmseTIK_M = []; nccTIK_M = [];
+    
      for jj = 1:nEqSourceGrids
         
         % choose virtual points grid   
-
+        
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
         virtualPoints = 0.001.*virtualPoints;
@@ -195,18 +199,23 @@ alphaTIK = [];
         v_TSVD = G_v_omega*q_TSVD; % reconstructed velocity with truncated SVD
         v_TIK = G_v_omega*q_TIK; % reconstructed velocity with Tikhonov
 
-        % !! TO WRITE !! 
-        % COMPARE APPROACH 1 & APPROACH 2 by calculating NCC of
-        % interpolation
-        % write a fx  like : 
-        %[ncc_LTIK, ncc_MTIK, ncc_LTSVD, ncc_MTSVD] = compareMethods(v_TSVD, v_TIK,v_LTSVD, v_LTIK, velocityGroundtruth)
-
         % store results
-
-        qTSVDs{jj,1} = q_TSVD;
-        qTSVDs{jj,2} = Lq_TSVD;
-        qTIKs{jj,1} = q_TIK;
-        qTIKs{jj,2} = Lq_TIK;
+        gridNumber(jj) = jj;
+        lambda_L(jj) = lambda_l;
+        k_L(jj) = []; 
+        nmseTSVD_L(jj) = []; 
+        nccTSVD_L(jj) = []; 
+        nmseTIK_L(jj) = []; 
+        nccTIK_L(jj) = []; 
+        lambda_nmse_M(jj) = []; 
+        k_nmse_M(jj) = []; 
+        k_ncc_M(jj) = []; 
+        lambda_ncc_M(jj) = []; 
+        nmseTSVD_M(jj) = [];
+        nccTSVD_M(jj) = []; 
+        nmseTIK_M(jj) = []; 
+        nccTIK_M(jj) = [];
+        
     end 
 
     % !!! riflettere su architettura dati; trovarne semplice e effettiva !!!
