@@ -105,6 +105,7 @@ normalPoints = [reshape(nx', [nViolinPoints,1]),...
                 reshape(nz', [nViolinPoints,1]) ];
 
 pressureData = table2array(readtable('pressureData.csv'));
+
 hologramDistance = 0.02;
 zHologram = max(Z(:)) + hologramDistance; 
 hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
@@ -131,7 +132,7 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
 
     
   omega = eigenFreqz(ii);
-  measuredPressure = measuredPressureData(:,ii);
+  measuredPressure = pressureData(:, 2 + ii);
   v_ex_vector = velocityData(:, 2 + ii);
 
   % store the metrics for each grid
@@ -176,12 +177,10 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
         % 3) Direct - solutions ( velocities ) 
         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
         Lv_TIK = G_v_omega*Lq_TIK; % reconstructed velocity with Tikhonov
+            
+        [velocityErrorsL, desiredAlphaL] = errorVelocity(v_ex_vector, violinMesh, xData, yData, measuredPressure, G_p_omega, G_v_omega, [lambda_l lambda_l], ...
+            [k_l k_l], 1, 1, omega, rho, deleteIndexesVirt, pX, pY);
         
-        normV = norm(v_ex_vector, 2);
-        nmseTSVD_L  = 10*log(norm(Lv_TSVD - v_ex_vector)^2 / (normV_L^2));
-        nccTSVD_L = (abs(Lv_TSVD)'*abs(v_ex_vector)) / (norm(abs(Lv_TSVD),2)*norm(abs(v_ex_vector),2));
-        nmseTIK_L  = 10*log(norm(Lv_TIK - v_ex_vector)^2 / (normV_L^2));
-        nccTIK_L = (abs(Lv_TIK)'*abs(v_ex_vector)) / (norm(abs(Lv_TIK),2)*norm(abs(v_ex_vector),2));
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
@@ -202,19 +201,22 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
         % store results
         gridNumber(jj) = jj;
         lambda_L(jj) = lambda_l;
-        k_L(jj) = []; 
-        nmseTSVD_L(jj) = []; 
-        nccTSVD_L(jj) = []; 
-        nmseTIK_L(jj) = []; 
-        nccTIK_L(jj) = []; 
-        lambda_nmse_M(jj) = []; 
-        k_nmse_M(jj) = []; 
-        k_ncc_M(jj) = []; 
-        lambda_ncc_M(jj) = []; 
-        nmseTSVD_M(jj) = [];
-        nccTSVD_M(jj) = []; 
-        nmseTIK_M(jj) = []; 
-        nccTIK_M(jj) = [];
+        k_L(jj) = k_l; 
+        nmseTSVD_L(jj) = desiredAlphaL(3,1); 
+        nccTSVD_L(jj) = desiredAlphaL(4,1); 
+        nmseTIK_L(jj) = desiredAlphaL(1,1); 
+        nccTIK_L(jj) = desiredAlphaL(2,1); 
+        
+        
+        k_nmse_M(jj) = desiredAlpha(3,2); 
+        k_ncc_M(jj) =  desiredAlpha(4,2); 
+        lambda_nmse_M(jj) = desiredAlpha(1,2); 
+        lambda_ncc_M(jj) = desiredAlpha(2,2); 
+        
+        nmseTSVD_M(jj) = desiredAlpha(3,1);
+        nccTSVD_M(jj) = desiredAlpha(4,1);
+        nmseTIK_M(jj) = desiredAlpha(1,1); 
+        nccTIK_M(jj) = desiredAlpha(2,1);
         
     end 
 
