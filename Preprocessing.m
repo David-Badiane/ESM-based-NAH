@@ -226,63 +226,72 @@ load('H1.mat');
 load('H1_cleaned.mat');
 load('forces.mat');
 
-figure(474)
 
-for k = 1:8
-    
-    H1plot = H1{k};
-    H1cleanplot = H1_cleaned{k};
-    
-    subplot 211
-    semilogy(f, abs(H1plot));
-    title('H1 w/o SVD')
-    
-    subplot 212
-    semilogy(f, abs(H1cleanplot));
-    title('H1 w/ SVD')
-    
-    hold on
-end
-
-hold off
 %% Pressure field 
+
+eigenFrequencies = load('eigenFrequencies.mat');
+eigenFrequencies = eigenFrequencies.fpeakPositions;
 
 addpath('functions')
 Fs = 48000;
 cutIdxs = find(f <2000 & f>5 );
 f = f(cutIdxs);
 
-yElemends = 8;
+yElements = 8;
 xElements = 8;
 
-% take one single resonance frequency anound the interval 
-resInterval = find(f>360&f<390); % indx
+figure(474)
+
+for k = 1:xElements
+    
+    H1cleanplot = H1_cleaned{k};
+    
+    semilogy(f, abs(H1cleanplot));
+    title('H1 w/ SVD')
+    hold on
+end
+for kk = 1:length(eigenFrequencies)
+    xline(eigenFrequencies(kk))
+end
+hold off
 
 % take the velocity (H1 value) at that resonance
-pressure = zeros(8,8);
+pressure = zeros(8,8, length(eigenFrequencies));
 
-checkEstimator = H1_cleaned{4};
-checkEstimator = checkEstimator(:,4);
-[pks, locs] = findpeaks(abs(checkEstimator(resInterval)), f(resInterval),'MinPeakHeight',1e-3);
-
-resFreq = locs;
-resFreq = 377;
-resIdx = find(f == resFreq);
 
 for jj = 1:yElements
     for ii = 1:xElements
-        pressure(ii,jj) = H1_cleaned{jj}(resIdx,ii);
+        for kk = 1:length(eigenFrequencies)
+             pressure(ii,jj,kk) = H1_cleaned{jj}(kk,ii);
+        end
     end
 end
+
 
 xHologram = [176, 126, 74, 23, -27, -76 -126, -178];
 yHologram = linspace(0, 8*51.5, 8);
 yHologram = yHologram -   211.3280;
 
 [X,Y] = meshgrid(xHologram, yHologram);
-figure(908)
-surf(X,Y,abs(pressure))
-xlabel('x'); ylabel('y')
 
-pressureTrial = [X(:), Y(:), pressure(:)];
-writeMat2File(pressureTrial, 'pressureTrial.csv', {'x', 'y', 'p'}, 3, true);
+
+xyCoord = [X(:) Y(:)];
+
+
+for ii = 1:length(fpeakPositions)
+    tempPressure = pressure(:,:,ii);
+    tempPressure = tempPressure(:);
+    xyCoord = [xyCoord tempPressure];
+end
+
+[xSorted idxSorted] = sort(xyCoord(:,1));
+
+xyCoord(:,2:end) = xyCoord(idxSorted,2:end);
+xyCoordSorted = flip(xyCoord);
+
+label ={'x' 'y'};
+freqLabel = round(fpeakPositions);
+
+for ii = 1: length(fpeakPositions)
+    label{ii+2} = ['f',num2str(ii),' = ', num2str(freqLabel(ii))];
+end

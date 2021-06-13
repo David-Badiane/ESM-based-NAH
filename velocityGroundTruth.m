@@ -34,7 +34,7 @@ measurementPts = [-3 4; -2 4; 0 4; 2 4; 3 4; %coordinates of the measurement poi
                   -2 -6; 0 -6; 2 -6;
                    0 -8];
 
-% temportary file to compute the frequency responces
+% temportary file to compute the frequency responses
 forceTemp = zeros(signalLength, numberAcquisitions);
 accelerationTemp = zeros(signalLength, numberAcquisitions);
 FRFTemp = zeros(signalLength/2, numberAcquisitions);
@@ -131,71 +131,50 @@ title('Mobility with SVD')
 
 %% find resonance frequencies
 
-referenceFreqValues = [108, 183, 283, 375, ... % approximate position of peaks in Hz
-                       497, 678, 729, 839, ...
-                       981, 1196, 1373, 1630 ];
-intervalResonance = 10; % Hz to look around the reference to find resonances
-
-% peakPositions = zeros(numberPoints,length(referenceFreqValues)); % store the resonance frequencies
-% peakValues = zeros(numberPoints,length(referenceFreqValues));
-peakPositions = zeros(100);
-peakValues = zeros(100);
-
-% frequency resolution 
-fResolution = ((f(end) - f(1))/(length(f)-1));
-
-% EMA simple parameters
-MinPeakProminence = 2e-4;
-MinPeakWidth = 30;
-
-for k = 1:numberPoints
-    checkMobility = cleanMobilityMatrix(:, k);
-    
-%         minSample = (referenceFreqValues(j)-intervalResonance)/fResolution;
-%         maxSample = (referenceFreqValues(j)+intervalResonance)/fResolution;
-%         [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  true);   
-%         peakPositions = [peakPositions; fLocs];
-%         peakValues = [peakValues; Hv(fLocs)];
-
-        [Hv,f0, fLocs] = EMASimple(checkMobility, f, MinPeakProminence, MinPeakWidth,  false); 
-        peakPositions(k,1:length(fLocs)) = fLocs.';
-        peakValues(k, 1:length(fLocs))= checkMobility(fLocs).';
-
-end
-
+[peakPositions] = peaks(cleanMobilityMatrix);
+fpeakPositions = f(peakPositions);
+idxPks = find(fpeakPositions > 1400);
+fpeakPositions(idxPks) = [];
 
 figure(899)
 semilogy(f, (abs(cleanMobilityMatrix)))
 hold on
-for hh = 1:numberPoints
-    iddx = find(peakPositions(hh,:) ~= 0);
+for i = 1:length(fpeakPositions)
     
-    stem(f(peakPositions(hh,iddx)), abs(peakValues(hh,iddx)))
+    xline(fpeakPositions(i))
+    
 end
 hold off
 title('Mobility with SVD')
 
-%% velocity field
+velocitiesMatrix = zeros(numberPoints, length(fpeakPositions));
 
-% take one single resonance frequency anound the interval 
-resInterval = find(f>360&f<390); % indx
-
-% take the velocity (H1 value) at that resonance
-velocities = zeros(1,18);
-peaks = zeros(1,18);
-
-for ii = 1:length(velocities)
-    checkEstimator = cleanEstimatorMatrix(:,ii);
-    [pks, locs] = findpeaks(abs(checkEstimator(resInterval)), f(resInterval),'MinPeakProminence',2e-4);
-    velocities(ii) = pks;
-    peaks(ii) = locs;
-    %debug
-    figure()
-    semilogy(f, abs(checkEstimator))
-    hold on
-    xline(locs)
-    hold off
+for ii = 1:numberPoints
+    for jj = 1:length(fpeakPositions)
+        velocitiesMatrix(ii,jj)= abs(cleanMobilityMatrix(peakPositions(jj),ii));
+    end
 end
+
+%% store velocities in the grid points
+
+xyCoord = readmatrix('velocityPoints.csv');
+xyCoord(:,3) = [];
+xyCoord = xyCoord*10;
+
+for ii = 1:length(fpeakPositions)
+    xyCoord = [xyCoord velocitiesMatrix(:,ii)];
+end
+
+xyCoordSorted = sortrows(xyCoord);
+
+label ={'x' 'y'};
+    freqLabel = round(fpeakPositions);
+
+for ii = 1: length(fpeakPositions)
+    label{ii+2} = ['f',num2str(ii),' = ', num2str(freqLabel(ii))];
+end
+
+
 %% export the velocity grid
 
 % auto approach 
@@ -207,10 +186,11 @@ YY = table2array(geomData(12:21,16:22));
 
 xData = table2array(geomData(1:10,7:13)).*sign(XX)*10;
 yData = table2array(geomData(1:10,16:22)).*sign(YY)*10;
+[iMask, jMask] = find(isnan(xData));
 
-
-zData = zeros(size(xData));
+zData =nan*ones(length(xData(:,1)),length(xData(1,:)), length(peakPositions));
 orderedPoints = zeros(numberPoints, 3);
+orderedVelMatrices = zeros(size(velocitiesMatrix));
 
 for ii = 1: numberPoints
     [xx, yy] = find(XX == measurementPts(ii,1) & YY == measurementPts(ii,2));
@@ -218,11 +198,13 @@ for ii = 1: numberPoints
     orderedPoints(ii,2) = yData(xx,yy);
     disp(orderedPoints(ii,:));
     disp([xx,yy]);
-%     orderedPoints(ii,3) = velocities(ii); 
-%     zData(xx,yy) = velocities(ii);
+    zData(xx,yy,:) = velocitiesMatrix(ii,:);
+%   orderedPoints(ii,3) = velocities(ii); 
+%   zData(xx,yy) = velocities(ii);
 end  
+save('zDataVInMeasurements', 'zData');
 
-writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true )
+writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true );
 % x = reshape(xData, numberPoints,1);
 % y = reshape(yData, numberPoints,1);
 % z = reshape(zData, numberPoints, 1);

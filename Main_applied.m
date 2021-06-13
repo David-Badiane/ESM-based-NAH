@@ -8,12 +8,28 @@
 % [pts] = downsampling_regular(outMatrix, 128, 128)
  
 %% INIT
+%{
+fv1 = stlread('NAH_ESM_mesh_light v15.stl');
+fv = stlread('NAH_ESM_mesh_A.stl');
+points = sortrows(fv.Points);
+
+nrows = 45; ncols = 15; fileName = ['grid',int2str(nrows),'x',int2str(ncols)];
+[outMatrix] = downsampling_regular(pts, nrows, ncols, fileName);
+[pts] = downsampling_regular(outMatrix, 128, 128)
+%}
+clear all
+close all
+clc
+%% NEAR FIELD ACOUSTIC HOLOGRAPHY - ESM METHOD %%
+
+% folders
 baseFolder = pwd;
 virtualPointsFolder = [baseFolder,'\VPGrids'];
 estimationsFolder = [baseFolder, '\Estimations'];
 addpath(genpath('functions'));
 addpath 'virtualPointsGrids_old';
 addpath('violinMeshes');
+
 %% Virtual Points generator
 
 pts = table2array(readtable('grid128x128Fin.csv'));
@@ -37,6 +53,7 @@ genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFo
 end
 
 %% f = 377
+
 pX = 128;
 pY = 128;
 
@@ -48,11 +65,15 @@ nViolinPoints = pX*pY;
 
 rho = 1.2; % [Kg/m3] air density 
 
-eigenFreqz = 2*pi* 377; % convert in [rad/s]
+eigenFreqz = readtable('eigenfrequencies.csv');
+eigenFreqz = table2array(eigenFreqz);
+eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
+
 nModes = length(eigenFreqz);
 
-
-violinPoints = table2array(readtable('grid128x128clean'));
+violinMesh = table2array(readtable('grid128x128clean')); 
+violinMesh = violinMesh.*0.001; % convert in meter
+violinMesh(:,1:2) = -1.*violinMesh(:,1:2);
 
 % get normal points for Green's fxs gradient
 X = reshape(violinMesh(:,1), pX, pY);
@@ -67,14 +88,17 @@ normalPoints = [reshape(nx', [nViolinPoints,1]),...
                 reshape(ny', [nViolinPoints,1]),...
                 reshape(nz', [nViolinPoints,1]) ];
 
-pressureTrial = table2array(readtable('pressureTrial.csv'));
-measuredPressure = pressureTrial(:,3);
-zHologram = 25; % !!! cambiare !!!
-hologramPoints =  [pressureTrial(:,1:2), zHologram*ones(size(pressureTrial(:,1)))] ; 
+pressureData = table2array(readtable('pressureData.csv'));
+measuredPressure = pressureData(:,3:end);
+hologramDistance = 0.02;
+zHologram = max(Z(:)) + hologramDistance; 
+hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
 
-velocityFields = table2array(readtable('accpoints.csv'));            
-nEqSourceGrids = 0;
+velocityData = table2array(readtable('velocityData.csv'));   
+velocityData(:,1:2) = 0.001.*velocityData(:,1:2);
+nEqSourceGrids = 1;
  
+
 %% COMPUTATION LOOP 
 
 metricsTSVD = [];
@@ -84,6 +108,7 @@ alphaTSVD = [];
 alphaTIK = [];
 
  for ii = 1:length(eigenFreqz)
+     
   nccTIKs = [];
   nccTSVDs = [];
   qTSVDs = cell(1,2);
