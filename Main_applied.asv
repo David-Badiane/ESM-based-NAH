@@ -20,20 +20,8 @@ pts = table2array(readtable('grid128x128Fin.csv'));
 controller = 1;
 zVal = 0; % <-- lattice
 nGrids = 1;
-
-%from last file automatically
-filesList = ls(virtualPointsFolder);
-filesList(1:2,:) = [];
-start = [];
-for ii = 1:length(filesList(:,1))
-    idx = find(filesList(ii,:)== '.');
-    start = [start; eval(filesList(ii,4:idx)) + 1];
-end
-start = max(start);
-
-% all already set and debugged
-for ii = 0:nGrids-1
-genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
+for ii = 1:nGrids
+genVirtualPoints(pts,['VP_',int2str(ii)], controller, zVal,virtualPointsFolder);
 end
 
 %% f = 377
