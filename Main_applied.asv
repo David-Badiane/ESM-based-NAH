@@ -136,7 +136,7 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
   v_ex_vector = velocityData(:, 2 + ii);
 
   % store the metrics for each grid
-  gridNumber = zeros(nEqSourceGrids);
+  gridNumber = zeros(nEqSourceGrids,1);
   lambda_L = [];  k_L = []; nmseTSVD_L = []; nccTSVD_L = []; nmseTIK_L = []; nccTIK_L = []; 
   lambda_nmse_M = []; k_nmse_M = []; k_ncc_M = []; lambda_ncc_M = []; nmseTSVD_M = [];
   nccTSVD_M = []; nmseTIK_M = []; nccTIK_M = [];
@@ -144,7 +144,12 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
      for jj = 1:nEqSourceGrids
         
         % choose virtual points grid   
-        
+        if jj == 7
+            jj = 8
+        end
+        if jj == 9
+            jj = 10
+        end
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
         virtualPoints = 0.001.*virtualPoints;
@@ -209,17 +214,21 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
         
         
         k_nmse_M(jj) = desiredAlpha(3,2); 
-        k_ncc_M(jj) =  desiredAlpha(2,2); 
+        k_ncc_M(jj) =  desiredAlpha(4,2); 
         lambda_nmse_M(jj) = desiredAlpha(1,2); 
-        lambda_ncc_M(jj) = desiredAlpha(4,2); 
+        lambda_ncc_M(jj) = desiredAlpha(2,2); 
         
         nmseTSVD_M(jj) = desiredAlpha(3,1);
         nccTSVD_M(jj) = desiredAlpha(4,1);
         nmseTIK_M(jj) = desiredAlpha(1,1); 
         nccTIK_M(jj) = desiredAlpha(2,1);
         
-    end 
+     end 
 
+    tempTable = table( gridNumber, lambda_L, k_L, nmseTSVD_L, ...
+       nccTSVD_L, nmseTIK_L, nccTIK_L, k_nmse_M, k_ncc_M, lambda_nmse_M, ...
+       lambda_ncc_M, nmseTSVD_M, nccTSVD_M, nmseTIK_M, nccTIK_M, 'VariableNames',gridTablesNames);
+   
     % !!! riflettere su architettura dati; trovarne semplice e effettiva !!!
     [TSVDval, TSVDloc] = max(NCCs(:,2), [], 'all');
     [TIKval, TIKloc] = max(NCCs(:,1), [], 'all');

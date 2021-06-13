@@ -114,7 +114,7 @@ hologramMeshY = reshape( pressureData(:,2) , [nMics, nMeas]);
 
 velocityData = table2array(readtable('velocityData.csv'));   
 velocityData(:,1:2) = 0.001.*velocityData(:,1:2);
-nEqSourceGrids = 10;
+nEqSourceGrids = 45;
  
 load('xDataVlnMeasurements.mat');
 load('yDataVlnMeasurements.mat');
@@ -124,7 +124,9 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
                     'nmseTIK_M', 'nccTIK_M'};
-                
+structNames = {'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11'};
+               
+dataCell = cell(length(eigenFreqz),1);
 
 %% COMPUTATION LOOP 
 
@@ -136,15 +138,25 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
   v_ex_vector = velocityData(:, 2 + ii);
 
   % store the metrics for each grid
-  gridNumber = zeros(nEqSourceGrids);
-  lambda_L = [];  k_L = []; nmseTSVD_L = []; nccTSVD_L = []; nmseTIK_L = []; nccTIK_L = []; 
-  lambda_nmse_M = []; k_nmse_M = []; k_ncc_M = []; lambda_ncc_M = []; nmseTSVD_M = [];
-  nccTSVD_M = []; nmseTIK_M = []; nccTIK_M = [];
+  gridNumber = zeros(nEqSourceGrids,1);
+  lambda_L = zeros(nEqSourceGrids,1);  k_L = zeros(nEqSourceGrids,1);
+  nmseTSVD_L = zeros(nEqSourceGrids,1); nccTSVD_L = zeros(nEqSourceGrids,1);
+  nmseTIK_L = zeros(nEqSourceGrids,1); nccTIK_L = zeros(nEqSourceGrids,1); 
+  lambda_nmse_M = zeros(nEqSourceGrids,1); k_nmse_M = zeros(nEqSourceGrids,1);
+  k_ncc_M = zeros(nEqSourceGrids,1); lambda_ncc_M = zeros(nEqSourceGrids,1);
+  nmseTSVD_M = zeros(nEqSourceGrids,1);
+  nccTSVD_M = zeros(nEqSourceGrids,1); nmseTIK_M = zeros(nEqSourceGrids,1); 
+  nccTIK_M = zeros(nEqSourceGrids,1);
     
      for jj = 1:nEqSourceGrids
         
         % choose virtual points grid   
-        
+        if jj == 7
+            jj = 8
+        end
+        if jj == 9
+            jj = 10
+        end
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
         virtualPoints = 0.001.*virtualPoints;
@@ -218,8 +230,12 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
         nmseTIK_M(jj) = desiredAlpha(1,1); 
         nccTIK_M(jj) = desiredAlpha(2,1);
         
-    end 
+     end 
 
+    tempTable = table( gridNumber, lambda_L, k_L, nmseTSVD_L, ...
+       nccTSVD_L, nmseTIK_L, nccTIK_L, k_nmse_M, k_ncc_M, lambda_nmse_M, ...
+       lambda_ncc_M, nmseTSVD_M, nccTSVD_M, nmseTIK_M, nccTIK_M, 'VariableNames',gridTablesNames);
+   %{
     % !!! riflettere su architettura dati; trovarne semplice e effettiva !!!
     [TSVDval, TSVDloc] = max(NCCs(:,2), [], 'all');
     [TIKval, TIKloc] = max(NCCs(:,1), [], 'all');
@@ -270,7 +286,10 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
     
     msg = 'press something to go on !!'
     p = input(msg);
-    
+       %}
+       
+    dataCell{ii} = tempTable;
+    dataStruc = cell2struct(dataCell, structNames, 1);
  end
  
  % plot a figure with the NCC for the various frequencies
