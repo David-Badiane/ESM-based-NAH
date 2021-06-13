@@ -71,7 +71,7 @@ eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
 
 nModes = length(eigenFreqz);
 
-violinMesh = table2array(readtable('grid128x128clean')); 
+violinMesh = table2array(readtable('grid128x128clean.csv')); 
 violinMesh = violinMesh.*0.001; % convert in meter
 violinMesh(:,1:2) = -1.*violinMesh(:,1:2);
 
@@ -89,7 +89,7 @@ normalPoints = [reshape(nx', [nViolinPoints,1]),...
                 reshape(nz', [nViolinPoints,1]) ];
 
 pressureData = table2array(readtable('pressureData.csv'));
-measuredPressure = pressureData(:,3:end);
+measuredPressureData = pressureData(:,3:end);
 hologramDistance = 0.02;
 zHologram = max(Z(:)) + hologramDistance; 
 hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
@@ -115,8 +115,9 @@ alphaTIK = [];
   qTIKs = cell(1,2);
   
   omega = eigenFreqz(ii);
-     
+  measuredPressure = measuredPressureData(:,ii);
      for jj = 1:nEqSourceGrids
+        
         % choose virtual points grid     
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
@@ -145,7 +146,7 @@ alphaTIK = [];
         
         % 2) Inverse - calculation of equivalent sources weights
         Lq_TIK =  (1/(1i*omega*rho)).* tikhonov (U,s,V,measuredPressure,lambda_l);
-        Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure, 1:k_l); % perform the TSVD -> estimate the source strength
+        Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure, k_l); % perform the TSVD -> estimate the source strength
 
         % 3) Direct - solutions ( velocities ) 
         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
@@ -197,9 +198,9 @@ alphaTIK = [];
     % .... .....
     
     % once individuated the best, let's represent them
-    v_TSVD_Fin = addNans(platePoints, v_TSVD);
-    v_TIK_Fin = addNans(platePoints, v_TIK);
-    v_ex_Fin = addNans(platePoints, v_ex_vector);
+
+    v_TIK_Fin = addNans(violinMesh, v_TIK);
+    v_ex_Fin = addNans(violinMesh, v_ex_vector);
 
     surfVelRecTSVD = reshape( v_TSVD_Fin , [pY, pX]).'; 
     surfVelRecTIK = reshape( v_TIK_Fin , [pY, pX]).'; 
