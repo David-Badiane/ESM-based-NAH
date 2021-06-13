@@ -33,35 +33,44 @@ addpath('violinMeshes');
 %% Virtual Points generator
 
 pts = table2array(readtable('grid128x128Fin.csv'));
-controller = 0;
 zVal = 0; % <-- lattice
-nGrids = 1;
+nGrids = 35;
 
 %from last file automatically
 filesList = ls(virtualPointsFolder);
 filesList(1:2,:) = [];
 start = [];
+
 for ii = 1:length(filesList(:,1))
     idx = find(filesList(ii,:)== '.');
     start = [start; eval(filesList(ii,4:idx)) + 1];
 end
+
 start = max(start);
 
 % all already set and debugged
 for ii = 0:nGrids-1
+    disp('');
+    disp(' contr = 0 rectangular')
+    disp('contr = 1, circular grids')
+    disp('contr = 2, ellipsoidal grids')
+    disp('contr = 3, circular + border')
+    disp('contr = 4, ellipsoidal + border')
+    disp('contr = 5, inner + border')
+    disp('contr = 6, BORDER ONLY')
+    disp('contr = 7, inner only')
+    disp('');
+    
+    controller = input('choose kind of grid(0-7) :');
         genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
 end
 
 %% global variables
 
-pX = 128;
-pY = 128;
-
 nMics = 8;
 nMeas = 8;
 
 nPressureMeas = nMics*nMeas;
-nViolinPoints = pX*pY;
 
 rho = 1.2; % [Kg/m3] air density 
 
@@ -71,19 +80,25 @@ eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
 
 nModes = length(eigenFreqz);
 
-violinMesh = table2array(readtable('grid128x128clean.csv')); 
+violinMesh = table2array(readtable('grid64x16.csv')); 
 violinMesh = violinMesh.*0.001; % convert in meter
-violinMesh(:,1:2) = -1.*violinMesh(:,1:2);
+
+pX = 64;
+pY = 16;
+nViolinPoints = pX*pY;
 
 % get normal points for Green's fxs gradient
 X = reshape(violinMesh(:,1), pX, pY);
 Y = reshape(violinMesh(:,2), pX, pY);
 Z = reshape(violinMesh(:,3), pX, pY);
+zNan = find(isnan(Z));
+Z(zNan) = 0; % for boundaries normal vector
 
 [nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals 
                                  % for each point of the surface.
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
+Z(zNan) = nan;
 normalPoints = [reshape(nx', [nViolinPoints,1]),...
                 reshape(ny', [nViolinPoints,1]),...
                 reshape(nz', [nViolinPoints,1]) ];
@@ -127,8 +142,7 @@ alphaTIK = [];
         % compute Green functions matrix ( hologram 2 virtual points ) 
         [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
         G_p_omega = G_p{1}; 
-        
-        
+            
 
         % compute gradient Green functions matrix 
         % ( virtual points 2 reconstruction plane = violin )
@@ -199,7 +213,7 @@ alphaTIK = [];
     
     % once individuated the best, let's represent them
 
-    v_TIK_Fin = addNans(violinMesh, v_TIK);
+    v_TIK_Fin = addNans(violinMesh, Lv_TIK);
     v_ex_Fin = addNans(violinMesh, v_ex_vector);
 
     surfVelRecTSVD = reshape( v_TSVD_Fin , [pY, pX]).'; 

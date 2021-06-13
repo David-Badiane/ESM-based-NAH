@@ -33,7 +33,7 @@ addpath('violinMeshes');
 %% Virtual Points generator
 
 pts = table2array(readtable('grid128x128Fin.csv'));
-controller = 0;
+controller = 1;
 zVal = 0; % <-- lattice
 nGrids = 1;
 
@@ -49,19 +49,27 @@ start = max(start);
 
 % all already set and debugged
 for ii = 0:nGrids-1
+    disp('');
+    disp(' contr = 0 rectangular')
+    disp('contr = 1, circular grids')
+    disp('contr = 2, ellipsoidal grids')
+    disp('contr = 3, circular + border')
+    disp('contr = 4, ellipsoidal + border')
+    disp('contr = 5, inner + border')
+    disp('contr = 6, BORDER ONLY')
+    disp('contr = 7, inner only')
+    disp('');
+    
+    controller = input('choose grid(0-7) :');
         genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
 end
 
 %% global variables
 
-pX = 128;
-pY = 128;
-
 nMics = 8;
 nMeas = 8;
 
 nPressureMeas = nMics*nMeas;
-nViolinPoints = pX*pY;
 
 rho = 1.2; % [Kg/m3] air density 
 
@@ -71,25 +79,31 @@ eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
 
 nModes = length(eigenFreqz);
 
-violinMesh = table2array(readtable('grid128x 128clean.csv')); 
+violinMesh = table2array(readtable('grid64x16.csv')); 
 violinMesh = violinMesh.*0.001; % convert in meter
-violinMesh(:,1:2) = -1.*violinMesh(:,1:2);
+
+pX = 64;
+pY = 16;
+nViolinPoints = pX*pY;
 
 % get normal points for Green's fxs gradient
 X = reshape(violinMesh(:,1), pX, pY);
 Y = reshape(violinMesh(:,2), pX, pY);
 Z = reshape(violinMesh(:,3), pX, pY);
+zNan = find(isnan(Z));
+Z(zNan) = 0; % for boundaries normal vector
 
 [nx , ny, nz] = surfnorm(X,Y,Z); % returns the x, y, and z components of the three-dimensional surface normals 
                                  % for each point of the surface.
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
+Z(zNan) = nan;
 normalPoints = [reshape(nx', [nViolinPoints,1]),...
                 reshape(ny', [nViolinPoints,1]),...
                 reshape(nz', [nViolinPoints,1]) ];
 
 pressureData = table2array(readtable('pressureData.csv'));
-measuredPressure = pressureData(:,3:end);
+measuredPressureData = pressureData(:,3:end);
 hologramDistance = 0.02;
 zHologram = max(Z(:)) + hologramDistance; 
 hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
@@ -115,8 +129,9 @@ alphaTIK = [];
   qTIKs = cell(1,2);
   
   omega = eigenFreqz(ii);
-     
+  measuredPressure = measuredPressureData(:,ii);
      for jj = 1:nEqSourceGrids
+        
         % choose virtual points grid     
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
@@ -126,8 +141,7 @@ alphaTIK = [];
         % compute Green functions matrix ( hologram 2 virtual points ) 
         [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
         G_p_omega = G_p{1}; 
-        
-        
+            
 
         % compute gradient Green functions matrix 
         % ( virtual points 2 reconstruction plane = violin )
@@ -145,7 +159,7 @@ alphaTIK = [];
         
         % 2) Inverse - calculation of equivalent sources weights
         Lq_TIK =  (1/(1i*omega*rho)).* tikhonov (U,s,V,measuredPressure,lambda_l);
-        Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure, 1:k_l); % perform the TSVD -> estimate the source strength
+        Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure, k_l); % perform the TSVD -> estimate the source strength
 
         % 3) Direct - solutions ( velocities ) 
         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
@@ -197,9 +211,9 @@ alphaTIK = [];
     % .... .....
     
     % once individuated the best, let's represent them
-    v_TSVD_Fin = addNans(platePoints, v_TSVD);
-    v_TIK_Fin = addNans(platePoints, v_TIK);
-    v_ex_Fin = addNans(platePoints, v_ex_vector);
+
+    v_TIK_Fin = addNans(violinMesh, Lv_TIK);
+    v_ex_Fin = addNans(violinMesh, v_ex_vector);
 
     surfVelRecTSVD = reshape( v_TSVD_Fin , [pY, pX]).'; 
     surfVelRecTIK = reshape( v_TIK_Fin , [pY, pX]).'; 

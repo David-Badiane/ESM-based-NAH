@@ -68,7 +68,7 @@ switch controller
         
    xBorder = input('how much interior to the border along x? (0 to 0.5): ');
    yBorder = input('how much interior to the border along y? (0 to 0.5): ');
-    zVal = zVal;
+   
    [virtualPts] = innerVirtualPoints(pts,  xBorder, yBorder, zVal);
 
     disp("border");
@@ -126,6 +126,16 @@ end
         
         
         writeMat2File(virtualPts, [fileName,'.csv'], {'x' 'y' 'z'}, 3, true);
+        
+        downsampling = input('resample ? ( 0 or 1)');
+        
+        if downsampling == 1
+            nrows = input('nrows: ');
+            ncols = input('nrows: ');
+
+            [virtualPts] = downsampling_regular(virtualPts, nrows, ncols, fileName);
+        end
+        
         cd(baseFolder);
 end
 

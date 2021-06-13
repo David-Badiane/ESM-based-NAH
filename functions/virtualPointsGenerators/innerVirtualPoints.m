@@ -1,4 +1,4 @@
-function [intPts] = innerVirtualPoints(pts, scale, xBorder, yBorder, zVal)
+function [intPts] = innerVirtualPoints(pts, xBorder, yBorder, zVal)
 %FORMpts Summary of this function goes here
 %   Detailed explanation goes here
 close all
@@ -46,12 +46,12 @@ close all
                         if (jj >= ylimDown && jj <= ylimUp) 
       
                         else
-                            z(idxs(jj)) = 9;
+                            z(idxs(jj)) = nan;
                         end
             end
         end
         
-    intPts = [scale*x(:), scale*y(:), z(:)];
+    intPts = [x(:), y(:), z(:)];
     figure()
     plot3(intPts(:,1), intPts(:,2), intPts(:,3),'.', 'markerSize', 10);
     hold on
