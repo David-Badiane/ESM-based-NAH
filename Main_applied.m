@@ -17,6 +17,7 @@ nrows = 45; ncols = 15; fileName = ['grid',int2str(nrows),'x',int2str(ncols)];
 [outMatrix] = downsampling_regular(pts, nrows, ncols, fileName);
 [pts] = downsampling_regular(outMatrix, 128, 128)
 %}
+
 clear all
 close all
 clc
@@ -27,13 +28,12 @@ baseFolder = pwd;
 virtualPointsFolder = [baseFolder,'\VPGrids'];
 estimationsFolder = [baseFolder, '\Estimations'];
 addpath(genpath('functions'));
-addpath 'virtualPointsGrids_old';
 addpath('violinMeshes');
 
 %% Virtual Points generator
 
 pts = table2array(readtable('grid128x128Fin.csv'));
-controller = 1;
+controller = 0;
 zVal = 0; % <-- lattice
 nGrids = 1;
 
@@ -49,10 +49,10 @@ start = max(start);
 
 % all already set and debugged
 for ii = 0:nGrids-1
-genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
+        genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
 end
 
-%% f = 377
+%% global variables
 
 pX = 128;
 pY = 128;
@@ -113,20 +113,25 @@ alphaTIK = [];
   nccTSVDs = [];
   qTSVDs = cell(1,2);
   qTIKs = cell(1,2);
+  
+  omega = eigenFreqz(ii);
      
      for jj = 1:nEqSourceGrids
         % choose virtual points grid     
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
-        deleteIndexes = find(isnan(virtualPoints(:,3)));
+        virtualPoints = 0.001.*virtualPoints;
+       % deleteIndexes = find(isnan(virtualPoints(:,3)));
 
         % compute Green functions matrix ( hologram 2 virtual points ) 
         [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
         G_p_omega = G_p{1}; 
+        
+        
 
         % compute gradient Green functions matrix 
         % ( virtual points 2 reconstruction plane = violin )
-        [G_v] = normalGradient(virtualPoints, violinPoints , omega, normalPoints);
+        [G_v] = normalGradient(virtualPoints, violinMesh , omega, normalPoints);
         G_v_omega = G_v{1};
 
 
@@ -137,10 +142,10 @@ alphaTIK = [];
         lambda_l = l_curve (U,s,measuredPressure);
         figure(3)
         k_l = l_curve (U,s,measuredPressure,'tsvd');
-
+        
         % 2) Inverse - calculation of equivalent sources weights
         Lq_TIK =  (1/(1i*omega*rho)).* tikhonov (U,s,V,measuredPressure,lambda_l);
-        Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure,k_l); % perform the TSVD -> estimate the source strength
+        Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure, 1:k_l); % perform the TSVD -> estimate the source strength
 
         % 3) Direct - solutions ( velocities ) 
         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
