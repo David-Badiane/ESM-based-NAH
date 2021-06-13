@@ -12,7 +12,7 @@ nccTSVD = zeros(1, numParamsTSVD);
 for j = 1:numParamsTIK                 %norms are all norm-2
     q_TIK = (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressureN  , alphaTIK(j)); % reconstructed source streght
     v_TIK = G_v_omega*q_TIK; 
-    
+    %%%
     normV = norm(v_ex_vector ,2);    
     nmseTIK(j)  = 10*log(norm(v_TIK - v_ex_vector)^2 / (normV^2));
     
@@ -62,8 +62,7 @@ for ii = 1:length(errors)
     hold on
     stem(alphaVectors{alphaIndex}(loc), val);
     xlabel(namesAlpha{alphaIndex});
-    ylabel(names{ii});
-    
+    ylabel(names{ii});   
     desiredAlpha(ii,2) = alphaVectors{alphaIndex}(loc);
 end   
 

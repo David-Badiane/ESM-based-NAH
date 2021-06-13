@@ -31,7 +31,8 @@ virtualPoints(deleteIndexesVirt,:) = [];
 deleteIndexesPlate = find(isnan(platePoints(:,3)));
 platePoints(deleteIndexesPlate,:) = [];
 
-normalPoints(deleteIndexesPlate, :) = [];
+deleteIndexesNorm = find(isnan(normalPoints(:,1)));
+normalPoints(deleteIndexesNorm, :) = [];
 
 G_v = cell(length(omega),1);
 % preallocate temporary matrix
@@ -59,6 +60,11 @@ for component = 1:length(normalGradientComponents)   % for each component (x,y,z
                 gradient = distVector(component)*alpha*G;   % gradient is analytically like this
                                 
                 G_w(ii,jj) = gradient *normalPoints(ii,component);  % scalar product with normal vector component
+                
+                if ii >550
+                    a = 3;
+                end
+            
             end   
         end
 
