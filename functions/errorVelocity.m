@@ -61,9 +61,9 @@ for jj = 1:numParamsTSVD
     v_TSVD_Fin(cancelindex) = [];
     
     %NMSE
-    nmseTSVD(ii)  = 10*log(norm(v_TSVD_Fin - v_ex_vector)^2 / (normV^2));
+    nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin - v_ex_vector)^2 / (normV^2));
     
-    nccTSVD(ii) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
+    nccTSVD(jj) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
 
 
 end
@@ -72,6 +72,8 @@ errors = {nmseTIK, nccTIK, nmseTSVD, nccTSVD};
 alphaVectors = {alphaTIK; alphaTSVD};
 
 desiredAlpha = zeros(4,2);
+
+
 names = {'nmseTIK' 'nccTIK' 'nmseTSVD' 'nccTSVD'};
 namesAlpha = {'alphaTIK' 'alphaTSVD' };
 
@@ -90,7 +92,7 @@ for ii = 1:length(errors)
     else 
         alphaIndex = 2;
     end
-    disp(ii);
+
     subplot (2,2, ii)
     plot(alphaVectors{alphaIndex}, errors{ii});
     hold on
@@ -98,6 +100,7 @@ for ii = 1:length(errors)
     xlabel(namesAlpha{alphaIndex});
     ylabel(names{ii});   
     desiredAlpha(ii,2) = alphaVectors{alphaIndex}(loc);
+
 end   
 
 velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, nmseTSVD, names{4}, nccTSVD);

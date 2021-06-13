@@ -29,6 +29,7 @@ virtualPointsFolder = [baseFolder,'\VPGrids'];
 estimationsFolder = [baseFolder, '\Estimations'];
 addpath(genpath('functions'));
 addpath('violinMeshes');
+addpath('VPGrids')
 
 %% Virtual Points generator
 
@@ -47,7 +48,7 @@ for ii = 1:length(filesList(:,1))
 end
 
 start = max(start);
-
+%{
 % all already set and debugged
 for ii = 0:nGrids-1
     disp('');
@@ -64,7 +65,7 @@ for ii = 0:nGrids-1
     controller = input('choose kind of grid(0-7) :');
         genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
 end
-
+%}
 %% global variables
 
 nMics = 8;
@@ -104,16 +105,18 @@ normalPoints = [reshape(nx', [nViolinPoints,1]),...
                 reshape(nz', [nViolinPoints,1]) ];
 
 pressureData = table2array(readtable('pressureData.csv'));
-measuredPressureData = pressureData(:,3:end);
 hologramDistance = 0.02;
 zHologram = max(Z(:)) + hologramDistance; 
 hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
+hologramMeshX = reshape( pressureData(:,1) , [nMics, nMeas]); 
+hologramMeshY = reshape( pressureData(:,2) , [nMics, nMeas]); 
 
 velocityData = table2array(readtable('velocityData.csv'));   
 velocityData(:,1:2) = 0.001.*velocityData(:,1:2);
-nEqSourceGrids = 5;
+nEqSourceGrids = 10;
  
-
+load('xDataVlnMeasurements.mat');
+load('yDataVlnMeasurements.mat');
 %% COMPUTATION LOOP 
 
 metricsTSVD = [];
@@ -123,7 +126,7 @@ alphaTSVD = [];
 alphaTIK = [];
 
  for ii = 1:length(eigenFreqz)
-     
+  % store the metrics for each grid
   nccTIKs = [];
   nccTSVDs = [];
   qTSVDs = cell(1,2);
@@ -132,9 +135,11 @@ alphaTIK = [];
   omega = eigenFreqz(ii);
   measuredPressure = measuredPressureData(:,ii);
   v_ex_vector = velocityData(:, 2 + ii);
+  
      for jj = 1:nEqSourceGrids
         
-        % choose virtual points grid     
+        % choose virtual points grid   
+
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
         virtualPoints = 0.001.*virtualPoints;
@@ -151,7 +156,8 @@ alphaTIK = [];
         G_v_omega = G_v{1};
 
 
-        % APPROACH 1 ) L curve solutions
+        % APPROACH 1 ) L curve solution
+        
         % 1) Inverse - individuation of regularization parameter (lambda) 
         [U,s,V] = csvd (G_p_omega);
         figure(2)
@@ -166,6 +172,12 @@ alphaTIK = [];
         % 3) Direct - solutions ( velocities ) 
         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
         Lv_TIK = G_v_omega*Lq_TIK; % reconstructed velocity with Tikhonov
+        
+        normV = norm(v_ex_vector, 2);
+        nmseTSVD_L  = 10*log(norm(Lv_TSVD - v_ex_vector)^2 / (normV_L^2));
+        nccTSVD_L = (abs(Lv_TSVD)'*abs(v_ex_vector)) / (norm(abs(Lv_TSVD),2)*norm(abs(v_ex_vector),2));
+        nmseTIK_L  = 10*log(norm(Lv_TIK - v_ex_vector)^2 / (normV_L^2));
+        nccTIK_L = (abs(Lv_TIK)'*abs(v_ex_vector)) / (norm(abs(Lv_TIK),2)*norm(abs(v_ex_vector),2));
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
@@ -187,16 +199,14 @@ alphaTIK = [];
         % COMPARE APPROACH 1 & APPROACH 2 by calculating NCC of
         % interpolation
         % write a fx  like : 
-        % [ncc_LTIK, ncc_MTIK, ncc_LTSVD, ncc_MTSVD] = function(v_TSVD, v_TIK,v_LTSVD, v_LTIK, velocityGroundtruth)
+        %[ncc_LTIK, ncc_MTIK, ncc_LTSVD, ncc_MTSVD] = compareMethods(v_TSVD, v_TIK,v_LTSVD, v_LTIK, velocityGroundtruth)
 
         % store results
-        nccTIKs = [nccTIKs; ncc_LTIK, ncc_MTIK];
-        nccTSVDs = [nccTSVDs; ncc_LTSVD, ncc_MTSVD];
 
-        qTSVDs{ii,1} = q_TSVD;
-        qTSVDs{ii,2} = Lq_TSVD;
-        qTIKs{ii,1} = q_TIK;
-        qTIKs{ii,2} = Lq_TIK;
+        qTSVDs{jj,1} = q_TSVD;
+        qTSVDs{jj,2} = Lq_TSVD;
+        qTIKs{jj,1} = q_TIK;
+        qTIKs{jj,2} = Lq_TIK;
     end 
 
     % !!! riflettere su architettura dati; trovarne semplice e effettiva !!!
@@ -213,14 +223,16 @@ alphaTIK = [];
     
     % once individuated the best, let's represent them
 
-    v_TIK_Fin = addNans(violinMesh, Lv_TIK);
-    v_ex_Fin = addNans(violinMesh, v_ex_vector);
+    v_TIK_Fin = addNans(violinMesh, v_TIK);
+    v_TSVD_Fin = addNans(violinMesh, v_TSVD);
+   % v_ex_Fin = addNans(violinMesh, v_ex_vector); TO FIX
 
-    surfVelRecTSVD = reshape( v_TSVD_Fin , [pY, pX]).'; 
-    surfVelRecTIK = reshape( v_TIK_Fin , [pY, pX]).'; 
+    surfVelRecTSVD = reshape( v_TSVD_Fin , [pX, pY]); 
+    surfVelRecTIK = reshape( v_TIK_Fin , [pX, pY]); 
     
     p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
     surfRecP = reshape( p_TIK , [nMics, nMeas]); 
+    surfPressureMeas = reshape( measuredPressure , [nMics, nMeas]); 
 
     % velocity
     figure(100) 
@@ -234,10 +246,10 @@ alphaTIK = [];
     figure(101)
     % pressure
     subplot(121)
-    surf(hologramInfos{1},hologramInfos{2},abs(surfRecP))
+    surf(hologramMeshX, hologramMeshY,abs(surfRecP))
     title('reconstructed pressure')
     subplot(122)
-    surf(hologramInfos{1},hologramInfos{2},abs(pressureFields{mode}))
+    surf(hologramMeshX, hologramMeshY,abs(surfPressureMeas))
     title('actual pressure')
     
     % save estiamtion results

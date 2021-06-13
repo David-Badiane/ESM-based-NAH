@@ -17,7 +17,7 @@ nanVel(notNanIdxs) = velocity;
 %{
 figure()
 plot3(virtualPoints(:,1),virtualPoints(:,2), abs(nanVel), '.')
-%}
 
+%}
 end
 
