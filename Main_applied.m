@@ -111,7 +111,7 @@ hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(
 
 velocityData = table2array(readtable('velocityData.csv'));   
 velocityData(:,1:2) = 0.001.*velocityData(:,1:2);
-nEqSourceGrids = 1;
+nEqSourceGrids = 5;
  
 
 %% COMPUTATION LOOP 
@@ -131,6 +131,7 @@ alphaTIK = [];
   
   omega = eigenFreqz(ii);
   measuredPressure = measuredPressureData(:,ii);
+  v_ex_vector = velocityData(:, 2 + ii);
      for jj = 1:nEqSourceGrids
         
         % choose virtual points grid     
@@ -172,10 +173,9 @@ alphaTIK = [];
         numParamsTIK = 1e2;
         numParamsTSVD = 64;
 
-        % !!! need to revisitate the function and compute the interpolation !!!
-        [velocityErrors, desiredAlpha] = plotErrorVelocity(v_ex_vector, ... 
-        measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
-        numParamsTIK, numParamsTSVD,     omega,      rho, deleteIndexes);
+        [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
+            xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
+            numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY);
 
         % recalculation with best metrics approach
         q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressure  ,desiredAlpha(4,2)); % perform the TSVD -> estimate the source strength
