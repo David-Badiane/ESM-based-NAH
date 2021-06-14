@@ -177,11 +177,14 @@ dataCell = cell(length(eigenFreqz),1);
   nccTIK_M = zeros(nEqSourceGrids,1);
     
      for jj = 1:nEqSourceGrids
-        
+        disp(jj)
         % choose virtual points grid   
-        if jj == 37
-            jj = 38
-        end
+%         if jj == 7
+%             jj = 8
+%         end
+%         if jj == 9
+%             jj = 10
+%         end
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
         virtualPoints = 0.001.*virtualPoints;
@@ -202,9 +205,7 @@ dataCell = cell(length(eigenFreqz),1);
         
         % 1) Inverse - individuation of regularization parameter (lambda) 
         [U,s,V] = csvd (G_p_omega);
-        figure(2)
         lambda_l = l_curve (U,s,measuredPressure);
-        figure(3)
         k_l = l_curve (U,s,measuredPressure,'tsvd');
         
         % 2) Inverse - calculation of equivalent sources weights
@@ -221,9 +222,10 @@ dataCell = cell(length(eigenFreqz),1);
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
-        rangeTSVD = [1,size(V,2)]; % range of value for the regularization parameter
-        numParamsTIK = 100;
-        numParamsTSVD = size(V,2);
+        TSVDup = min([length(G_p_omega(1,:)), length(G_p_omega(:,1))]);
+        rangeTSVD = [1,TSVDup]; % range of value for the regularization parameter
+        numParamsTIK = 1e2;
+        numParamsTSVD = TSVDup-1;
 
         [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
             xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
@@ -403,14 +405,13 @@ xlabel('f [Hz]')
  %% plot the best result as example
  % according to the M method
  
-[a, bestFreq_M] = min(nmseTsvd_M_min);
-currentFreqStruct = dataStruct.f6.nmseTSVD_M;
-bestGrid_M = find( a == currentFreqStruct);
-bestLambda = dataStruct.f6.lambda_nmse_M(bestGrid_M);
- measuredPressure = pressureData(:, 2 + bestFreq_M);
- v_ex_vector = velocityData(:, 2 + bestFreq_M);
+ bestLambda = 31;
+ bestMfreq = eigenFreqz(2);
+ bestMgrid = 10;
+ measuredPressure = pressureData(:, 2 + 2);
+ v_ex_vector = velocityData(:, 2 + 2);
  
- virtualPtsFilename = ['VP_', int2str(bestGrid_M), '.csv'];
+ virtualPtsFilename = ['VP_', int2str(bestMgrid), '.csv'];
  virtualPoints = table2array(readtable(virtualPtsFilename)) ;
  virtualPoints = 0.001.*virtualPoints;
  [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
@@ -418,16 +419,10 @@ bestLambda = dataStruct.f6.lambda_nmse_M(bestGrid_M);
  [G_v] = normalGradient(virtualPoints, violinMesh , omega, normalPoints);
  G_v_omega = G_v{1};
  [U,s,V] = csvd (G_p_omega);
- q_TIK =  (1/(1i*omega*rho)).* tsvd(U,s,V,measuredPressure,bestLambda);
+ q_TIK =  (1/(1i*omega*rho)).* tikhonov(U,s,V,measuredPressure,bestLambda);
  v_TIK = G_v_omega*q_TIK;
  v_TIK_Fin = addNans(violinMesh, v_TIK);
  surfVelRecTIK = reshape( v_TIK_Fin , [pX, pY]); 
  
  figure(500)
  surf(X, Y, abs(surfVelRecTIK))
- xlabel('x [m]')
- ylabel('y [m]')
- zlabel('z [m/s]')
- title('method M - TSVD - grid n.5 - f = 684 Hz')
- 
- % plot metric wrt to grid number
