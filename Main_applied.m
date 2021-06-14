@@ -177,14 +177,14 @@ dataCell = cell(length(eigenFreqz),1);
   nccTIK_M = zeros(nEqSourceGrids,1);
     
      for jj = 1:nEqSourceGrids
-        
+        disp(jj)
         % choose virtual points grid   
-        if jj == 7
-            jj = 8
-        end
-        if jj == 9
-            jj = 10
-        end
+%         if jj == 7
+%             jj = 8
+%         end
+%         if jj == 9
+%             jj = 10
+%         end
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
         virtualPoints = 0.001.*virtualPoints;
@@ -205,9 +205,7 @@ dataCell = cell(length(eigenFreqz),1);
         
         % 1) Inverse - individuation of regularization parameter (lambda) 
         [U,s,V] = csvd (G_p_omega);
-        figure(2)
         lambda_l = l_curve (U,s,measuredPressure);
-        figure(3)
         k_l = l_curve (U,s,measuredPressure,'tsvd');
         
         % 2) Inverse - calculation of equivalent sources weights
@@ -224,9 +222,10 @@ dataCell = cell(length(eigenFreqz),1);
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
-        rangeTSVD = [1,length(G_p_omega(:,1)) ]; % range of value for the regularization parameter
+        TSVDup = min([length(G_p_omega(1,:)), length(G_p_omega(:,1))]);
+        rangeTSVD = [1,TSVDup]; % range of value for the regularization parameter
         numParamsTIK = 1e2;
-        numParamsTSVD = length(G_p_omega(:,1));
+        numParamsTSVD = TSVDup-1;
 
         [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
             xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
