@@ -290,9 +290,11 @@ dataCell = cell(length(eigenFreqz),1);
        
     dataCell{ii} = tempTable;
     dataStruct = cell2struct(dataCell, structNames, 1);
+    
  end
+ %% plot metrics
  
- % plot a figure with the NCC for the various frequencies
+ % plot figures for M method
  nccTik_M_max = zeros(1,length(eigenFreqz));
  nccTik_M_max(1) = max(dataStruct.f1.nccTIK_M);
  nccTik_M_max(2) = max(dataStruct.f2.nccTIK_M);
@@ -371,6 +373,29 @@ legend('TIK','TSVD')
 title('max NCC method M')
 xlabel('f [Hz]')
 
-
-
  % check regularization parameters as frequency varies
+ 
+ %% plot the best result as example
+ % according to the M method
+ 
+ bestLambda = 31;
+ bestMfreq = eigenFreqz(2);
+ bestMgrid = 10;
+ measuredPressure = pressureData(:, 2 + 2);
+ v_ex_vector = velocityData(:, 2 + 2);
+ 
+ virtualPtsFilename = ['VP_', int2str(bestMgrid), '.csv'];
+ virtualPoints = table2array(readtable(virtualPtsFilename)) ;
+ virtualPoints = 0.001.*virtualPoints;
+ [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
+ G_p_omega = G_p{1};
+ [G_v] = normalGradient(virtualPoints, violinMesh , omega, normalPoints);
+ G_v_omega = G_v{1};
+ [U,s,V] = csvd (G_p_omega);
+ q_TIK =  (1/(1i*omega*rho)).* tikhonov(U,s,V,measuredPressure,bestLambda);
+ v_TIK = G_v_omega*q_TIK;
+ v_TIK_Fin = addNans(violinMesh, v_TIK);
+ surfVelRecTIK = reshape( v_TIK_Fin , [pX, pY]); 
+ 
+ figure(500)
+ surf(X, Y, abs(surfVelRecTIK))

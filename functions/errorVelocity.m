@@ -93,12 +93,12 @@ for ii = 1:length(errors)
         alphaIndex = 2;
     end
 
-    subplot (2,2, ii)
-    plot(alphaVectors{alphaIndex}, errors{ii});
-    hold on
-    stem(alphaVectors{alphaIndex}(loc), val);
-    xlabel(namesAlpha{alphaIndex});
-    ylabel(names{ii});   
+%     subplot (2,2, ii)
+%     plot(alphaVectors{alphaIndex}, errors{ii});
+%     hold on
+%     stem(alphaVectors{alphaIndex}(loc), val);
+%     xlabel(namesAlpha{alphaIndex});
+%     ylabel(names{ii});   
     desiredAlpha(ii,2) = alphaVectors{alphaIndex}(loc);
 
 end   

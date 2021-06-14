@@ -140,6 +140,6 @@ if locate
   title(['L-curve, ',txt,' corner at ',num2str(reg_corner)]);
   axis(ax)
   if (~HoldState), hold off; end
-  %}
+  
   
 end
