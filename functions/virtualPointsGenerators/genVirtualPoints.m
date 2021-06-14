@@ -120,10 +120,7 @@ end
             virtualPts(:,2) = yScale * virtualPts(:,2); 
 
             check = input('still scale? (0 or 1): ');
-        end
-        
-        
-        
+        end  
         
         writeMat2File(virtualPts, [fileName,'.csv'], {'x' 'y' 'z'}, 3, true);
         
@@ -131,7 +128,7 @@ end
         
         if downsampling == 1
             nrows = input('nrows: ');
-            ncols = input('nrows: ');
+            ncols = input('ncols: ');
 
             [virtualPts] = downsampling_regular(virtualPts, nrows, ncols, fileName);
         end

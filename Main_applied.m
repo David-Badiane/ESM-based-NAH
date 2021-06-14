@@ -33,24 +33,33 @@ addpath('VPGrids')
 
 %% Virtual Points generator
 
-pts = table2array(readtable('grid128x128Fin.csv'));
+pts = table2array(readtable('grid128x128fin.csv'));
 zVal = 0; % <-- lattice
 nGrids = 35;
 
 %from last file automatically
 filesList = ls(virtualPointsFolder);
 filesList(1:2,:) = [];
-start = [];
+fileNums = [];
 
 for ii = 1:length(filesList(:,1))
     idx = find(filesList(ii,:)== '.');
-    start = [start; eval(filesList(ii,4:idx)) + 1];
+    fileNums = [fileNums; eval(filesList(ii,4:idx))];
 end
 
-start = max(start);
-%{
-% all already set and debugged
-for ii = 0:nGrids-1
+fileNums = max(fileNums);
+fileNums = sort(fileNums);
+
+for ii = 43:45
+    filename = ['VP_',int2str(ii),'.csv'];
+    ppts = table2array(readtable(filename));
+    figure(10);
+    plot3(ppts(:,1), ppts(:,2), ppts(:,3), '.');
+    hold on;
+    plot3(pts(:,1), pts(:,2), pts(:,3), '.')
+    title(['VP ',int2str(ii)]);
+    hold off;
+
     disp('');
     disp(' contr = 0 rectangular')
     disp('contr = 1, circular grids')
@@ -63,9 +72,28 @@ for ii = 0:nGrids-1
     disp('');
     
     controller = input('choose kind of grid(0-7) :');
-        genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
+    genVirtualPoints(pts,['VP_',int2str(ii)], controller, -25,virtualPointsFolder);
+
 end
-%}
+
+%all already set and debugged
+
+% for ii = 0:nGrids-1
+%     disp('');
+%     disp(' contr = 0 rectangular')
+%     disp('contr = 1, circular grids')
+%     disp('contr = 2, ellipsoidal grids')
+%     disp('contr = 3, circular + border')
+%     disp('contr = 4, ellipsoidal + border')
+%     disp('contr = 5, inner + border')
+%     disp('contr = 6, BORDER ONLY')
+%     disp('contr = 7, inner only')
+%     disp('');
+%     
+%     controller = input('choose kind of grid(0-7) :');
+%     genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
+% end
+
 %% global variables
 
 nMics = 8;
