@@ -33,48 +33,48 @@ addpath('VPGrids')
 
 %% Virtual Points generator
 
-pts = table2array(readtable('grid128x128fin.csv'));
-zVal = 0; % <-- lattice
-nGrids = 35;
-
-%from last file automatically
-filesList = ls(virtualPointsFolder);
-filesList(1:2,:) = [];
-fileNums = [];
-
-for ii = 1:length(filesList(:,1))
-    idx = find(filesList(ii,:)== '.');
-    fileNums = [fileNums; eval(filesList(ii,4:idx))];
-end
-
-fileNums = max(fileNums);
-fileNums = sort(fileNums);
-
-for ii = 43:45
-    filename = ['VP_',int2str(ii),'.csv'];
-    ppts = table2array(readtable(filename));
-    figure(10);
-    plot3(ppts(:,1), ppts(:,2), ppts(:,3), '.');
-    hold on;
-    plot3(pts(:,1), pts(:,2), pts(:,3), '.')
-    title(['VP ',int2str(ii)]);
-    hold off;
-
-    disp('');
-    disp(' contr = 0 rectangular')
-    disp('contr = 1, circular grids')
-    disp('contr = 2, ellipsoidal grids')
-    disp('contr = 3, circular + border')
-    disp('contr = 4, ellipsoidal + border')
-    disp('contr = 5, inner + border')
-    disp('contr = 6, BORDER ONLY')
-    disp('contr = 7, inner only')
-    disp('');
-    
-    controller = input('choose kind of grid(0-7) :');
-    genVirtualPoints(pts,['VP_',int2str(ii)], controller, -25,virtualPointsFolder);
-
-end
+% pts = table2array(readtable('grid128x128fin.csv'));
+% zVal = 0; % <-- lattice
+% nGrids = 45;
+% 
+% %from last file automatically
+% filesList = ls(virtualPointsFolder);
+% filesList(1:2,:) = [];
+% fileNums = [];
+% 
+% for ii = 1:length(filesList(:,1))
+%     idx = find(filesList(ii,:)== '.');
+%     fileNums = [fileNums; eval(filesList(ii,4:idx))];
+% end
+% 
+% fileNums = max(fileNums);
+% fileNums = sort(fileNums);
+% 
+% for ii = 43:45
+%     filename = ['VP_',int2str(ii),'.csv'];
+%     ppts = table2array(readtable(filename));
+%     figure(10);
+%     plot3(ppts(:,1), ppts(:,2), ppts(:,3), '.');
+%     hold on;
+%     plot3(pts(:,1), pts(:,2), pts(:,3), '.')
+%     title(['VP ',int2str(ii)]);
+%     hold off;
+% 
+%     disp('');
+%     disp(' contr = 0 rectangular')
+%     disp('contr = 1, circular grids')
+%     disp('contr = 2, ellipsoidal grids')
+%     disp('contr = 3, circular + border')
+%     disp('contr = 4, ellipsoidal + border')
+%     disp('contr = 5, inner + border')
+%     disp('contr = 6, BORDER ONLY')
+%     disp('contr = 7, inner only')
+%     disp('');
+%     
+%     controller = input('choose kind of grid(0-7) :');
+%     genVirtualPoints(pts,['VP_',int2str(ii)], controller, -25,virtualPointsFolder);
+% 
+% end
 
 %all already set and debugged
 
@@ -109,11 +109,11 @@ eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
 
 nModes = length(eigenFreqz);
 
-violinMesh = table2array(readtable('grid64x16.csv')); 
+violinMesh = table2array(readtable('grid65x25.csv')); 
 violinMesh = violinMesh.*0.001; % convert in meter
 
-pX = 64;
-pY = 16;
+pX = 65;
+pY = 25;
 nViolinPoints = pX*pY;
 
 % get normal points for Green's fxs gradient
@@ -224,9 +224,9 @@ dataCell = cell(length(eigenFreqz),1);
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
-        rangeTSVD = [1,32 ]; % range of value for the regularization parameter
+        rangeTSVD = [1,length(G_p_omega(:,1)) ]; % range of value for the regularization parameter
         numParamsTIK = 1e2;
-        numParamsTSVD = 64;
+        numParamsTSVD = length(G_p_omega(:,1));
 
         [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
             xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
