@@ -33,39 +33,67 @@ addpath('VPGrids')
 
 %% Virtual Points generator
 
-pts = table2array(readtable('grid128x128Fin.csv'));
-zVal = 0; % <-- lattice
-nGrids = 35;
+% pts = table2array(readtable('grid128x128fin.csv'));
+% zVal = 0; % <-- lattice
+% nGrids = 45;
+% 
+% %from last file automatically
+% filesList = ls(virtualPointsFolder);
+% filesList(1:2,:) = [];
+% fileNums = [];
+% 
+% for ii = 1:length(filesList(:,1))
+%     idx = find(filesList(ii,:)== '.');
+%     fileNums = [fileNums; eval(filesList(ii,4:idx))];
+% end
+% 
+% fileNums = max(fileNums);
+% fileNums = sort(fileNums);
+% 
+% for ii = 43:45
+%     filename = ['VP_',int2str(ii),'.csv'];
+%     ppts = table2array(readtable(filename));
+%     figure(10);
+%     plot3(ppts(:,1), ppts(:,2), ppts(:,3), '.');
+%     hold on;
+%     plot3(pts(:,1), pts(:,2), pts(:,3), '.')
+%     title(['VP ',int2str(ii)]);
+%     hold off;
+% 
+%     disp('');
+%     disp(' contr = 0 rectangular')
+%     disp('contr = 1, circular grids')
+%     disp('contr = 2, ellipsoidal grids')
+%     disp('contr = 3, circular + border')
+%     disp('contr = 4, ellipsoidal + border')
+%     disp('contr = 5, inner + border')
+%     disp('contr = 6, BORDER ONLY')
+%     disp('contr = 7, inner only')
+%     disp('');
+%     
+%     controller = input('choose kind of grid(0-7) :');
+%     genVirtualPoints(pts,['VP_',int2str(ii)], controller, -25,virtualPointsFolder);
+% 
+% end
 
-%from last file automatically
-filesList = ls(virtualPointsFolder);
-filesList(1:2,:) = [];
-start = [];
+%all already set and debugged
 
-for ii = 1:length(filesList(:,1))
-    idx = find(filesList(ii,:)== '.');
-    start = [start; eval(filesList(ii,4:idx)) + 1];
-end
+% for ii = 0:nGrids-1
+%     disp('');
+%     disp(' contr = 0 rectangular')
+%     disp('contr = 1, circular grids')
+%     disp('contr = 2, ellipsoidal grids')
+%     disp('contr = 3, circular + border')
+%     disp('contr = 4, ellipsoidal + border')
+%     disp('contr = 5, inner + border')
+%     disp('contr = 6, BORDER ONLY')
+%     disp('contr = 7, inner only')
+%     disp('');
+%     
+%     controller = input('choose kind of grid(0-7) :');
+%     genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
+% end
 
-start = max(start);
-%{
-% all already set and debugged
-for ii = 0:nGrids-1
-    disp('');
-    disp(' contr = 0 rectangular')
-    disp('contr = 1, circular grids')
-    disp('contr = 2, ellipsoidal grids')
-    disp('contr = 3, circular + border')
-    disp('contr = 4, ellipsoidal + border')
-    disp('contr = 5, inner + border')
-    disp('contr = 6, BORDER ONLY')
-    disp('contr = 7, inner only')
-    disp('');
-    
-    controller = input('choose kind of grid(0-7) :');
-        genVirtualPoints(pts,['VP_',int2str(start+ii)], controller, zVal,virtualPointsFolder);
-end
-%}
 %% global variables
 
 nMics = 8;
@@ -81,11 +109,11 @@ eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
 
 nModes = length(eigenFreqz);
 
-violinMesh = table2array(readtable('grid64x16.csv')); 
+violinMesh = table2array(readtable('grid65x25.csv')); 
 violinMesh = violinMesh.*0.001; % convert in meter
 
-pX = 64;
-pY = 16;
+pX = 65;
+pY = 25;
 nViolinPoints = pX*pY;
 
 % get normal points for Green's fxs gradient
@@ -151,11 +179,8 @@ dataCell = cell(length(eigenFreqz),1);
      for jj = 1:nEqSourceGrids
         
         % choose virtual points grid   
-        if jj == 7
-            jj = 8
-        end
-        if jj == 9
-            jj = 10
+        if jj == 37
+            jj = 38
         end
         virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
         virtualPoints = table2array(readtable(virtualPtsFilename)) ;
@@ -196,9 +221,9 @@ dataCell = cell(length(eigenFreqz),1);
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
-        rangeTSVD = [1,32 ]; % range of value for the regularization parameter
-        numParamsTIK = 1e2;
-        numParamsTSVD = 64;
+        rangeTSVD = [1,size(V,2)]; % range of value for the regularization parameter
+        numParamsTIK = 100;
+        numParamsTSVD = size(V,2);
 
         [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
             xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
@@ -290,6 +315,7 @@ dataCell = cell(length(eigenFreqz),1);
        
     dataCell{ii} = tempTable;
     dataStruct = cell2struct(dataCell, structNames, 1);
+    
  end
  %% plot metrics
  
@@ -376,14 +402,14 @@ xlabel('f [Hz]')
  
  %% plot the best result as example
  % according to the M method
+[a, bestFreq_M] = max(nccTik_M_max);
+currentFreqStruct = dataStruct.f1.nccTIK_M;
+bestGrid_M = find( a == currentFreqStruct);
+bestLambda = dataStruct.f1.lambda_ncc_M(bestGrid_M);
+ measuredPressure = pressureData(:, 2 + bestFreq_M);
+ v_ex_vector = velocityData(:, 2 + bestFreq_M);
  
- bestLambda = 62.6262626262626;
- bestMfreq = eigenFreqz(10);
- bestMgrid = 8;
- measuredPressure = pressureData(:, 2 + 10);
- v_ex_vector = velocityData(:, 2 + 10);
- 
- virtualPtsFilename = ['VP_', int2str(bestMgrid), '.csv'];
+ virtualPtsFilename = ['VP_', int2str(bestGrid_M), '.csv'];
  virtualPoints = table2array(readtable(virtualPtsFilename)) ;
  virtualPoints = 0.001.*virtualPoints;
  [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
@@ -391,8 +417,12 @@ xlabel('f [Hz]')
  [G_v] = normalGradient(virtualPoints, violinMesh , omega, normalPoints);
  G_v_omega = G_v{1};
  [U,s,V] = csvd (G_p_omega);
- q_TIK =  (1/(1i*omega*rho)).* tikhonov (U,s,V,measuredPressure,bestLambda);
+ q_TIK =  (1/(1i*omega*rho)).* tikhonov(U,s,V,measuredPressure,bestLambda);
  v_TIK = G_v_omega*q_TIK;
  v_TIK_Fin = addNans(violinMesh, v_TIK);
  surfVelRecTIK = reshape( v_TIK_Fin , [pX, pY]); 
  
+ figure(500)
+ surf(X, Y, abs(surfVelRecTIK))
+ xlabel('x [m]')
+ ylabel
