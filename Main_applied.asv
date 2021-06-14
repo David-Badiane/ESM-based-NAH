@@ -114,7 +114,7 @@ hologramMeshY = reshape( pressureData(:,2) , [nMics, nMeas]);
 
 velocityData = table2array(readtable('velocityData.csv'));   
 velocityData(:,1:2) = 0.001.*velocityData(:,1:2);
-nEqSourceGrids = 10;
+nEqSourceGrids = 45;
  
 load('xDataVlnMeasurements.mat');
 load('yDataVlnMeasurements.mat');
@@ -124,7 +124,9 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
                     'nmseTIK_M', 'nccTIK_M'};
-                
+structNames = {'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11'};
+               
+dataCell = cell(length(eigenFreqz),1);
 
 %% COMPUTATION LOOP 
 
@@ -137,9 +139,14 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
 
   % store the metrics for each grid
   gridNumber = zeros(nEqSourceGrids,1);
-  lambda_L = [];  k_L = []; nmseTSVD_L = []; nccTSVD_L = []; nmseTIK_L = []; nccTIK_L = []; 
-  lambda_nmse_M = []; k_nmse_M = []; k_ncc_M = []; lambda_ncc_M = []; nmseTSVD_M = [];
-  nccTSVD_M = []; nmseTIK_M = []; nccTIK_M = [];
+  lambda_L = zeros(nEqSourceGrids,1);  k_L = zeros(nEqSourceGrids,1);
+  nmseTSVD_L = zeros(nEqSourceGrids,1); nccTSVD_L = zeros(nEqSourceGrids,1);
+  nmseTIK_L = zeros(nEqSourceGrids,1); nccTIK_L = zeros(nEqSourceGrids,1); 
+  lambda_nmse_M = zeros(nEqSourceGrids,1); k_nmse_M = zeros(nEqSourceGrids,1);
+  k_ncc_M = zeros(nEqSourceGrids,1); lambda_ncc_M = zeros(nEqSourceGrids,1);
+  nmseTSVD_M = zeros(nEqSourceGrids,1);
+  nccTSVD_M = zeros(nEqSourceGrids,1); nmseTIK_M = zeros(nEqSourceGrids,1); 
+  nccTIK_M = zeros(nEqSourceGrids,1);
     
      for jj = 1:nEqSourceGrids
         
@@ -228,7 +235,7 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
     tempTable = table( gridNumber, lambda_L, k_L, nmseTSVD_L, ...
        nccTSVD_L, nmseTIK_L, nccTIK_L, k_nmse_M, k_ncc_M, lambda_nmse_M, ...
        lambda_ncc_M, nmseTSVD_M, nccTSVD_M, nmseTIK_M, nccTIK_M, 'VariableNames',gridTablesNames);
-   
+   %{
     % !!! riflettere su architettura dati; trovarne semplice e effettiva !!!
     [TSVDval, TSVDloc] = max(NCCs(:,2), [], 'all');
     [TIKval, TIKloc] = max(NCCs(:,1), [], 'all');
@@ -279,9 +286,73 @@ gridTablesNames = {'grid n.','lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
     
     msg = 'press something to go on !!'
     p = input(msg);
-    
+       %}
+       
+    dataCell{ii} = tempTable;
+    dataStruct = cell2struct(dataCell, structNames, 1);
  end
  
  % plot a figure with the NCC for the various frequencies
+ nccTik_M_max = zeros(1,length(eigenFreqz));
+ nccTik_M_max(1) = max(dataStruct.f1.nccTIK_M);
+ nccTik_M_max(2) = max(dataStruct.f2.nccTIK_M);
+ nccTik_M_max(3) = max(dataStruct.f3.nccTIK_M);
+ nccTik_M_max(4) = max(dataStruct.f4.nccTIK_M);
+ nccTik_M_max(5) = max(dataStruct.f5.nccTIK_M);
+ nccTik_M_max(6) = max(dataStruct.f6.nccTIK_M);
+ nccTik_M_max(7) = max(dataStruct.f7.nccTIK_M);
+ nccTik_M_max(8) = max(dataStruct.f8.nccTIK_M);
+ nccTik_M_max(9) = max(dataStruct.f9.nccTIK_M);
+ nccTik_M_max(10) = max(dataStruct.f10.nccTIK_M);
+ nccTik_M_max(11) = max(dataStruct.f11.nccTIK_M);
  
+  nccTsvd_M_max = zeros(1,length(eigenFreqz));
+ nccTsvd_M_max(1) = max(dataStruct.f1.nccTSVD_M);
+ nccTsvd_M_max(2) = max(dataStruct.f2.nccTSVD_M);
+ nccTsvd_M_max(3) = max(dataStruct.f3.nccTSVD_M);
+ nccTsvd_M_max(4) = max(dataStruct.f4.nccTSVD_M);
+ nccTsvd_M_max(5) = max(dataStruct.f5.nccTSVD_M);
+ nccTsvd_M_max(6) = max(dataStruct.f6.nccTSVD_M);
+ nccTsvd_M_max(7) = max(dataStruct.f7.nccTSVD_M);
+ nccTsvd_M_max(8) = max(dataStruct.f8.nccTSVD_M);
+ nccTsvd_M_max(9) = max(dataStruct.f9.nccTSVD_M);
+ nccTsvd_M_max(10) = max(dataStruct.f10.nccTSVD_M);
+ nccTsvd_M_max(11) = max(dataStruct.f11.nccTSVD_M);
+ 
+ % plot a figure with the min NCCC for the various frequencies
+ nmseTik_M_min = zeros(1,length(eigenFreqz));
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ 
+ 
+  nccTsvd_M_max = zeros(1,length(eigenFreqz));
+ nccTsvd_M_max(1) = max(dataStruct.f1.nccTSVD_M);
+ nccTsvd_M_max(2) = max(dataStruct.f2.nccTSVD_M);
+ nccTsvd_M_max(3) = max(dataStruct.f3.nccTSVD_M);
+ nccTsvd_M_max(4) = max(dataStruct.f4.nccTSVD_M);
+ nccTsvd_M_max(5) = max(dataStruct.f5.nccTSVD_M);
+ nccTsvd_M_max(6) = max(dataStruct.f6.nccTSVD_M);
+ nccTsvd_M_max(7) = max(dataStruct.f7.nccTSVD_M);
+ nccTsvd_M_max(8) = max(dataStruct.f8.nccTSVD_M);
+ nccTsvd_M_max(9) = max(dataStruct.f9.nccTSVD_M);
+ nccTsvd_M_max(10) = max(dataStruct.f10.nccTSVD_M);
+ nccTsvd_M_max(11) = max(dataStruct.f11.nccTSVD_M);
+ 
+figure(111)
+plot(1:11, nccTik_M_max, '-o')
+hold on
+plot(1:11, nccTsvd_M_max, '-o')
+hold off
+grid on
+xticks([1:10])
+xticklabels({'111 ','186','285', '375', '498', '684', '730', '841', '984', '1196', '1374'})
+legend('TIK','TSVD')
+title('max NCC method M')
+xlabel('f [Hz]')
+
  % check regularization parameters as frequency varies

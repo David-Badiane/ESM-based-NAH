@@ -289,9 +289,88 @@ dataCell = cell(length(eigenFreqz),1);
        %}
        
     dataCell{ii} = tempTable;
-    dataStruc = cell2struct(dataCell, structNames, 1);
+    dataStruct = cell2struct(dataCell, structNames, 1);
  end
  
  % plot a figure with the NCC for the various frequencies
+ nccTik_M_max = zeros(1,length(eigenFreqz));
+ nccTik_M_max(1) = max(dataStruct.f1.nccTIK_M);
+ nccTik_M_max(2) = max(dataStruct.f2.nccTIK_M);
+ nccTik_M_max(3) = max(dataStruct.f3.nccTIK_M);
+ nccTik_M_max(4) = max(dataStruct.f4.nccTIK_M);
+ nccTik_M_max(5) = max(dataStruct.f5.nccTIK_M);
+ nccTik_M_max(6) = max(dataStruct.f6.nccTIK_M);
+ nccTik_M_max(7) = max(dataStruct.f7.nccTIK_M);
+ nccTik_M_max(8) = max(dataStruct.f8.nccTIK_M);
+ nccTik_M_max(9) = max(dataStruct.f9.nccTIK_M);
+ nccTik_M_max(10) = max(dataStruct.f10.nccTIK_M);
+ nccTik_M_max(11) = max(dataStruct.f11.nccTIK_M);
  
+  nccTsvd_M_max = zeros(1,length(eigenFreqz));
+ nccTsvd_M_max(1) = max(dataStruct.f1.nccTSVD_M);
+ nccTsvd_M_max(2) = max(dataStruct.f2.nccTSVD_M);
+ nccTsvd_M_max(3) = max(dataStruct.f3.nccTSVD_M);
+ nccTsvd_M_max(4) = max(dataStruct.f4.nccTSVD_M);
+ nccTsvd_M_max(5) = max(dataStruct.f5.nccTSVD_M);
+ nccTsvd_M_max(6) = max(dataStruct.f6.nccTSVD_M);
+ nccTsvd_M_max(7) = max(dataStruct.f7.nccTSVD_M);
+ nccTsvd_M_max(8) = max(dataStruct.f8.nccTSVD_M);
+ nccTsvd_M_max(9) = max(dataStruct.f9.nccTSVD_M);
+ nccTsvd_M_max(10) = max(dataStruct.f10.nccTSVD_M);
+ nccTsvd_M_max(11) = max(dataStruct.f11.nccTSVD_M);
+ 
+ % plot a figure with the min NCCC for the various frequencies
+ nmseTik_M_min = zeros(1,length(eigenFreqz));
+ nmseTik_M_min(1) = min(dataStruct.f1.nmseTIK_M);
+ nmseTik_M_min(2) = min(dataStruct.f2.nmseTIK_M);
+ nmseTik_M_min(3) = min(dataStruct.f3.nmseTIK_M);
+ nmseTik_M_min(4) = min(dataStruct.f4.nmseTIK_M);
+ nmseTik_M_min(5) = min(dataStruct.f5.nmseTIK_M);
+ nmseTik_M_min(6) = min(dataStruct.f6.nmseTIK_M);
+ nmseTik_M_min(7) = min(dataStruct.f7.nmseTIK_M);
+ nmseTik_M_min(8) = min(dataStruct.f8.nmseTIK_M);
+ nmseTik_M_min(9) = min(dataStruct.f9.nmseTIK_M);
+ nmseTik_M_min(10) = min(dataStruct.f10.nmseTIK_M);
+ nmseTik_M_min(11) = min(dataStruct.f11.nmseTIK_M);
+ 
+ nmseTsvd_M_min = zeros(1,length(eigenFreqz));
+ nmseTsvd_M_min(1) = min(dataStruct.f1.nmseTSVD_M);
+ nmseTsvd_M_min(2) = min(dataStruct.f2.nmseTSVD_M);
+ nmseTsvd_M_min(3) = min(dataStruct.f3.nmseTSVD_M);
+ nmseTsvd_M_min(4) = min(dataStruct.f4.nmseTSVD_M);
+ nmseTsvd_M_min(5) = min(dataStruct.f5.nmseTSVD_M);
+ nmseTsvd_M_min(6) = min(dataStruct.f6.nmseTSVD_M);
+ nmseTsvd_M_min(7) = min(dataStruct.f7.nmseTSVD_M);
+ nmseTsvd_M_min(8) = min(dataStruct.f8.nmseTSVD_M);
+ nmseTsvd_M_min(9) = min(dataStruct.f9.nmseTSVD_M);
+ nmseTsvd_M_min(10) = min(dataStruct.f10.nmseTSVD_M);
+ nmseTsvd_M_min(11) = min(dataStruct.f11.nmseTSVD_M);
+
+figure(111)
+subplot 211
+plot(1:11, nmseTik_M_min, '-o')
+hold on
+plot(1:11, nmseTsvd_M_min, '-o')
+hold off
+grid on
+xticks([1:10])
+xticklabels({'111 ','186','285', '375', '498', '684', '730', '841', '984', '1196', '1374'})
+legend('TIK','TSVD')
+title('min NMSE method M')
+xlabel('f [Hz]')
+
+subplot 212
+plot(1:11, nccTik_M_max, '-o')
+hold on
+plot(1:11, nccTsvd_M_max, '-o')
+hold off
+grid on
+xticks([1:10])
+xticklabels({'111 ','186','285', '375', '498', '684', '730', '841', '984', '1196', '1374'})
+legend('TIK','TSVD')
+title('max NCC method M')
+xlabel('f [Hz]')
+
+
+
  % check regularization parameters as frequency varies
