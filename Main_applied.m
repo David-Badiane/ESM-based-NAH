@@ -405,6 +405,33 @@ xlabel('f [Hz]')
  %% plot the best result as example
  % according to the M method
  
+ [a, bestFreq_M] = max(nccTik_M_max);
+currentFreqStruct = dataStruct.f1.nccTIK_M;
+bestGrid_M = find( a == currentFreqStruct);
+bestLambda = dataStruct.f1.lambda_ncc_M(bestGrid_M);
+ measuredPressure = pressureData(:, 2 + bestFreq_M);
+ v_ex_vector = velocityData(:, 2 + bestFreq_M);
+ 
+ virtualPtsFilename = ['VP_', int2str(bestGrid_M), '.csv'];
+ virtualPoints = table2array(readtable(virtualPtsFilename)) ;
+ virtualPoints = 0.001.*virtualPoints;
+ [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
+ G_p_omega = G_p{1};
+ [G_v] = normalGradient(virtualPoints, violinMesh , omega, normalPoints);
+ G_v_omega = G_v{1};
+ [U,s,V] = csvd (G_p_omega);
+ q_TIK =  (1/(1i*omega*rho)).* tikhonov(U,s,V,measuredPressure,bestLambda);
+ v_TIK = G_v_omega*q_TIK;
+ v_TIK_Fin = addNans(violinMesh, v_TIK);
+ surfVelRecTIK = reshape( v_TIK_Fin , [pX, pY]); 
+ 
+ figure(500)
+ surf(X, Y, abs(surfVelRecTIK))
+ xlabel('x [m]')
+ ylabel('y [m]')
+ zlabel('z [m/s]')
+ title('method M - TIK - grid n.9 - f = 111 Hz')
+ 
 [a, bestFreq_M] = min(nmseTsvd_M_min);
 currentFreqStruct = dataStruct.f6.nmseTSVD_M;
 bestGrid_M = find( a == currentFreqStruct);
@@ -431,3 +458,26 @@ bestLambda = dataStruct.f6.lambda_nmse_M(bestGrid_M);
  ylabel('y [m]')
  zlabel('z [m/s]')
  title('method M - TSVD - grid n.5 - f = 684 Hz')
+ 
+ %% plot dependency wrt to grid number
+ncc_TSVD_M_all = [dataStruct.f1.nccTSVD_M , dataStruct.f2.nccTSVD_M , dataStruct.f3.nccTSVD_M , ...
+            dataStruct.f4.nccTSVD_M , dataStruct.f5.nccTSVD_M , dataStruct.f6.nccTSVD_M , ...
+            dataStruct.f7.nccTSVD_M , dataStruct.f8.nccTSVD_M , dataStruct.f9.nccTSVD_M , ...
+            dataStruct.f10.nccTSVD_M , dataStruct.f11.nccTSVD_M , ];
+        
+ncc_TIK_M_all = [dataStruct.f1.nccTIK_M , dataStruct.f2.nccTIK_M , dataStruct.f3.nccTIK_M , ...
+    dataStruct.f4.nccTIK_M , dataStruct.f5.nccTIK_M , dataStruct.f6.nccTIK_M , dataStruct.f7.nccTIK_M , ...
+    dataStruct.f8.nccTIK_M , dataStruct.f9.nccTIK_M , dataStruct.f10.nccTIK_M , dataStruct.f11.nccTIK_M ];
+
+ figure(777)
+ subplot 211
+ plot(1:length(gridNumber), ncc_TSVD_M_all, '-o')
+ xticks(1:length(gridNumber))
+ xlabel('grid n.')
+ ylabel('NCC - TSVD ')
+
+ subplot 212
+ plot(1:length(gridNumber), ncc_TIK_M_all, '-o')
+  xticks(1:length(gridNumber))
+ xlabel('grid n.')
+ ylabel('NCC - TIK ')
