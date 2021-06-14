@@ -60,17 +60,18 @@ for ii = 1:nrows*ncols
    if fval > 10* min([deltaX ,deltaY])
        pts = [pts; xRect(ii) yRect(ii) NaN ];
    else
-        pts = [pts; xRect(ii) yRect(ii) z(floc)];
+       pts = [pts; xRect(ii) yRect(ii) z(floc)];
    end
    
 end
 
 
-figure()
+figure(100)
 plot3(pts(:,1), pts(:,2), pts(:,3),'.');
 hold on 
-plot3(xRect, yRect, zeros(size(xRect)), '.', 'markerSize', 1);
-
+plot3(xRect, yRect, zeros(size(xRect)), '.', 'markerSize', 0.5);
+pause(0.1);
+hold off;
 
 
 
