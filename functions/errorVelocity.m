@@ -77,7 +77,7 @@ desiredAlpha = zeros(4,2);
 names = {'nmseTIK' 'nccTIK' 'nmseTSVD' 'nccTSVD'};
 namesAlpha = {'alphaTIK' 'alphaTSVD' };
 
-figure()
+% figure()
 for ii = 1:length(errors)
     discriminator = mod(ii,2);
     if discriminator == 1

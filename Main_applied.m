@@ -224,7 +224,7 @@ dataCell = cell(length(eigenFreqz),1);
 
         % APPROACH 2) metrics parametrization
         rangeTIK = [0,100]; % range of value for the regularization parameter
-        rangeTSVD = [1,32 ]; % range of value for the regularization parameter
+        rangeTSVD = [1,27 ]; % range of value for the regularization parameter
         numParamsTIK = 1e2;
         numParamsTSVD = 64;
 

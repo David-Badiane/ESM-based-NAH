@@ -130,7 +130,7 @@ if (locate)
 end
 
 % Make plot.
-%{
+
 plot_lc(rho,eta,marker,ps,reg_param);
 if locate
   ax = axis;
@@ -140,6 +140,6 @@ if locate
   title(['L-curve, ',txt,' corner at ',num2str(reg_corner)]);
   axis(ax)
   if (~HoldState), hold off; end
-  %}
+
   
 end
