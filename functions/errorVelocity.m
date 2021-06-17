@@ -35,7 +35,7 @@ for ii = 1:numParamsTIK
     v_TIK_Fin(cancelindex) = [];
     
     %NMSE
-    nmseTIK(ii)  = 10*log(norm(v_TIK_Fin - v_ex_vector)^2 / (normV^2));
+    nmseTIK(ii)  = 10*log(norm(v_TIK_Fin - abs(v_ex_vector))^2 / (normV^2));
     
     nccTIK(ii) = (abs(v_TIK_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TIK_Fin),2)*norm(abs(v_ex_vector),2));
 
@@ -61,7 +61,7 @@ for jj = 1:numParamsTSVD
     v_TSVD_Fin(cancelindex) = [];
     
     %NMSE
-    nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin - v_ex_vector)^2 / (normV^2));
+    nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin -  abs(v_ex_vector))^2 / (normV^2));
     
     nccTSVD(jj) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
 
@@ -77,7 +77,7 @@ desiredAlpha = zeros(4,2);
 names = {'nmseTIK' 'nccTIK' 'nmseTSVD' 'nccTSVD'};
 namesAlpha = {'alphaTIK' 'alphaTSVD' };
 
-figure()
+%figure()
 for ii = 1:length(errors)
     discriminator = mod(ii,2);
     if discriminator == 1

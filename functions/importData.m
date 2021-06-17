@@ -42,8 +42,8 @@ hologramMesh = table2array(csvPress(:,1:3));
 
 %% Reconconstruct the plate geometry
 
-gridX = length(unique(violinMesh(:, 1)));
-gridY = length(unique(violinMesh(:, 2)));
+pX = length(unique(violinMesh(:, 1)));
+pY = length(unique(violinMesh(:, 2)));
 
 % clean the violin border to accident zeros
 violinMeshZ = violinMesh(:, 3);
@@ -54,9 +54,9 @@ violinMesh(:,3) = violinMeshZ;
 % vector by columns --> 
 % ex. try  reshape(1:10,[5,2])  what we actuallly want is  reshape(1:10,[2,5])'
 
-X =  reshape(violinMesh(:,1), [gridY, gridX]).'; 
-Y =  reshape(violinMesh(:,2), [gridY, gridX]).'; 
-Z =  reshape(violinMesh(:,3), [gridY, gridX]).';
+X =  reshape(violinMesh(:,1), [pY, pX]).'; 
+Y =  reshape(violinMesh(:,2), [pY, pX]).'; 
+Z =  reshape(violinMesh(:,3), [pY, pX]).';
 
 %{
 figure(1)
@@ -76,7 +76,7 @@ velsMatrix = table2array( csvVel(:,4:numFreqBins+3) );
 velocityFields = cell(numFreqBins,1);
 
 for ii = 1:numFreqBins
-    velocityFields{ii} = reshape(velsMatrix(:,ii), [gridY, gridX]).';  
+    velocityFields{ii} = reshape(velsMatrix(:,ii), [pY, pX]).';  
     velocityFields{ii}(27,2) = NaN; % cleaning undesired velocities!
     velocityFields{ii}(27,15) = NaN;
 end
@@ -89,16 +89,16 @@ title('Velocity field surface - f1');
 
 %% Reconstruct the hologram geometry
 
-gridX = length(unique(hologramMesh(:,1))); % useless?
-gridY = length(unique(hologramMesh(:,2))); % useless?
+pX = length(unique(hologramMesh(:,1))); % useless?
+pY = length(unique(hologramMesh(:,2))); % useless?
 
 % reshape into size (16*64) then transpose. because reshape orders the
 % vector by columns --> 
 % ex. try  reshape(1:10,[5,2])  what we actuallly want is  reshape(1:10,[2,5])'
 
-X =  reshape(hologramMesh(:,1), [gridY, gridX]).'; % useless?
-Y =  reshape(hologramMesh(:,2), [gridY, gridX]).'; % useless?
-Z =  reshape(hologramMesh(:,3), [gridY, gridX]).';  % rename?
+X =  reshape(hologramMesh(:,1), [pX, pY]); % useless?
+Y =  reshape(hologramMesh(:,2), [pX, pY]); % useless?
+Z =  reshape(hologramMesh(:,3), [pX, pY]);  % rename?
 
 %{
 figure(3)
@@ -114,7 +114,7 @@ pressMatrix = table2array( csvPress(:,4:numFreqBins+3) );
 pressureFields = cell(numFreqBins,1);
 
 for ii = 1:numFreqBins
-    pressureFields{ii} = reshape(pressMatrix(:,ii), [gridY, gridX]).';   
+    pressureFields{ii} = reshape(pressMatrix(:,ii), [pY, pX]).';   
 end
 
 for ii = 1:length(pressureFields)
