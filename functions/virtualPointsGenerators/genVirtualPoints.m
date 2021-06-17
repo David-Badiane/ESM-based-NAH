@@ -8,6 +8,7 @@ function genVirtualPoints(pts, fileName, controller, zVal,virtualPtsFolder)
 % controller = 5, gen inner + border
 % CONTROLLER = 6, GEN BORDER ONLY
 % controller = 7, gen inner only
+% controller = 8, gen rect + border + inner
 baseFolder = pwd;
 cd(virtualPtsFolder)
 switch controller
@@ -86,54 +87,99 @@ switch controller
 
         [virtualPts] = borderVirtualPoints(pts,  xBorder, yBorder, zVal);
         
-    case 7
-             
+   case 7
+   disp("inner"); 
    xBorder = input('how much interior to the border along x? (0 to 0.5): ');
    yBorder = input('how much interior to the border along y? (0 to 0.5): ');
     
    [virtualPts] = innerVirtualPoints(pts,  xBorder, yBorder, zVal);
+   
+    case 8
+    disp(' ' ); disp('rectangle'); disp(' ' );
+    xRect = input('input rectangle x edge: ');
+    yRect = input('input rectangle y edge: ');
+    xCenter = input('input  x center: ');
+    yCenter = input('input  y center: ');
+
+    [virtualPts] = rectVirtPoints(pts, xRect, yRect, xCenter, yCenter, zVal);    
+    sparser(virtualPts);
+    scaler(virtualPts);
+  
+    disp("border");
+    xBorder = input('how much of the border along x? (0 to 0.5): ');
+    yBorder = input('how much of the border along y? (0 to 0.5): ');
+    [border] = borderVirtualPoints(pts,  xBorder, yBorder, zVal);
+    scaler(border); sparser(border);
+    
+    add2VPgrid = input('add to VP grid? (0, 1): ');
+    
+    if add2VPgrid ~= 0
+        idxs = find(~isnan(border(:,3)));
+        virtualPts(idxs,3) = border(idxs,3); 
+    end
+    
+    disp("inner"); 
+    xBorder = input('how much interior to the border along x? (0 to 0.5): ');
+    yBorder = input('how much interior to the border along y? (0 to 0.5): ');
+    
+    [inner] = innerVirtualPoints(pts,  xBorder, yBorder, zVal);
+    scaler(inner); sparser(inner);
+    
+    add2VPgrid = input('add to VP grid? (0, 1): ');
+    if add2VPgrid ~= 0
+        idxs = find(~isnan(inner(:,3)));
+        virtualPts(idxs,3) = inner(idxs,3); 
+    end   
 end
 
 
         figure(1)
         plot3(virtualPts(:,1), virtualPts(:,2), virtualPts(:,3), '.');
         
-        check = input('make sparser ? (0 or 1): ');
-        while check == 1
-            controller = input(' how to ? (0 = modulo, 1 = random, 2 = modulo rand) :');
-            if controller == 1
-                xCut =1; yCut = 1;
-            else
-                xCut = input('modulo x: ');
-                yCut = input('modulo y: ');
-            end         
-            [virtualPts] = sparserVirtualPoints(virtualPts,controller, xCut, yCut);
-            check = input('still sparser? (0 or 1): ');
-        end
-        
-        check = input('scale ? (0 or 1): ');
-        while check == 1
-
-            xScale = input('x factor: ');
-            yScale = input('y factor: ');
-            virtualPts(:,1) = xScale * virtualPts(:,1); 
-            virtualPts(:,2) = yScale * virtualPts(:,2); 
-
-            check = input('still scale? (0 or 1): ');
-        end  
+        sparser(virtualPts);
+        scaler(virtualPts);
         
         writeMat2File(virtualPts, [fileName,'.csv'], {'x' 'y' 'z'}, 3, true);
         
-        downsampling = input('resample ? ( 0 or 1)');
-        
+        downsampling = input('resample ? ( 0 or 1)');        
         if downsampling == 1
             nrows = input('nrows: ');
             ncols = input('ncols: ');
 
             [virtualPts] = downsampling_regular(virtualPts, nrows, ncols, fileName);
-        end
-        
+        end       
         cd(baseFolder);
 end
 
-        
+
+function [] = sparser(virtualPts)        
+    check = input('make sparser ? (0 or 1): ');
+        while check ~= 0
+            sparseMode = input(' how to ? (0 = modulo, 1 = random, 2 = modulo rand) :');
+            if sparseMode == 1
+                xCut =1; yCut = 1;
+            else
+                xCut = input('modulo x: ');
+                yCut = input('modulo y: ');
+            end         
+            [virtualPts] = sparserVirtualPoints(virtualPts,sparseMode, xCut, yCut);
+            check = input('still sparser? (0 or 1): ');
+            figure(1)
+            plot3(virtualPts(:,1), virtualPts(:,2), virtualPts(:,3), '.'); 
+            view(2);
+        end
+end
+
+function [] = scaler(virtualPts)
+    check = input('scale ? (0 or 1): ');
+    while check ~= 0
+        xScale = input('x factor: ');
+        yScale = input('y factor: ');
+        virtualPts(:,1) = xScale * virtualPts(:,1); 
+        virtualPts(:,2) = yScale * virtualPts(:,2);
+        check = input('still scale? (0 or 1): ');
+        figure(1)
+        plot3(virtualPts(:,1), virtualPts(:,2), virtualPts(:,3), '.'); 
+        view(2);        
+    end  
+end
