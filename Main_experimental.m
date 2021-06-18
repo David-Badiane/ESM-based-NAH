@@ -153,7 +153,7 @@ nEqSourceGrids = 45;
 load('xyDataVlnMeasurements.mat');
 
 %% STRUCT AND TABLE INIT
-nZpoints = 25;
+nZpoints = 5;
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
@@ -173,7 +173,7 @@ ZreguFreq = cell(length(eigenFreqz),1);
   v_ex_vector = velocityData(:, 2 + ii);
   zSearch = 0.8;
   zCenter = -0.02;
-  transposeGrids = false;
+  transposeGrids = true;
   plotData = true;
   experimentalData = true;
 

@@ -41,19 +41,19 @@ for jj = 1:nEqSourceGrids
 
             [velocityErrorsL, desiredAlphaL] = errorVelocity(v_ex_vector, violinMesh, xData, yData, pressure,...
                 G_p_omega, G_v_omega, [lambda_l lambda_l],...
-                [k_l k_l], 1, 1, omega, rho, deleteIndexesVirt, pX, pY);
+                [k_l k_l], 1, 1, omega, rho, deleteIndexesVirt, pX, pY, experimentalData);
             
             
-%             % APPROACH 2) metrics parametrization
-            rangeTIK = [0,100]; % range of value for the regularization parameter
-            TSVDup = min([length(G_p_omega(1,:)), length(G_p_omega(:,1))]);
-            rangeTSVD = [1,TSVDup]; % range of value for the regularization parameter
-            numParamsTIK = 1e2;
-            numParamsTSVD = TSVDup-1;
-
-            [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
-                xData, yData, pressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
-                numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY);
+% %             % APPROACH 2) metrics parametrization
+%             rangeTIK = [0,100]; % range of value for the regularization parameter
+%             TSVDup = min([length(G_p_omega(1,:)), length(G_p_omega(:,1))]);
+%             rangeTSVD = [1,TSVDup]; % range of value for the regularization parameter
+%             numParamsTIK = 1e2;
+%             numParamsTSVD = TSVDup-1;
+% 
+%             [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
+%                 xData, yData, pressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
+%                 numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY, experimentalData);
 
             % store results
             ZreguDataLine(1) =  zVals(zz);                           % 'zVal'
@@ -64,23 +64,23 @@ for jj = 1:nEqSourceGrids
             ZreguDataLine(6) =  desiredAlphaL(1,1);                  % nmseTIK_L
             ZreguDataLine(7) =  desiredAlphaL(2,1);                  % nccTIK_L
 % 
-            ZreguDataLine(8) =  desiredAlpha(3,2);                   % lambda_nmse_M 
-            ZreguDataLine(9) =  desiredAlpha(4,2);                   % k_nmse_M
-            ZreguDataLine(10) = desiredAlpha(1,2);                   % k_ncc_M 
-            ZreguDataLine(11) = desiredAlpha(2,2);                   % lambda_ncc_M
-            ZreguDataLine(12) = desiredAlpha(3,1);                   % nmseTSVD_M
-            ZreguDataLine(13) = desiredAlpha(4,1);                   % nccTSVD_M
-            ZreguDataLine(14) = desiredAlpha(1,1);                   % nmseTIK_M
-            ZreguDataLine(15) = desiredAlpha(2,1);                   % nccTIK_M 
-            
+%             ZreguDataLine(8) =  desiredAlpha(3,2);                   % lambda_nmse_M 
+%             ZreguDataLine(9) =  desiredAlpha(4,2);                   % k_nmse_M
+%             ZreguDataLine(10) = desiredAlpha(1,2);                   % k_ncc_M 
+%             ZreguDataLine(11) = desiredAlpha(2,2);                   % lambda_ncc_M
+%             ZreguDataLine(12) = desiredAlpha(3,1);                   % nmseTSVD_M
+%             ZreguDataLine(13) = desiredAlpha(4,1);                   % nccTSVD_M
+%             ZreguDataLine(14) = desiredAlpha(1,1);                   % nmseTIK_M
+%             ZreguDataLine(15) = desiredAlpha(2,1);                   % nccTIK_M 
+%             
             ZreguData = [ZreguData; ZreguDataLine];
             
        end
 
     % evaluate ZreguData(:, 4:7) to choose best z
     % accordingly to loss function L = ( NMSE + 20LOG(1-NCC) )
-    lossTSVD = ZreguData(:,9)/max(abs(ZreguData(:,9))) + 10*log10( 1 - ZreguData(:,10))/ max(abs(10*log10( 1 - ZreguData(:,10))));
-    lossTIK  = ZreguData(:,8)/max(abs(ZreguData(:,8))) + 10*log10( 1 - ZreguData(:,11))/ max(abs(10*log10( 1 - ZreguData(:,11))));
+    lossTSVD = ZreguData(:,4)/max(abs(ZreguData(:,4))) + 10*log10( 1 - ZreguData(:,5))/ max(abs(10*log10( 1 - ZreguData(:,5))));
+    lossTIK  = ZreguData(:,6)/max(abs(ZreguData(:,6))) + 10*log10( 1 - ZreguData(:,7))/ max(abs(10*log10( 1 - ZreguData(:,7))));
     lossFx = mean([lossTSVD 2*lossTIK],2);
     [zminVal, zminLoc] = min(lossFx);
     ZtempTable = array2table( ZreguData , 'VariableNames',gridTablesNames(2:end))
@@ -89,9 +89,11 @@ for jj = 1:nEqSourceGrids
     
     reg = array2table(reguDataLine, 'variableNames', gridTablesNames)
     if plotData
-       [LQs, Lv_TSVD, Lv_TIK] = reguResults( reguDataLine(4), reguDataLine(3), pressure, omega, rho, G_p_omega, G_v_omega );
+% 4 3 --> L curve
+% 9 8 --> M curve
+       [LQs, Lv_TSVD, Lv_TIK] = reguResults( reguDataLine(4), reguDataLine(3), pressure, omega, rho, G_p_omega, G_v_omega, virtualPoints );
             %[LQs, Lv_TSVD, Lv_TIK] = reguResults( ZreguDataLine(10), ZreguDataLine(11), pressure, omega, rho, G_p_omega, G_v_omega);
-        titleStr = ['L curve   z = ', num2str(ZreguDataLine(2)), ' ' , virtualPtsFilename];
+        titleStr = ['L curve   z = ', num2str(reguDataLine(2)), ' ' , virtualPtsFilename];
         figureNum = 660;
         if experimentalData 
             reguFiguresExperimental(violinMesh, Lv_TSVD, Lv_TIK,  v_ex_vector,virtualPoints, titleStr  , figureNum);

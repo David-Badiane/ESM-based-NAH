@@ -1,6 +1,6 @@
 % folders
 baseFolder = pwd;
-virtualPointsFolder = [baseFolder,'\VP_Grids'];
+virtualPointsFolder = [baseFolder,'\VPGrids'];
 addpath(genpath('functions'));
 addpath(genpath('Data'));
 addpath('violinMeshes');
@@ -28,7 +28,7 @@ end
 fileNums = max(fileNums);
 fileNums = sort(fileNums);
 
-for ii = 43:45
+for ii = 1:5
     filename = ['VP_',int2str(ii),'.csv'];
     ppts = table2array(readtable(filename));
     figure(10);
@@ -56,7 +56,7 @@ end
 
 % all already set and debugged
 
-for ii = 3:nGrids-1
+for ii = 1:5
     disp('');
     disp(' contr = 0 rectangular')
     disp('contr = 1, circular grids')
@@ -73,3 +73,10 @@ for ii = 3:nGrids-1
     controller = input('choose kind of grid(0-8) :');
     genVirtualPoints(pts,['VP_',int2str(ii)], controller, zVal,virtualPointsFolder);
 end
+
+
+p = readtable('VP_1.csv');
+names = p.Properties.VariableNames;
+p = table2array(p);
+p = 0.001*p
+writeMat2File(p, ['VP_1.csv'], names , length(names), true);

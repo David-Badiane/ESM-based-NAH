@@ -35,6 +35,7 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtu
     hold on 
     plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 ); 
     xlabel('x'); ylabel('y');
-    hold off;           
+    hold off;  
+         pause(0.01);
 end
 
