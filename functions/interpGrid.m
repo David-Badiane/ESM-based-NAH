@@ -6,8 +6,6 @@ xCords = reshape(meshPoints(:,1), [pX,pY]);
 yCords = reshape(meshPoints(:,2), [pX,pY]);
 zCords = reshape(meshPoints(:,3), [pX,pY]);
 
-xData = 0.001.*xData;
-yData = 0.001.*yData;
 
 zCordsinter = griddata(xCords,yCords,zCords,xData,yData);
 

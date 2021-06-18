@@ -1,4 +1,4 @@
-function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos, hologramPoints, params, plotData)
+function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos, hologramPoints, filename, plotData)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION CALCULATES THE VIRTUAL POINTS GRID                       %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -19,7 +19,7 @@ function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos, 
 
 
     % Virtual points (equivalent source)
-    virtualPoints = violinInfos{4};
+    violinMesh = violinInfos{4};
     % virtualPoints(isnan(virtualPoints)) = 0; THIS IS AN ERROR!!!!
 
     % The lattice is the minimum distance btw z positions of hologram and
@@ -29,27 +29,29 @@ function [virtualPoints, lattice,deleteIndexes] = getVirtualPoints(violinInfos, 
     diffX = min( abs(x - circshift(x,1)));
     diffY = min( abs(y - circshift(y,1)));
     lattice = min([diffX, diffY]);
-    minZ = min(virtualPoints(:,3));
+    minZ = min(violinMesh(:,3));
 %     virtualPoints(isnan(virtualPoints(:,3))) = [];
-    idxs = find(~isnan(virtualPoints(:,3)));
-    deleteIndexes = find(isnan(virtualPoints(:,3)));
-    virtualPoints(idxs,3) = minZ - lattice;
+    idxs = find(~isnan(violinMesh(:,3)));
+    deleteIndexes = find(isnan(violinMesh(:,3)));
+%     virtualPoints(idxs,3) = minZ - lattice;
     
-% [virtualPoints] = formVirtualPoints(virtualPoints, scale, offSet, xCut,yCut ,deleteX, deleteY,xBorder, yBorder, active)
 
-    [virtualPoints] = formVirtualPoints(virtualPoints, params{1}, params{2},params{3}, params{4}, params{5}, params{6});   
-    
+    %     [virtualPoints] = formVirtualPoints(virtualPoints, params{1}, params{2},params{3}, params{4}, params{5}, params{6});   
+    disp(filename);
+    virtualPoints = table2array(readtable([filename, '.csv'])); %/1000; 
+   % virtualPoints = [virtualPoints(:,2), virtualPoints(:,1), virtualPoints(:,3)]
     if plotData
-        figure()
-        surf(violinInfos{1},violinInfos{2},violinInfos{3});
-        title('Violin surface');
-        zlim([-0.1, 0.1]);
-        xlabel('x [m]')
-        ylabel('y [m]')
-        zlabel('z [m]')
+        figure(5)
+        plot3(violinInfos{4}(:,1),violinInfos{4}(:,2), minZ*violinInfos{4}(:,3),'.');
+         title('Virtual Points ');
+%         zlim([-0.1, 0.1]);
+%         xlabel('x [m]')
+%         ylabel('y [m]')
+%         zlabel('z [m]')
         hold on 
-        %surf(X,Y,Z);
-        plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3),'.', 'markerSize',10 );
+        plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3),'x', 'markerSize',10 );
+        view(2);
+        hold off;
     end
     
 end
