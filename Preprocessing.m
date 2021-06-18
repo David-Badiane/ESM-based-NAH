@@ -226,6 +226,30 @@ load('H1.mat');
 load('H1_cleaned.mat');
 load('forces.mat');
 
+%% Extract eigenfrequencies from pressure
+
+unwrapedPressMatrix = zeros(length(H1_cleaned{1}), length(H1_cleaned)*size(H1_cleaned{1},2));
+
+for ii = 1:length(H1_cleaned)
+    for jj = 1:size(H1_cleaned{1},2)
+        unwrapedPressMatrix(:, length(H1_cleaned)*(ii-1)+jj) = H1_cleaned{ii}(:,jj);
+    end
+end
+
+[peakPositions] = peaks(unwrapedPressMatrix, f);
+fpeakPositions = f(peakPositions);
+idxPks = find(fpeakPositions < 100);
+idxPks = cat(1, idxPks, find(fpeakPositions > 1400));
+fpeakPositions(idxPks) = [];
+
+figure(900)
+semilogy(f, (abs(unwrapedPressMatrix)))
+
+for i = 1:length(fpeakPositions)
+    
+    xline(fpeakPositions(i))
+    
+end
 
 %% Pressure field 
 

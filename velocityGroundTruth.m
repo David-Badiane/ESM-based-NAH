@@ -129,9 +129,9 @@ figure(890)
 semilogy(f, (abs(cleanMobilityMatrix)))
 title('Mobility with SVD')
 
-%% find resonance frequencies
+%% find resonance frequencies from velocity
 
-[peakPositions] = peaks(cleanMobilityMatrix);
+[peakPositions] = peaks(cleanMobilityMatrix, f);
 fpeakPositions = f(peakPositions);
 idxPks = find(fpeakPositions > 1400);
 fpeakPositions(idxPks) = [];
