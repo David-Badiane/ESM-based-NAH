@@ -10,6 +10,7 @@ addpath('Data\csvData')
 
 baseFolder = pwd;
 accFolder = [baseFolder, '\acq_11_06'];
+matDataFolder = [baseFolder, '\Data\matData'];
 
 Fs = 48000; % sampling frequency
 duration = 2; % [s]
@@ -125,21 +126,23 @@ figure(890)
 semilogy(f, (abs(cleanMobilityMatrix)))
 title('Mobility with SVD')
 
+cd(matDataFolder)
+
 save('velocityH1.mat','estimatorMatrix');
 save('velocityH1cleaned.mat','cleanEstimatorMatrix');
 save('velocityMobility.mat','MobilityMatrix');
 save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
 
+cd(baseFolder)
+%% find resonance frequencies from velocity
 
-%% find resonance frequencies from velocity from cleaned H1
-
-[peakPositions] = peaks(cleanEstimatorMatrix, f);
+[peakPositions] = peaks(cleanMobilityMatrix, f);
 fpeakPositions = f(peakPositions);
 idxPks = find(fpeakPositions > 1400);
 fpeakPositions(idxPks) = [];
 
 figure(899)
-semilogy(f, (abs(cleanEstimatorMatrix)))
+semilogy(f, (abs(cleanMobilityMatrix)))
 hold on
 for i = 1:length(fpeakPositions)
     
@@ -147,13 +150,19 @@ for i = 1:length(fpeakPositions)
     
 end
 hold off
-title('H1 with SVD')
+title('Mobility with SVD')
 
-velocitiesMatrix = zeros(numberPoints, length(fpeakPositions));
+
+%% Fill the velcoity matrix from H1 with pressure peaks
+
+eigenFreqPress = readmatrix('eigenFreqPress.csv');
+eigenFreqPressIdx = eigenFreqPress*2;
+
+velocitiesMatrix = zeros(numberPoints, length(eigenFreqPressIdx));
 
 for ii = 1:numberPoints
-    for jj = 1:length(fpeakPositions)
-        velocitiesMatrix(ii,jj)= abs(cleanEstimatorMatrix(peakPositions(jj),ii));
+    for jj = 1:length(eigenFreqPress)
+        velocitiesMatrix(ii,jj)= abs(cleanEstimatorMatrix(eigenFreqPressIdx(jj),ii));
     end
 end
 
@@ -163,16 +172,16 @@ xyCoord = readmatrix('velocityPoints.csv');
 xyCoord(:,3) = [];
 xyCoord = xyCoord*10;
 
-for ii = 1:length(fpeakPositions)
+for ii = 1:length(eigenFreqPress)
     xyCoord = [xyCoord velocitiesMatrix(:,ii)];
 end
 
 xyCoordSorted = sortrows(xyCoord);
 
 label ={'x' 'y'};
-    freqLabel = round(fpeakPositions);
+    freqLabel = round(eigenFreqPress);
 
-for ii = 1: length(fpeakPositions)
+for ii = 1: length(eigenFreqPress)
     label{ii+2} = ['f',num2str(ii),' = ', num2str(freqLabel(ii))];
 end
 
@@ -190,7 +199,7 @@ xData = table2array(geomData(1:10,7:13)).*sign(XX)*10;
 yData = table2array(geomData(1:10,16:22)).*sign(YY)*10;
 [iMask, jMask] = find(isnan(xData));
 
-zData =nan*ones(length(xData(:,1)),length(xData(1,:)), length(peakPositions));
+zData =nan*ones(length(xData(:,1)),length(xData(1,:)), length(eigenFreqPress));
 orderedPoints = zeros(numberPoints, 3);
 orderedVelMatrices = zeros(size(velocitiesMatrix));
 
@@ -217,4 +226,3 @@ writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true );
 % subplot 122
 % surf(xData, yData, zData);
 
-  
