@@ -57,6 +57,8 @@ Z(isnan(Z)) = 0; % for boundaries normal vector
                                  % for each point of the surface.
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
+                                 
+                                 
 normalPoints = [reshape(nx, [nNormPoints,1]),...
                 reshape(ny, [nNormPoints,1]),...
                 reshape(nz, [nNormPoints,1]) ];
