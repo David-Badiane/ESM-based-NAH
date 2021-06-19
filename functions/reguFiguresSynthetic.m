@@ -8,12 +8,12 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtu
     X =  reshape(violinMesh(:,1), [pY, pX]).'; 
     Y =  reshape(violinMesh(:,2), [pY, pX]).';
 
-    v_TSVD = addNans(violinMesh, v_TSVD); 
-    v_TIK = addNans(violinMesh, v_TIK);
+    v_TSVD_F = addNans(violinMesh, v_TSVD); 
+    v_TIK_F = addNans(violinMesh, v_TIK);
     v_ex = addNans(violinMesh, v_ex_vector);
 
-    surfVelRecTSVD = reshape( v_TSVD, [pY, pX]).'; 
-    surfVelRecTIK = reshape( v_TIK , [pY, pX]).'; 
+    surfVelRecTSVD = reshape( v_TSVD_F, [pY, pX]).'; 
+    surfVelRecTIK = reshape( v_TIK_F , [pY, pX]).'; 
     surfVel = reshape( v_ex , [pY, pX]).';
 
     
@@ -36,11 +36,17 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtu
     sgtitle(titleStr);  
   
     figure(figureNum+1)
-    plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3), 'o');
+    
+    plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 );
     hold on 
-    plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 ); 
+    plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3), 'o');
+    
     xlabel('x'); ylabel('y');
     hold off;  
     pause(0.01);
+    
+    figure(figureNum+2)
+    plot3(violinMesh(:,1), violinMesh(:,2), abs(v_TIK_F));
+    
 end
 

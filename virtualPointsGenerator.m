@@ -17,7 +17,7 @@ nGrids = 10;
 
 % all already set and debugged
 
-for ii = 4:5
+for ii = 2
     disp('');
     disp(' contr = 0 rectangular')
     disp('contr = 1, circular grids')
