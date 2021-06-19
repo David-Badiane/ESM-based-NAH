@@ -1,4 +1,4 @@
-function [outMatrix] = downsampling_regular(inputMatrix, nrows, ncols, fileName)
+function [outMatrix] = downsampling_regular(inputMatrix, nrows, ncols, fileName, saveData)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% THIS FUNCTION PERFORMS DOWNSAMPLING ON A MATRIX OR ARRAY               %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -18,20 +18,13 @@ x = inputMatrix(:,1);
 y = inputMatrix(:,2);
 z = inputMatrix(:,3);
 
-nanIdx = find(~isnan(z));
-% offsetX = 603.72;
-% offsetY = 353;
-% 
-% x = x + offsetX;
-% y = y + offsetY;
-
+nanIdx = find(~isnan(abs(z)));
 maxX = max(x(nanIdx)); minX = min(x(nanIdx));
 maxY = max(y(nanIdx)); minY = min(y(nanIdx));
 
 deltaX = (maxX - minX)/ncols;
 deltaY = (maxY - minY)/nrows;
 
-pts = [];
 
 xRect = linspace(minX,maxX,ncols);
 yRect = linspace(minY,maxY,nrows);
@@ -42,7 +35,7 @@ yRect = reshape(Y, length(Y(:,1))*length(Y(1,:)) ,1);
 pts = [];
 for ii = 1:nrows*ncols
    [fval, floc] = min(sqrt((x - xRect(ii)).^2 + (y - yRect(ii)).^2));
-   if fval > 10* min([deltaX ,deltaY])
+   if fval >  2* min([deltaX ,deltaY])
        pts = [pts; xRect(ii) yRect(ii) NaN ];
    else
        pts = [pts; xRect(ii) yRect(ii) z(floc)];
@@ -52,15 +45,18 @@ end
 
 
 figure(100)
-plot3(pts(:,1), pts(:,2), pts(:,3),'.');
+plot3(pts(:,1), pts(:,2), abs(pts(:,3)),'.');
 hold on 
 plot3(xRect, yRect, zeros(size(xRect)), '.', 'markerSize', 0.5);
+plot3(x,y,abs(z), 'x');
 pause(0.1);
 hold off;
 
 
 
 outMatrix = pts;
-writeMat2File(outMatrix, [fileName,'.csv'], {'x' 'y' 'z'}, 3, true );
+if saveData
+    writeMat2File(outMatrix, [fileName,'.csv'], {'x' 'y' 'z'}, 3, true );
+end
 end
 

@@ -1,4 +1,4 @@
-function genVirtualPoints(pts, fileName, controller, zVal,virtualPtsFolder)
+function genVirtualPoints(pts, fileName, controller, zVal,virtualPtsFolder, saveData)
 
 % controller = 0, gen rectangular grids
 % controller = 1, gen circular grids
@@ -148,7 +148,7 @@ end
             nrows = input('nrows: ');
             ncols = input('ncols: ');
 
-            [virtualPts] = downsampling_regular(virtualPts, nrows, ncols, fileName);
+            [virtualPts] = downsampling_regular(virtualPts, nrows, ncols, fileName, saveData);
         end       
         cd(baseFolder);
 end

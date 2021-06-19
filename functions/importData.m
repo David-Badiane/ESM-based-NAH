@@ -70,31 +70,38 @@ violinInfos = {X,Y,Z, violinMesh};
 
 numFreqBins = length(table2array(csvVel(1,:)))-3;
 velsMatrix = table2array( csvVel(:,4:numFreqBins+3) );
-% for ii = 1:length(velsMatrix(1,:))
-%     idxs = find( velsMatrix(:,ii) == 0); % clean the violin border to accident zeros
-% end
 velocityFields = cell(numFreqBins,1);
 
+xAxis = unique(violinMesh(:,1));
+yAxis = unique(violinMesh(:,2));
+
 for ii = 1:numFreqBins
-    velocityFields{ii} = reshape(velsMatrix(:,ii), [pY, pX]).';  
-    velocityFields{ii}(27,2) = NaN; % cleaning undesired velocities!
-    velocityFields{ii}(27,15) = NaN;
+    idxWrongPts = intersect ( find( violinMesh(:,2) == yAxis(3) | violinMesh(:,2) == yAxis(end-2)),...
+        find(violinMesh(:,1) == xAxis(end-18))); 
+    idxGoodPts = intersect ( find( violinMesh(:,2) == yAxis(3) | violinMesh(:,2) == yAxis(end-2)),...
+        find(violinMesh(:,1) == xAxis(end-17)));
+
+    vel = velsMatrix(:,ii);
+    vel(isnan(violinMesh(:,3))) = nan;
+    vel(idxWrongPts) = vel(idxGoodPts);
+    velocityFields{ii} = reshape(vel, [pY, pX]).';
+    
+%     figure(2)
+%     surf(X,Y,abs(velocityFields{ii}));
+%     title('Velocity field surface - f1');
+%     
+%     figure(3)
+%     plot3(violinMesh(:,1), violinMesh(:,2), abs(vel),'.');
+%     pause(0.01);
 end
 
-%{
-figure(2)
-surf(X,Y,abs(velocityFields{1}));
-title('Velocity field surface - f1');
-%}
+
+
 
 %% Reconstruct the hologram geometry
 
 pX = length(unique(hologramMesh(:,1))); % useless?
 pY = length(unique(hologramMesh(:,2))); % useless?
-
-% reshape into size (16*64) then transpose. because reshape orders the
-% vector by columns --> 
-% ex. try  reshape(1:10,[5,2])  what we actuallly want is  reshape(1:10,[2,5])'
 
 X =  reshape(hologramMesh(:,1), [pY, pX]).'; % useless?
 Y =  reshape(hologramMesh(:,2), [pY, pX]).'; % useless?
@@ -116,28 +123,41 @@ for ii = 1:numFreqBins
     pressureFields{ii} = reshape(pressMatrix(:,ii), [pY, pX]).';   
 end
 
-for ii = 1:length(pressureFields)
-    pressureFields{ii} = downsampling(pressureFields{ii}, resampleX, resampleY);
-    
-end
-
 for ii = 1:length(hologramInfos) % useful to plot the reconstructed pressure.
     hologramInfos{ii} = downsampling(hologramInfos{ii}, resampleX, resampleY);    
 end
 
 % Show first frequency pressure field
 
+
+
+
+hologramMesh =  [reshape(hologramInfos{1}, [resampleX*resampleY, 1]),...
+                 reshape(hologramInfos{2}, [resampleX*resampleY, 1]),...
+                 reshape(hologramInfos{3}, [resampleX*resampleY, 1])];
+          
+
+for ii = 1:length(pressureFields)
+    pressureFields{ii} = downsampling(pressureFields{ii}, resampleX, resampleY);
+    p = reshape(pressureFields{ii}, [resampleX*resampleY,1]);
+    press = pressMatrix(:,ii);
+    figure(5)
+    plot3(hologramMesh(:,1), hologramMesh(:,2), abs(p),'.');
+    hold on
+    oldHMesh = table2array(csvPress(:,1:3));
+    plot3(oldHMesh(:,1), oldHMesh(:,2), abs(press), 'o');
+    hold off
+    
+    figure(6)
+    surf(X, Y, abs(reshape(pressMatrix(:,ii), [pY, pX]).'))
+end
+
+   
+hologramInfos = {hologramInfos{1},hologramInfos{2},hologramInfos{3},hologramMesh};
+
 figure(500)
 surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
 title('actual pressure')
-
-
-hologramMesh =  [reshape(hologramInfos{1}', [resampleX*resampleY, 1]),...
-                 reshape(hologramInfos{2}', [resampleX*resampleY, 1]),...
-                 reshape(hologramInfos{3}', [resampleX*resampleY, 1])];
-             
-hologramInfos = {hologramInfos{1},hologramInfos{2},hologramInfos{3},hologramMesh};
-
 
 end
 
