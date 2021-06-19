@@ -20,7 +20,7 @@ normV = norm(v_ex_vector,2);
 % TIK cycle for every parameters
 for ii = 1:numParamsTIK
     q_TIK = (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressure  , alphaTIK(ii)); % reconstructed source streghts
-    v_TIK = G_v_omega*q_TIK; 
+    v_TIK = -G_v_omega*q_TIK; 
     
     % adds nan to create a mesh to interpolate
     v_TIK_Fin = addNans(violinMesh, v_TIK);
@@ -46,7 +46,7 @@ end
 for jj = 1:numParamsTSVD
     
     q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressure  , alphaTSVD(jj)); % reconstructed source streghts
-    v_TSVD = G_v_omega*q_TSVD; 
+    v_TSVD = -G_v_omega*q_TSVD; 
     
     % adds nan to create a mesh to interpolate
     v_TSVD_Fin = addNans(violinMesh, v_TSVD);
@@ -61,7 +61,7 @@ for jj = 1:numParamsTSVD
     v_TSVD_Fin(cancelindex) = [];
     
     %NMSE
-    nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin - v_ex_vector)^2 / (normV^2));
+    nmseTSVD(jj)  = 10*log(norm(abs(v_TSVD_Fin) - abs(v_ex_vector))^2 / (normV^2));
     
     nccTSVD(jj) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
 

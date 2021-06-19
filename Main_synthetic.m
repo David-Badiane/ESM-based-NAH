@@ -1,7 +1,7 @@
 close all
 clearvars
 clc
-VPfilename = 'virtualPointsGrids_old';
+VPfilename = 'VP_Grids';
 addpath(genpath('CSV')); 
 addpath(genpath('functions'));
 baseFolder = pwd;
@@ -23,20 +23,20 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 %conversion from [mm] to [m]
 for ii =1:4
-hologramInfos{ii} = hologramInfos{ii}*0.001;
-violinInfos{ii} = violinInfos{ii}*0.001;
+        hologramInfos{ii} = hologramInfos{ii}*0.001;
+        violinInfos{ii} = violinInfos{ii}*0.001;
 end
 
 %% Setup of global variables 
 
 nModes = 20;
-alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
-rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
-freqzNames = cell(nModes,1);
-
-for ii = 1:nModes
-    freqzNames{ii} = ['f', int2str(ii)];
-end
+%alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
+%rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
+% freqzNames = cell(nModes,1);
+% 
+% for ii = 1:nModes
+%     freqzNames{ii} = ['f', int2str(ii)];
+% end
 
 rho = 1.2; % [Kg/m3] air density 
 
@@ -57,19 +57,21 @@ Z(isnan(Z)) = 0; % for boundaries normal vector
                                  % for each point of the surface.
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
-normalPoints = [reshape(nx', [nNormPoints,1]),...
-                reshape(ny', [nNormPoints,1]),...
-                reshape(nz', [nNormPoints,1]) ];
+normalPoints = [reshape(nx, [nNormPoints,1]),...
+                reshape(ny, [nNormPoints,1]),...
+                reshape(nz, [nNormPoints,1]) ];
 
 %% START
-nEqSourceGrids = 20;
-cd(virtualPointsFolder);
+nEqSourceGrids = 5;
+%cd(virtualPointsFolder);
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
                     'nmseTIK_M', 'nccTIK_M', };
+dataCell = cell(length(eigenFreqz),1);
+ZreguFreq = cell(length(eigenFreqz),1);
 
-for mode = 2:nModes 
+for mode = 1:nModes 
     % Setup of local variables
     omega = eigenFreqzRad(mode); % current eigenfreq mode
 
@@ -77,7 +79,7 @@ for mode = 2:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-    % measuredPressureN = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
+    measuredPressureN = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   
@@ -88,10 +90,10 @@ for mode = 2:nModes
  
     
     
-    nZpoints = 5;
-    zSearch = 0.8;
-    zCenter = -0.015;
-    transposeGrids = false;
+    nZpoints = 1;
+    zSearch = 0;
+    zCenter = -0.025;
+    transposeGrids = true;
     plotData = true;
     experimentalData = false;
     
@@ -104,7 +106,7 @@ for mode = 2:nModes
     tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
        
     dataCell{mode} = tempTable;
-    dataStruct = cell2struct(dataCell, freqzNames, 1);
+%     dataStruct = cell2struct(dataCell, freqzNames, 1);
     ZreguFreq{ii} = ZreguDatas;  
     
     
@@ -126,16 +128,16 @@ for mode = 2:nModes
 %         % 3) calculation of equivalent sources weights
 %         Lq_TIK =  (1/(1i*omega*rho)).* tikhonov (U,s,V,measuredPressure,lambda_l);
 %         Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure,k_l); % perform the TSVD -> estimate the source strength
-% 
+
 %         %% direct problem - reconstruction
 % 
-%         % 1) Calculate the gradient of G along the normal vectors
+% %         % 1) Calculate the gradient of G along the normal vectors
 %         [G_v] = normalGradient(virtualPoints, violinMesh , eigenFreqzRad(mode), normalPoints);
 %         G_v_omega = G_v{1};
 % 
 %         % 2) Reconstruction 
-%         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
-%         Lv_TIK = G_v_omega*Lq_TIK; % reconstructed velocity with Tikhonov
+%         Lv_TSVD = -G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
+%         Lv_TIK = -G_v_omega*Lq_TIK; % reconstructed velocity with Tikhonov
 % 
 %         %% compute metrics to choose best solution 
 %         % the L curve computed with the reconstructed pressure
@@ -173,37 +175,37 @@ for mode = 2:nModes
 %         LsurfVelRecTSVD = reshape( Lv_TSVD_Fin , [pY, pX]).'; 
 %         LsurfVelRecTIK = reshape( Lv_TIK_Fin , [pY, pX]).'; 
 
-        figure(600) 
-        
-        subplot 311
-        surf(X, Y, abs(surfVel)); view(2);
-        title('Exact velocity')
-        subplot 312
-        surf(X, Y, abs(surfVelRecTSVD));view(2);
-        title('TSVD velocity')
-        subplot 313
-        surf(X, Y, abs(surfVelRecTIK));view(2);
-        title('Tik velocity')
-        sgtitle(['M method', filename]);
-        
-        
-        figure(601) 
-        subplot 311
-        surf(X, Y, abs(surfVel)); view(2);
-        title('Exact velocity')
-        subplot 312
-        surf(X, Y, abs(LsurfVelRecTSVD));view(2);
-        title('TSVD velocity')
-        subplot 313
-        surf(X, Y, abs(LsurfVelRecTIK));view(2);
-        title('Tik velocity')
-        sgtitle(['L curve ', filename]);
-        pause(2);
+%         figure(600) 
+%         
+%         subplot 311
+%         surf(X, Y, abs(surfVel)); view(2);
+%         title('Exact velocity')
+%         subplot 312
+%         surf(X, Y, abs(surfVelRecTSVD));view(2);
+%         title('TSVD velocity')
+%         subplot 313
+%         surf(X, Y, abs(surfVelRecTIK));view(2);
+%         title('Tik velocity')
+%         sgtitle(['M method', filename]);
+%         
+%         
+%         figure(601) 
+%         subplot 311
+%         surf(X, Y, abs(surfVel)); view(2);
+%         title('Exact velocity')
+%         subplot 312
+%         surf(X, Y, abs(LsurfVelRecTSVD));view(2);
+%         title('TSVD velocity')
+%         subplot 313
+%         surf(X, Y, abs(LsurfVelRecTIK));view(2);
+%         title('Tik velocity')
+%         sgtitle(['L curve ', filename]);
+%         pause(2);
         %% plot of the reconstruced pressure field vs. exact pressure field
-        p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
-
-        surfRecP = reshape( p_TIK , [nMics, nMeas]); 
-
+%         p_TIK = 1i*omega*rho*G_p_omega*q_TIK;
+% 
+%         surfRecP = reshape( p_TIK , [nMics, nMeas]); 
+% 
 %         figure(602)
 %         subplot(121)
 %         surf(hologramInfos{1},hologramInfos{2},abs(surfRecP))
@@ -213,13 +215,13 @@ for mode = 2:nModes
 %         title('actual pressure')
 
         % alphas(:,mode) = desiredAlpha(:);
-        alphasTable = array2table(alphas, 'rowNames', rowsNames,'variableNames', freqzNames);
+%         alphasTable = array2table(alphas, 'rowNames', rowsNames,'variableNames', freqzNames);
 end
 %% SEE Virtual Points grids
-figure(150)
-for ii = 1:6
-  virtualPoints = table2array(readtable(['VP_', int2str(ii),'.csv']))/1000; 
-  writeMat2File(virtualPoints, ['VP_', int2str(ii),'.csv'], {'x' 'y' 'z'}, 3, true);
-  plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 10);
-  pause(0.1);
-end
+% figure(150)
+% for ii = 1:6
+%   virtualPoints = table2array(readtable(['VP_', int2str(ii),'.csv']))/1000; 
+%   writeMat2File(virtualPoints, ['VP_', int2str(ii),'.csv'], {'x' 'y' 'z'}, 3, true);
+%   plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 10);
+%   pause(0.1);
+% end

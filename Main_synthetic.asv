@@ -1,13 +1,12 @@
 close all
 clearvars
 clc
-addpath 'CSV\pressure' 
-addpath 'CSV\velocity' 
-addpath 'functions'
-addpath 'functions\regu'
-addpath 'VP_Grids'
+VPfilename = 'virtualPointsGrids_old';
+addpath(genpath('CSV')); 
+addpath(genpath('functions'));
 baseFolder = pwd;
-virtualPointsFolder = [baseFolder,'\VP_Grids'];%VP_Grids'];
+virtualPointsFolder = [baseFolder,'\',VPfilename];%VP_Grids'];
+addpath(virtualPointsFolder)
 
 
 %% read the csv
@@ -24,20 +23,20 @@ eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 %conversion from [mm] to [m]
 for ii =1:4
-hologramInfos{ii} = hologramInfos{ii}*0.001;
-violinInfos{ii} = violinInfos{ii}*0.001;
+        hologramInfos{ii} = hologramInfos{ii}*0.001;
+        violinInfos{ii} = violinInfos{ii}*0.001;
 end
 
 %% Setup of global variables 
 
-nModes = 20;
-alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
-rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
+nModes = 10;
+%alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
+%rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
 freqzNames = cell(nModes,1);
 
-for ii = 1:nModes
-    freqzNames{ii} = ['f', int2str(ii)];
-end
+% for ii = 1:nModes
+%     freqzNames{ii} = ['f', int2str(ii)];
+% end
 
 rho = 1.2; % [Kg/m3] air density 
 
@@ -58,19 +57,19 @@ Z(isnan(Z)) = 0; % for boundaries normal vector
                                  % for each point of the surface.
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
-normalPoints = [reshape(nx', [nNormPoints,1]),...
-                reshape(ny', [nNormPoints,1]),...
-                reshape(nz', [nNormPoints,1]) ];
+normalPoints = [reshape(nx, [nNormPoints,1]),...
+                reshape(ny, [nNormPoints,1]),...
+                reshape(nz, [nNormPoints,1]) ];
 
 %% START
-nEqSourceGrids = 7;
-cd(virtualPointsFolder);
+nEqSourceGrids = 1;
+%cd(virtualPointsFolder);
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
                     'nmseTIK_M', 'nccTIK_M', };
 
-for mode = 1:nModes 
+for mode = 2:nModes 
     % Setup of local variables
     omega = eigenFreqzRad(mode); % current eigenfreq mode
 
@@ -78,7 +77,7 @@ for mode = 1:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-    % measuredPressureN = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
+    measuredPressureN = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   
@@ -89,20 +88,22 @@ for mode = 1:nModes
  
     
     
-    nZpoints = 20;
+    nZpoints = 1;
     zSearch = 0.8;
-    transposeGrids = true;
+    zCenter = -0.015;
+    transposeGrids = false;
     plotData = true;
     experimentalData = false;
-
+    
+    
     [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
-                           nZpoints, zSearch, X, Y , v_ex_vector,...
+                           nZpoints, zCenter, zSearch, X, Y , v_ex_vector,...
                            rho, pX, pY,gridTablesNames , transposeGrids, plotData, experimentalData);
     
          
     tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
        
-    dataCell{ii} = tempTable;
+    dataCell{mode} = tempTable;
     dataStruct = cell2struct(dataCell, freqzNames, 1);
     ZreguFreq{ii} = ZreguDatas;  
     
@@ -133,8 +134,8 @@ for mode = 1:nModes
 %         G_v_omega = G_v{1};
 % 
 %         % 2) Reconstruction 
-%         Lv_TSVD = G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
-%         Lv_TIK = G_v_omega*Lq_TIK; % reconstructed velocity with Tikhonov
+%         Lv_TSVD = -G_v_omega*Lq_TSVD; % reconstructed velocity with truncated SVD
+%         Lv_TIK = -G_v_omega*Lq_TIK; % reconstructed velocity with Tikhonov
 % 
 %         %% compute metrics to choose best solution 
 %         % the L curve computed with the reconstructed pressure

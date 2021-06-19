@@ -96,9 +96,9 @@ pY = length(unique(hologramMesh(:,2))); % useless?
 % vector by columns --> 
 % ex. try  reshape(1:10,[5,2])  what we actuallly want is  reshape(1:10,[2,5])'
 
-X =  reshape(hologramMesh(:,1), [pY, pX]).'; % useless?
-Y =  reshape(hologramMesh(:,2), [pY, pX]).'; % useless?
-Z =  reshape(hologramMesh(:,3), [pY, pX]).';  % rename?
+X =  reshape(hologramMesh(:,1), [pX, pY]); % useless?
+Y =  reshape(hologramMesh(:,2), [pX, pY]); % useless?
+Z =  reshape(hologramMesh(:,3), [pX, pY]);  % rename?
 
 
 figure(3)
@@ -127,11 +127,11 @@ for ii = 1:length(hologramInfos) % useful to plot the reconstructed pressure.
 end
 
 % Show first frequency pressure field
-
+%{
 figure(500)
 surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
 title('actual pressure')
-
+%}
 
 hologramMesh =  [reshape(hologramInfos{1}', [resampleX*resampleY, 1]),...
                  reshape(hologramInfos{2}', [resampleX*resampleY, 1]),...

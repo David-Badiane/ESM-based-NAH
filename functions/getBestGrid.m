@@ -12,6 +12,7 @@ for jj = 1:nEqSourceGrids
        virtualPtsFilename = ['VP_', int2str(jj), '.csv'];
        
        virtualPoints = table2array(readtable(virtualPtsFilename)) ;
+
        % deleteIndexes = find(isnan(virtualPoints(:,3)));
        if transposeGrids
            virtualPoints = [virtualPoints(:,2), virtualPoints(:,1), virtualPoints(:,3)]; 
