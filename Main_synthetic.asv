@@ -30,13 +30,13 @@ end
 %% Setup of global variables 
 
 nModes = 10;
-%alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
-%rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
+alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
+rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
 freqzNames = cell(nModes,1);
 
-% for ii = 1:nModes
-%     freqzNames{ii} = ['f', int2str(ii)];
-% end
+for ii = 1:nModes
+    freqzNames{ii} = ['f', int2str(ii)];
+end
 
 rho = 1.2; % [Kg/m3] air density 
 
@@ -57,12 +57,14 @@ Z(isnan(Z)) = 0; % for boundaries normal vector
                                  % for each point of the surface.
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
+                                 
+                                 
 normalPoints = [reshape(nx, [nNormPoints,1]),...
                 reshape(ny, [nNormPoints,1]),...
                 reshape(nz, [nNormPoints,1]) ];
 
 %% START
-nEqSourceGrids = 6;
+nEqSourceGrids = 2;
 cd(virtualPointsFolder);
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
@@ -81,7 +83,7 @@ for mode = 1:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-    %measuredPressure = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
+    measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   
@@ -96,8 +98,8 @@ for mode = 1:nModes
     yStep = abs(yAx(end) - yAx(end-1));
     
     zCenter = -0.5*min([xStep, yStep]);
-    nZpoints = 10;
-    zSearch = 0.1;
+    nZpoints = 3;
+    zSearch = 0.2;
     transposeGrids = true;
     plotData = true;
     experimentalData = false;
@@ -136,10 +138,10 @@ for mode = 1:nModes
 %         % 3) calculation of equivalent sources weights
 %         Lq_TIK =  (1/(1i*omega*rho)).* tikhonov (U,s,V,measuredPressure,lambda_l);
 %         Lq_TSVD = (1/(1i*omega*rho)).* tsvd (U,s,V,measuredPressure,k_l); % perform the TSVD -> estimate the source strength
-% 
+
 %         %% direct problem - reconstruction
 % 
-%         % 1) Calculate the gradient of G along the normal vectors
+% %         % 1) Calculate the gradient of G along the normal vectors
 %         [G_v] = normalGradient(virtualPoints, violinMesh , eigenFreqzRad(mode), normalPoints);
 %         G_v_omega = G_v{1};
 % 
@@ -228,16 +230,22 @@ for mode = 1:nModes
 dataStruct = cell2struct(dataCell, freqzNames, 1);
 
 %% SEE Virtual Points grids
-figure(150)
 
+cd(baseFolder)
 filesList = ls('VPGrids');
 filesList(1:2,:) = [];
 cd('VPGrids')
-for ii = 1:length(filesList(:,1))
+figure(150)
+
+for ii = 1
 
   idx = find(filesList(ii,:)== '.');
-  virtualPoints = table2array(readtable(filesList(ii,1:idx+3)))*1.2; 
+  virtualPoints = table2array(readtable(filesList(ii,1:idx+3)))*1; 
   writeMat2File(virtualPoints, filesList(ii,1:idx+3), {'x' 'y' 'z'}, 3, true);
-  plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 10);
+  plot3(virtualPoints(:,2), virtualPoints(:,1),  virtualPoints(:,3), '.', 'markerSize', 10);
+  hold on;
+  plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3));
+  hold off;
   pause(1);
+  
 end

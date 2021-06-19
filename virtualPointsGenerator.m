@@ -32,7 +32,9 @@ for ii = 4:5
     disp(['edgeX: ', num2str(edgeX),' edgeY: ', num2str(edgeY)]); 
     
     controller = input('choose kind of grid(0-8) :');
-    genVirtualPoints(pts,['VP_',int2str(ii)], controller, zVal,virtualPointsFolder);
+    saveData = true;
+    
+    genVirtualPoints(pts,['VP_',int2str(ii)], controller, zVal,virtualPointsFolder, saveData);
 end
 
 
