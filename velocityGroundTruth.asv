@@ -131,15 +131,15 @@ save('velocityMobility.mat','MobilityMatrix');
 save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
 
 
-%% find resonance frequencies from velocity from cleaned H1
+%% find resonance frequencies from velocity
 
-[peakPositions] = peaks(cleanEstimatorMatrix, f);
+[peakPositions] = peaks(cleanMobilityMatrix, f);
 fpeakPositions = f(peakPositions);
 idxPks = find(fpeakPositions > 1400);
 fpeakPositions(idxPks) = [];
 
 figure(899)
-semilogy(f, (abs(cleanEstimatorMatrix)))
+semilogy(f, (abs(cleanMobilityMatrix)))
 hold on
 for i = 1:length(fpeakPositions)
     
@@ -147,9 +147,14 @@ for i = 1:length(fpeakPositions)
     
 end
 hold off
-title('H1 with SVD')
+title('Mobility with SVD')
 
-velocitiesMatrix = zeros(numberPoints, length(fpeakPositions));
+
+%% Fill the velcoity matrix from H1 with pressure peaks
+
+eigenFreqPress = readmatrix('eigenFreqPress.csv');
+
+velocitiesMatrix = zeros(numberPoints, length(eigenFreqPress));
 
 for ii = 1:numberPoints
     for jj = 1:length(fpeakPositions)
@@ -217,4 +222,3 @@ writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true );
 % subplot 122
 % surf(xData, yData, zData);
 
-  
