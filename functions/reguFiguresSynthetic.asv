@@ -27,12 +27,11 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtu
     surf(X, Y, abs(surfVelRecTSVD));view(2);
     title('TSVD velocity')
     colorbar 
-    caxis([0 max(abs(surfVel(:)))])
     subplot 313
     surf(X, Y, abs(surfVelRecTIK));view(2);
     title('Tik velocity')
     colorbar 
-    caxis([0 max(abs(surfVel(:)))])
+    axis([0 max(abs(surfVel))])
     sgtitle(titleStr);  
   
     figure(figureNum+1)

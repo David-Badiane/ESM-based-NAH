@@ -64,7 +64,7 @@ normalPoints = [reshape(nx, [nNormPoints,1]),...
                 reshape(nz, [nNormPoints,1]) ];
 
 %% START
-nEqSourceGrids = 6;
+nEqSourceGrids = 1;
 cd(virtualPointsFolder);
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
@@ -83,7 +83,7 @@ for mode = 1:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-    %measuredPressure = whiteNoise(measuredPressure,-10); % add white gaussian noise to the mesurement
+    measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   
@@ -97,9 +97,9 @@ for mode = 1:nModes
     xStep = abs(xAx(end) - xAx(end-1));
     yStep = abs(yAx(end) - yAx(end-1));
     
-    zCenter = -0.5*min([xStep, yStep]);
-    nZpoints = 20;
-    zSearch = 0.2;
+    zCenter = -0.15*min([xStep, yStep]);
+    nZpoints = 1;
+    zSearch = 0;
     transposeGrids = true;
     plotData = true;
     experimentalData = false;
@@ -236,14 +236,16 @@ filesList = ls('VPGrids');
 filesList(1:2,:) = [];
 cd('VPGrids')
 figure(150)
+
 for ii = 1
 
   idx = find(filesList(ii,:)== '.');
-  virtualPoints = table2array(readtable(filesList(ii,1:idx+3)))*0.75; 
-  writeMat2File(virtualPoints, filesList(ii,1:idx+3), {'x' 'y' 'z'}, 3, true);
+  virtualPoints = table2array(readtable(filesList(ii,1:idx+3))); 
+%   writeMat2File(virtualPoints, filesList(ii,1:idx+3), {'x' 'y' 'z'}, 3, true);
   plot3(virtualPoints(:,2), virtualPoints(:,1),  virtualPoints(:,3), '.', 'markerSize', 10);
   hold on;
   plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3));
   hold off;
   pause(1);
+  
 end
