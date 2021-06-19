@@ -7,15 +7,14 @@ function [ellipse] = ellipseVirtualPoints(pts, maxRx, maxRy,minRx, minRy,zVal)
     
     xAxis = unique(x);
     yAxis = unique(y);
-     
-    ncols = length(xAxis);
-    nrows = length(yAxis);
     
     maxRx = round(ncols*maxRx/maxX/2);
-    maxRy = round(nrows*maxRy/maxX/2);
+    maxRy = round(ncols*maxRy/maxY/2);
     minRx = round(ncols*minRx/maxX/2);
-    minRy = round(nrows*minRy/maxX/2);
-   
+    minRy = round(ncols*minRy/maxY/2);
+    
+    ncols = length(xAxis);
+    nrows = length(yAxis);
     notNanIdxs = find(~isnan(z));
     z(notNanIdxs) = nan;
 
@@ -39,8 +38,9 @@ function [ellipse] = ellipseVirtualPoints(pts, maxRx, maxRy,minRx, minRy,zVal)
     
     ellipseIdxs = find(ellipse == 1);
     z(ellipseIdxs) = zVal;
+    figure()
     plot3(x,y,z,'.')
-    hold off;
+    
     ellipse = [x,y,z];
     end
  

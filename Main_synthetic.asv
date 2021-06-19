@@ -29,7 +29,7 @@ end
 
 %% Setup of global variables 
 
-nModes = 10;
+nModes = 20;
 alphas = zeros(8,nModes); % array of regolarizaation parameters and error metrics
 rowsNames = { 'NMSE TIK' 'NCC TIK' 'NMSE TSVD' 'NCC TSVD' 'alpha NMSE TIK' 'alpha NCC TIK' 'k NMSE TSVD' 'k NCC TSVD'};
 freqzNames = cell(nModes,1);
@@ -96,8 +96,8 @@ for mode = 1:nModes
     yStep = abs(yAx(end) - yAx(end-1));
     
     zCenter = -0.5*min([xStep, yStep]);
-    nZpoints = 20;
-    zSearch = 0.2;
+    nZpoints = 10;
+    zSearch = 0.1;
     transposeGrids = true;
     plotData = true;
     experimentalData = false;
@@ -228,20 +228,16 @@ for mode = 1:nModes
 dataStruct = cell2struct(dataCell, freqzNames, 1);
 
 %% SEE Virtual Points grids
+figure(150)
 
-cd(baseFolder)
 filesList = ls('VPGrids');
 filesList(1:2,:) = [];
 cd('VPGrids')
-figure(150)
-for ii = 1
+for ii = 1:length(filesList(:,1))
 
   idx = find(filesList(ii,:)== '.');
-  virtualPoints = table2array(readtable(filesList(ii,1:idx+3)))*0.75; 
+  virtualPoints = table2array(readtable(filesList(ii,1:idx+3)))*1.2; 
   writeMat2File(virtualPoints, filesList(ii,1:idx+3), {'x' 'y' 'z'}, 3, true);
-  plot3(virtualPoints(:,2), virtualPoints(:,1),  virtualPoints(:,3), '.', 'markerSize', 10);
-  hold on;
-  plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3));
-  hold off;
+  plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 10);
   pause(1);
 end
