@@ -33,21 +33,6 @@ deltaY = (maxY - minY)/nrows;
 
 pts = [];
 
-% for ii = 1:ncols
-%     diffX = abs (x + deltaX/2) - (maxX - (ii-1)*deltaX);
-%     idxs = find(diffX < 100);
-%     yy = [];
-%     zz = [];
-%     for jj = 1:nrows
-%         [fval, flocs] = min(abs((y(idxs)-deltaY/2) - (maxY - (jj-1)*deltaY)));
-%         yy = [yy; y(idxs(flocs))];
-%         zz = [zz; z(idxs(flocs))];
-%     end
-%     [fval, floc] = min(diffX);
-%     xx = ones(size(yy))*x(floc);
-%     pts = [pts; xx, yy, zz];
-% end
-
 xRect = linspace(minX,maxX,ncols);
 yRect = linspace(minY,maxY,nrows);
 [X,Y] = meshgrid(xRect, yRect);

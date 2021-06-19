@@ -131,15 +131,15 @@ end
 
 % Make plot.
 
-plot_lc(rho,eta,marker,ps,reg_param);
-if locate
-  ax = axis;
-  HoldState = ishold; hold on;
-  loglog([min(rho)/100,rho_c],[eta_c,eta_c],':r',...
-         [rho_c,rho_c],[min(eta)/100,eta_c],':r')
-  title(['L-curve, ',txt,' corner at ',num2str(reg_corner)]);
-  axis(ax)
-  if (~HoldState), hold off; end
+% plot_lc(rho,eta,marker,ps,reg_param);
+% if locate
+%   ax = axis;
+%   HoldState = ishold; hold on;
+%   loglog([min(rho)/100,rho_c],[eta_c,eta_c],':r',...
+%          [rho_c,rho_c],[min(eta)/100,eta_c],':r')
+%   title(['L-curve, ',txt,' corner at ',num2str(reg_corner)]);
+%   axis(ax)
+%   if (~HoldState), hold off; end
 
   
 end

@@ -1,4 +1,7 @@
-function [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh, xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY)
+function [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh, ...
+xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK,...
+ numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY, experimentalData)
+
 %ERRORVELOCITY 
 
 %  take the parameters
@@ -20,26 +23,23 @@ normV = norm(v_ex_vector,2);
 % TIK cycle for every parameters
 for ii = 1:numParamsTIK
     q_TIK = (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressure  , alphaTIK(ii)); % reconstructed source streghts
-    v_TIK = -G_v_omega*q_TIK; 
-    
+    v_TIK = G_v_omega*q_TIK; 
+    v_TIK_Fin = v_TIK;
     % adds nan to create a mesh to interpolate
     v_TIK_Fin = addNans(violinMesh, v_TIK);
-    
     % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
     v_TIK_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TIK_Fin)], xData, yData, pX, pY, false);
-    
+
     v_TIK_Fin = v_TIK_Fin(:);
-    
+
     % cancel nan from velocity vector
     cancelindex = find(isnan(v_TIK_Fin));
     v_TIK_Fin(cancelindex) = [];
     
     %NMSE
-    nmseTIK(ii)  = 10*log(norm(v_TIK_Fin - v_ex_vector)^2 / (normV^2));
+    nmseTIK(ii)  = 10*log(norm(v_TIK_Fin - abs(v_ex_vector))^2 / (normV^2));
     
     nccTIK(ii) = (abs(v_TIK_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TIK_Fin),2)*norm(abs(v_ex_vector),2));
-
-
 end
 
 % TSVD cycle for every parameters
@@ -61,7 +61,7 @@ for jj = 1:numParamsTSVD
     v_TSVD_Fin(cancelindex) = [];
     
     %NMSE
-    nmseTSVD(jj)  = 10*log(norm(abs(v_TSVD_Fin) - abs(v_ex_vector))^2 / (normV^2));
+    nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin - abs(v_ex_vector))^2 / (normV^2));
     
     nccTSVD(jj) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
 

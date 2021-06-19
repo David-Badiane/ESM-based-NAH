@@ -101,7 +101,9 @@ switch controller
     xCenter = input('input  x center: ');
     yCenter = input('input  y center: ');
 
-    [virtualPts] = rectVirtPoints(pts, xRect, yRect, xCenter, yCenter, zVal);    
+    [virtualPts] = rectVirtPoints(pts, xRect, yRect, xCenter, yCenter, zVal); 
+    meshPts = table2array(readtable('grid128x128Fin.csv'));
+    virtualPts(~isnan(meshPts(:,3)), 3 ) = nan;
     sparser(virtualPts);
     scaler(virtualPts);
   
