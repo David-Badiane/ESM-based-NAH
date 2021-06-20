@@ -64,7 +64,7 @@ normalPoints = [reshape(nx, [nNormPoints,1]),...
                 reshape(nz, [nNormPoints,1]) ];
 
 %% START
-nEqSourceGrids = 2;
+nEqSourceGrids = 1;
 cd(virtualPointsFolder);
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
@@ -74,7 +74,7 @@ dataCell = cell(nModes,1);
 ZreguFreq = cell(nModes,1);
 
 
-for mode = 2:nModes
+for mode = 1:nModes
     tStart = tic;
     % Setup of local variables
     omega = eigenFreqzRad(mode); % current eigenfreq mode
@@ -83,7 +83,7 @@ for mode = 2:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-   % measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
+    measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   

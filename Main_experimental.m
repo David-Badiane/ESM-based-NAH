@@ -25,7 +25,7 @@ clc
 
 % folders
 baseFolder = pwd;
-virtualPointsFolder = [baseFolder,'\VP_Grids'];
+virtualPointsFolder = [baseFolder,'\VPGrids'];
 estimationsFolder = [baseFolder, '\Estimations'];
 addpath(genpath('functions'));
 addpath(genpath('Data'));
