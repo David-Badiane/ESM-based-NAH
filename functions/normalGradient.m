@@ -32,7 +32,7 @@ deleteIndexesPlate = find(isnan(platePoints(:,3)));
 platePoints(deleteIndexesPlate,:) = [];
 
 deleteIndexesNorm = find(isnan(normalPoints(:,1)));
-normalPoints(deleteIndexesNorm, :) = [];
+normalPoints(deleteIndexesPlate, :) = [];
 
 G_v = cell(length(omega),1);
 % preallocate temporary matrix

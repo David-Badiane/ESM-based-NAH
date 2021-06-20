@@ -11,8 +11,10 @@ alphaTSVD = round(linspace(rangeTSVD(1), rangeTSVD(2), numParamsTSVD));
 % preallocate variables
 nmseTIK  = zeros(1, numParamsTIK);
 nccTIK  = zeros(1, numParamsTIK);
+normcTIK = zeros(1, numParamsTIK);
 nmseTSVD = zeros(1, numParamsTSVD);
 nccTSVD = zeros(1, numParamsTSVD); 
+normcTSVD = zeros(1, numParamsTSVD); 
 
 % compact singular value decomposition
 [U,s,V] = csvd (G_p_omega);
@@ -39,7 +41,12 @@ for ii = 1:numParamsTIK
     %NMSE
     nmseTIK(ii)  = 10*log(norm(v_TIK_Fin - abs(v_ex_vector))^2 / (normV^2));
     
+    %NCC
     nccTIK(ii) = (abs(v_TIK_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TIK_Fin),2)*norm(abs(v_ex_vector),2));
+    
+    %Normalized Correlation
+    normcTIK(ii) = (v_TIK_Fin'*v_ex_vector) / (norm(v_TIK_Fin)*norm(v_ex_vector));
+    
 end
 
 % TSVD cycle for every parameters
@@ -63,31 +70,36 @@ for jj = 1:numParamsTSVD
     %NMSE
     nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin - abs(v_ex_vector))^2 / (normV^2));
     
+    %NCC
     nccTSVD(jj) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
-
+    
+    %Normalized Correlation
+    normcTSVD(ii) = (v_TSVD_Fin'*v_ex_vector) / (norm(v_TSVD_Fin)*norm(v_ex_vector));
 
 end
 
-errors = {nmseTIK, nccTIK, nmseTSVD, nccTSVD};
+errors = {nmseTIK, nccTIK, normcTIK, nmseTSVD, nccTSVD, normcTSVD};
 alphaVectors = {alphaTIK; alphaTSVD};
 
-desiredAlpha = zeros(4,2);
+desiredAlpha = zeros(6,2);
 
 
-names = {'nmseTIK' 'nccTIK' 'nmseTSVD' 'nccTSVD'};
+names = {'nmseTIK' 'nccTIK' 'normcTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD'};
 namesAlpha = {'alphaTIK' 'alphaTSVD' };
 
 % figure()
 for ii = 1:length(errors)
     discriminator = mod(ii,2);
     if discriminator == 1
-      [val, loc] =  min( errors{ii});   % NMSE    
+      [val, loc] =  min( errors{ii});  %NMSE    
+    elseif discriminator == 2
+      [val, loc] =  max( errors{ii});  %NCC
     else
-      [val, loc] =  max( errors{ii});   %NCC
+      [val, loc] =  max( errors{ii});  %normc 
     end
     desiredAlpha(ii,:) = [val,loc];
     
-    if ii == 1 || ii == 2
+    if ii == 1 || ii == 2 || ii==3
         alphaIndex = 1;
     else 
         alphaIndex = 2;
@@ -103,6 +115,7 @@ for ii = 1:length(errors)
 
 end   
 
-velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, nmseTSVD, names{4}, nccTSVD);
+velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, normcTIK, names{4},...
+    nmseTSVD, names{5}, nccTSVD, names{6}, normcTSVD);
 end
 
