@@ -1,9 +1,0 @@
-Number of points 96000
-Sampling frequency 48000
-
-Sensibilities
-Force                      22,5 mV/N
-Acceleration          100 mV/g
-Sound Pressure     43,6 mV/Pa
-
-Results in physical units
