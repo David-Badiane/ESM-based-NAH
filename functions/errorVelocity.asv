@@ -91,15 +91,13 @@ namesAlpha = {'alphaTIK' 'alphaTSVD' };
 for ii = 1:length(errors)
     discriminator = mod(ii,2);
     if discriminator == 1
-      [val, loc] =  min( errors{ii});  %NMSE    
-    elseif discriminator == 2
-      [val, loc] =  max( errors{ii});  %NCC
+      [val, loc] =  min( errors{ii});   % NMSE    
     else
-      [val, loc] =  max( errors{ii});  %normc 
+      [val, loc] =  max( errors{ii});   %NCC
     end
     desiredAlpha(ii,:) = [val,loc];
     
-    if ii == 1 || ii == 2 || ii==3
+    if ii == 1 || ii == 2
         alphaIndex = 1;
     else 
         alphaIndex = 2;
@@ -115,7 +113,6 @@ for ii = 1:length(errors)
 
 end   
 
-velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, normcTIK, names{4},...
-    nmseTSVD, names{5}, nccTSVD, names{6}, normcTSVD);
+velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, nmseTSVD, names{4}, nccTSVD);
 end
 
