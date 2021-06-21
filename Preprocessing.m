@@ -274,11 +274,9 @@ end
 %% Pressure field 
 
 eigenFrequencies = fpeakPositions;
-
 Fs = 48000;
 cutIdxs = find(f <2000 & f>50 );
 fAxis = f(cutIdxs);
-
 yElements = 8;
 xElements = 8;
 
@@ -326,7 +324,7 @@ end
 realPress = real(pressureData);
 imagPress = [real(pressureData(:,1:2)), imag(pressureData(:,3:end))];
 pressureData = sortrows(realPress) + 1i*(sortrows(imagPress));
-pressureData(:,1:2) = 0.001* real(pressureData(:,1:2))  
+pressureData(:,1:2) = 0.001* real(pressureData(:,1:2));  
 
 % [xSorted idxSorted] = sort(xyCoord(:,1));
 % 

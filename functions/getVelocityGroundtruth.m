@@ -13,10 +13,8 @@ Z = reshape(violinMesh(:,3), [pY, pX]).';
 
 
 F1 = scatteredInterpolant(velocityData(:,1),velocityData(:,2), abs(v_ex_vector));
-figure
+
 vq1 = F1(X,Y);
-
-
 vRows = length(vq1(:,1)); 
 vCols = length(vq1(1,:));
 zVel = reshape(vq1, [ vCols*vRows, 1 ]);

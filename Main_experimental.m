@@ -128,7 +128,7 @@ YY = yData.';
 
 %% STRUCT AND TABLE INIT
 nEqSourceGrids = 1;
-nZpoints = 400;
+nZpoints = 1;
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
@@ -140,9 +140,9 @@ ZreguFreq = cell(length(eigenFreqz),1);
 
 
 %% COMPUTATION LOOP 
-
+bestZ = table2array(readtable('bestZ.csv'));
  for ii = 1:length(eigenFreqz) 
-     tStart = tic;
+  tStart = tic;
   omega = eigenFreqz(ii);
   disp(['f = ', num2str(omega/(2*pi))]);
   measuredPressure = pressureData(:,ii);
@@ -154,7 +154,7 @@ ZreguFreq = cell(length(eigenFreqz),1);
     yStep = abs(yAx - circshift(yAx,+1));
     
   zCenter = -0.5*min([min(xStep), min(yStep)]);
-  zSearch = 0.7;
+  zSearch = 0;
   transposeGrids = false;
   plotData = true;
   experimentalData = true;
@@ -162,14 +162,27 @@ ZreguFreq = cell(length(eigenFreqz),1);
   [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
                            nZpoints, zCenter, zSearch, xData, yData , v_ex_vector,...
                            rho, pX, pY,gridTablesNames, transposeGrids, plotData, experimentalData);
-    
+  
+%   fun = @(x) getBestGridSimple( measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
+%                            x, xData, yData , v_ex_vector,...
+%                            rho, pX, pY,gridTablesNames(2:8), transposeGrids, plotData, experimentalData );
+%                        
+%   options = optimset('fminsearch');
+%   options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',2e2,'MaxIter', 5e3,...
+%     'DiffMinChange', 1, 'DiffMaxChange', 200); 
+
+%   % minimization
+%   [zpar,fval, exitflag, output] = fminsearch(fun, zCenter, options);
+%                        
   tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
        
     dataCell{ii} = tempTable;
     dataStruct = cell2struct(dataCell, structNames, 1);
     ZreguFreq{ii} = ZreguDatas;
     disp(toc(tStart))
+%   bestZ(2,ii)= zpar;
  end
+%  writeMat2File(bestZ, ['bestZ.csv'], {'f'} , 1, false);
  
  %% plot metrics
  

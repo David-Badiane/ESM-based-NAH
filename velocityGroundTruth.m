@@ -4,7 +4,7 @@ clc
 %% Ground truth computation
 
 addpath('functions')
-addpath('Data\csvData')
+addpath(genpath('Data'))
 % compute FRF of the velocity
 
 
