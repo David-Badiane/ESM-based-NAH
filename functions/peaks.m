@@ -1,23 +1,31 @@
-function [peaksLoc] = peaks(matrix, f)
+function [peaksLoc, fpeakPositions] = peaks(matrix, f, fThreshold, ignorePeaksLow, ignorePeaksHigh,...
+    highPeaksParams, lowPeaksParams)
 %PEAKS find peaks of the FRF
 %   Detailed explanation goes here
 
-thresh = 200*2;
+absMat = abs(matrix);
+absMat = absMat ./ mean(absMat);
+absMat = sum(absMat, 2).^2;
 
-temp = abs(matrix);
-temp = temp ./ mean(temp);
-temp = sum(temp.^2, 2);
+[~,low2HighIdx] = min(abs(f - (fThreshold*ones(size(f))) ));
+[~, peaksLocHigh] = findpeaks(absMat(low2HighIdx+1:end), 'MinPeakProminence', highPeaksParams(1), 'minPeakWidth', highPeaksParams(2));
+[~, peaksLocLow] = findpeaks(absMat(1:low2HighIdx), 'MinPeakProminence', lowPeaksParams(1), 'minPeakWidth', lowPeaksParams(2));
+
+peaksLocHigh =low2HighIdx + peaksLocHigh;
+peaksLoc = [ peaksLocLow; peaksLocHigh];
+peaksLoc = sortrows(peaksLoc);
 
 figure(901)
-semilogy(f, temp)
+semilogy(f, absMat)
+hold on
+xline(f(peaksLoc))
+hold off
 
-[~, peaksLocHigh] = findpeaks(temp(thresh:end, 1), 'MinPeakProminence', 10);
-[~, peaksLocLow] = findpeaks(temp(1:thresh, 1), 'MinPeakProminence', 1);
-
-peaksLocHigh = peaksLocHigh+thresh;
-
-peaksLoc = cat(1, peaksLocLow, peaksLocHigh);
-peaksLoc = sort(peaksLoc, 1);
-
+fpeakPositions = f(peaksLoc);
+idxPks = find(fpeakPositions < ignorePeaksLow |  fpeakPositions > ignorePeaksHigh);
+if ~isempty(idxPks)
+fpeakPositions(idxPks) = [];
+peaksLoc(idxPks) = [];
+end
 end
 

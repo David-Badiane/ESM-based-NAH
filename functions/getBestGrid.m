@@ -94,7 +94,7 @@ for jj = 1:nEqSourceGrids
 % 9 8 --> M curve
        [LQs, Lv_TSVD, Lv_TIK] = reguResults( reguDataLine(4), reguDataLine(3), pressure, omega, rho, G_p_omega, G_v_omega, virtualPoints );
             %[LQs, Lv_TSVD, Lv_TIK] = reguResults( ZreguDataLine(10), ZreguDataLine(11), pressure, omega, rho, G_p_omega, G_v_omega);
-        titleStr = ['L curve   z = ', num2str(reguDataLine(2)), ' ' , virtualPtsFilename];
+        titleStr = ['L curve  f = ',num2str(omega/2/pi), '  \\  z = ', num2str(reguDataLine(2)), ' \\ ' , virtualPtsFilename];
         figureNum = 660;
         if experimentalData 
             reguFiguresExperimental(violinMesh, Lv_TSVD, Lv_TIK,  v_ex_vector,virtualPoints, titleStr  , figureNum);

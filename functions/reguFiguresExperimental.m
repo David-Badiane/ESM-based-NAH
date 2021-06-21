@@ -5,31 +5,39 @@ function [] = reguFiguresExperimental(violinMesh, v_TSVD, v_TIK, v_ex_vector, vi
     pX = length(unique(violinMesh(:, 1)));
     pY = length(unique(violinMesh(:, 2))); 
    
-    X =  reshape(violinMesh(:,1), [pX, pY]); 
-    Y =  reshape(violinMesh(:,2), [pX, pY]);
+    X =  reshape(violinMesh(:,1), [pY, pX]).'; 
+    Y =  reshape(violinMesh(:,2), [pY, pX]).';
 
-    v_TSVD = addNans(violinMesh, v_TSVD); 
-    v_TIK = addNans(violinMesh, v_TIK);
-    %v_ex = addNans(violinMesh, v_ex_vector);
-
+    v_TSVDF = addNans(violinMesh, v_TSVD); 
+    v_TIKF = addNans(violinMesh, v_TIK);
+%     v_ex = addNans(violinMesh, v_ex_vector);
+    [XX,YY,surfV] = getVelocityGroundtruth(v_ex_vector);
+%     surf_v = reshape(v_ex, [pY,pX]).';
     
-    figure(figureNum) 
-        
-  
-    subplot 121
-    plot3(violinMesh(:,1), violinMesh(:,2), abs(v_TSVD));
+    surf_vTSVD = reshape(v_TSVDF, [pY,pX]).';
+    surf_vTIK = reshape(v_TIKF, [pY,pX]).';
+    
+    
+    figure(figureNum+1)
+    subplot 131
+    surf(XX,YY, abs(surfV)); view(2);
+    title('velocity groundTruth');
+    subplot 132
+    surf(X,Y, abs(surf_vTSVD )); view(2);
     title('TSVD velocity')
-    subplot 122
-    plot3(violinMesh(:,1), violinMesh(:,2), abs(v_TIK));
+    subplot 133
+    surf(X,Y, abs(surf_vTIK )); view(2);
     title('Tik velocity')
     sgtitle(titleStr);  
   
-    figure(figureNum+1)
+    figure(figureNum+2)
     plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3), 'o');
     hold on 
     plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 ); 
     xlabel('x'); ylabel('y');
     hold off;
-           pause(0.01);
+    
+    
+
 end
 

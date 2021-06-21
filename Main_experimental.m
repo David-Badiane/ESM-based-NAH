@@ -32,74 +32,6 @@ addpath(genpath('Data'));
 addpath('violinMeshes');
 addpath(virtualPointsFolder)
 
-%% Virtual Points generator
-
-% pts = table2array(readtable('grid128x128fin.csv'));
-% edgeX = max(pts(:,1)) - min(pts(:,1));
-% edgeY = max(pts(:,2)) - min(pts(:,2));
-% 
-% zVal = 0; % <-- lattice
-% nGrids = 45;
-% 
-% % %from last file automatically
-% % filesList = ls(virtualPointsFolder);
-% % filesList(1:2,:) = [];
-% % fileNums = [];
-% % 
-% % for ii = 1:length(filesList(:,1))
-% %     idx = find(filesList(ii,:)== '.');
-% %     fileNums = [fileNums; eval(filesList(ii,4:idx))];
-% % end
-% % 
-% % fileNums = max(fileNums);
-% % fileNums = sort(fileNums);
-% % 
-% % for ii = 43:45
-% %     filename = ['VP_',int2str(ii),'.csv'];
-% %     ppts = table2array(readtable(filename));
-% %     figure(10);
-% %     plot3(ppts(:,1), ppts(:,2), ppts(:,3), '.');
-% %     hold on;
-% %     plot3(pts(:,1), pts(:,2), pts(:,3), '.')
-% %     title(['VP ',int2str(ii)]);
-% %     hold off;
-% % 
-% %     disp('');
-% %     disp(' contr = 0 rectangular')
-% %     disp('contr = 1, circular grids')
-% %     disp('contr = 2, ellipsoidal grids')
-% %     disp('contr = 3, circular + border')
-% %     disp('contr = 4, ellipsoidal + border')
-% %     disp('contr = 5, inner + border')
-% %     disp('contr = 6, BORDER ONLY')
-% %     disp('contr = 7, inner only')
-% %     disp('');
-% %     
-% %     controller = input('choose kind of grid(0-7) :');
-% %     genVirtualPoints(pts,['VP_',int2str(ii)], controller, -25,virtualPointsFolder);
-% % 
-% % end
-% 
-% %all already set and debugged
-% 
-% for ii = 3:nGrids-1
-%     disp('');
-%     disp(' contr = 0 rectangular')
-%     disp('contr = 1, circular grids')
-%     disp('contr = 2, ellipsoidal grids')
-%     disp('contr = 3, circular + border')
-%     disp('contr = 4, ellipsoidal + border')
-%     disp('contr = 5, inner + border')
-%     disp('contr = 6, BORDER ONLY')
-%     disp('contr = 7, inner only')
-%     disp('contr = 8, rect + border + inner')
-%     disp('');
-%     disp(['edgeX: ', num2str(edgeX),' edgeY: ', num2str(edgeY)]); 
-%     
-%     controller = input('choose kind of grid(0-8) :');
-%     genVirtualPoints(pts,['VP_',int2str(ii)], controller, zVal,virtualPointsFolder);
-% end
-
 %% global variables
 
 nMics = 8;
@@ -115,17 +47,16 @@ eigenFreqz = 2*pi*eigenFreqz; % convert in [rad/s]
 
 nModes = length(eigenFreqz);
 
-violinMesh = 0.001*table2array(readtable('grid65x25.csv')); 
+violinMesh = table2array(readtable('grid65x25.csv')); 
 
 pX = length(unique(violinMesh(:, 1)));
 pY = length(unique(violinMesh(:, 2)));
 nViolinPoints = pX*pY;
 
 % get normal points for Green's fxs gradient
-X = reshape(violinMesh(:,1), pX, pY);
-Y = reshape(violinMesh(:,2), pX, pY);
-Z = reshape(violinMesh(:,3), pX, pY);
-
+X = reshape(violinMesh(:,1), [pY, pX]).';
+Y = reshape(violinMesh(:,2), [pY, pX]).';
+Z = reshape(violinMesh(:,3), [pY, pX]).';
 zNan = find(isnan(Z));
 Z(zNan) = 0; % for boundaries normal vector
 
@@ -134,26 +65,70 @@ Z(zNan) = 0; % for boundaries normal vector
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
 Z(zNan) = nan;
-normalPoints = [reshape(nx', [nViolinPoints,1]),...
-                reshape(ny', [nViolinPoints,1]),...
-                reshape(nz', [nViolinPoints,1]) ];
+normalPoints = [reshape(nx, [nViolinPoints,1]),...
+                reshape(ny, [nViolinPoints,1]),...
+                reshape(nz, [nViolinPoints,1]) ];
+normalPoints = sortrows(normalPoints);
 
-pressureData = table2array(readtable('pressureData.csv'));
+pressureData = table2array(readtable('pressure_Data.csv'));
 
 hologramDistance = 0.02;
 zHologram = max(Z(:)) + hologramDistance; 
-hologramPoints =  [0.001.*pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
-hologramMeshX = reshape( pressureData(:,1) , [nMics, nMeas]); 
-hologramMeshY = reshape( pressureData(:,2) , [nMics, nMeas]); 
+hologramPoints =  [pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
+hologramMeshX = reshape( pressureData(:,1) , [nMeas, nMics]).'; 
+hologramMeshY = reshape( pressureData(:,2) , [nMeas, nMics]).'; 
+
+for ii = 1:(length(pressureData(1,:)) -2)
+    figure(300)
+    zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]);
+    surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
+    xlabel('X   [m]');
+    ylabel('Y   [m]');
+    title(['f_{', int2str(ii), '}']);
+end
 
 velocityData = table2array(readtable('velocityData.csv'));   
-velocityData(:,1:2) = velocityData(:,1:2);
-nEqSourceGrids = 45;
- 
 load('xyDataVlnMeasurements.mat');
 
+XX = xData.';
+YY = yData.';
+% for ii = 1:10
+%    if ii <= 7
+%    XX(ii, isnan(XX(ii,:))) = mean(XX(ii, ~isnan(XX(ii,:))));
+%    end
+%    YY( isnan(YY(:,ii)), ii) = mean(YY( ~isnan(YY(:, ii)), ii));
+% end
+% 
+% for ii = 1:length(velocityData(1,:)) -2
+%     figure(301)
+%     F1 = scatteredInterpolant(velocityData(:,1),velocityData(:,2), abs(velocityData(:,2+ii)));
+%     figure
+%     vq1 = F1(X,Y);
+%     
+%     subplot 121
+%     surf(X,Y,vq1)
+%     xlabel('X   [m]');
+%     ylabel('Y   [m]');
+%     title(['f_{', int2str(ii), '}']);
+%     
+%     vRows = length(vq1(:,1)); vCols = length(vq1(1,:));
+%     zVel = reshape(vq1, [ vCols*vRows, 1 ]);
+%     zVel(isnan(reshape(Z,[pX*pY,1]))) = nan;
+%     
+%     vq = reshape(zVel, [ vRows, vCols]);
+%     subplot 122
+%     
+%     surf(X,Y,vq)
+%     xlabel('X   [m]');
+%     ylabel('Y   [m]');
+%     title(['f_{', int2str(ii), '}']);
+%     
+% end
+
+
 %% STRUCT AND TABLE INIT
-nZpoints = 5;
+nEqSourceGrids = 1;
+nZpoints = 400;
 gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
                     'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
                     'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
@@ -166,14 +141,21 @@ ZreguFreq = cell(length(eigenFreqz),1);
 
 %% COMPUTATION LOOP 
 
- for ii = 1:length(eigenFreqz)    
+ for ii = 1:length(eigenFreqz) 
+     tStart = tic;
   omega = eigenFreqz(ii);
   disp(['f = ', num2str(omega/(2*pi))]);
-  measuredPressure = pressureData(:, 2 + ii);
-  v_ex_vector = velocityData(:, 2 + ii);
-  zSearch = 0.8;
-  zCenter = -0.02;
-  transposeGrids = true;
+  measuredPressure = pressureData(:,ii);
+  v_ex_vector = velocityData(:,  ii);
+  
+    xAx = unique(hologramPoints(:,1));
+    yAx = unique(hologramPoints(:,2));
+    xStep = abs(xAx - circshift(xAx,+1));
+    yStep = abs(yAx - circshift(yAx,+1));
+    
+  zCenter = -0.5*min([min(xStep), min(yStep)]);
+  zSearch = 0.7;
+  transposeGrids = false;
   plotData = true;
   experimentalData = true;
 
@@ -181,12 +163,14 @@ ZreguFreq = cell(length(eigenFreqz),1);
                            nZpoints, zCenter, zSearch, xData, yData , v_ex_vector,...
                            rho, pX, pY,gridTablesNames, transposeGrids, plotData, experimentalData);
     
-    tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
+  tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
        
     dataCell{ii} = tempTable;
     dataStruct = cell2struct(dataCell, structNames, 1);
     ZreguFreq{ii} = ZreguDatas;
+    disp(toc(tStart))
  end
+ 
  %% plot metrics
  
  % plot figures for M method

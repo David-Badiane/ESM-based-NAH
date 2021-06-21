@@ -4,9 +4,9 @@ function [HvSVD, singularVals] = SVD(frf, freq, M, thresholdIdx, plotData)
 % frf  (array)  = signal on which perform SVD,
 % freq (array)  = frequency axis relative to the signal
 % M    (int)    = max number of singular values computed
-% thresholdPerc (double) = set threshold for useful singular values in percentage of
+% thresholdIdx (double) = set threshold for useful singular values in percentage of
 %                          the maximum value of the singularValues 
-%                          (ex. thresholdPerc = 30 --> 30%)
+%                          (ex. thresholdIdx = 30 --> 30%)
 % samplesNames (cell array) = cell array containing the names of the samples
 % counter (int)             = value indicating the sample number
 
@@ -24,7 +24,7 @@ singularVals = diag(S);
 
 % c) Set threshold in percentage of maximum value between all singular values
 
-singVals = singularVals(thresholdIdx);
+singVals = singularVals(1:thresholdIdx);
 nRec = length(singVals);
 Vp = V';
 
@@ -33,7 +33,7 @@ H = U(:,1:nRec)*S(1:nRec,1:nRec)*Vp(1:nRec,:);
 
 % e) Plot singular values and threshold
 if plotData
-    figure()
+    figure(17)
     stem(axis,singularVals);
     hold on
     stem(1:length(singVals), singVals)
@@ -60,13 +60,14 @@ for ii = 1:N
 end
 
 if plotData
-    figure()
+    figure(18)
     semilogy(freq, abs(frf(1:length(freq))));
     hold on
     semilogy(freq,abs(HvSVD(1:length(freq))));
     xlabel('f');
     ylabel('|H|');
     title(['Noisy and cleaned frfs ']);
+    hold off
 end
 end
 

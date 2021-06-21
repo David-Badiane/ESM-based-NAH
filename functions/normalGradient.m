@@ -31,7 +31,6 @@ virtualPoints(deleteIndexesVirt,:) = [];
 deleteIndexesPlate = find(isnan(platePoints(:,3)));
 platePoints(deleteIndexesPlate,:) = [];
 
-deleteIndexesNorm = find(isnan(normalPoints(:,1)));
 normalPoints(deleteIndexesPlate, :) = [];
 
 G_v = cell(length(omega),1);

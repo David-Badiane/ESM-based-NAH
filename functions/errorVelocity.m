@@ -30,7 +30,7 @@ for ii = 1:numParamsTIK
     % adds nan to create a mesh to interpolate
     v_TIK_Fin = addNans(violinMesh, v_TIK);
     % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-    v_TIK_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TIK_Fin)], xData, yData, pX, pY, false);
+    v_TIK_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TIK_Fin)], xData.', yData.', pX, pY, false);
 
     v_TIK_Fin = v_TIK_Fin(:);
 
@@ -59,7 +59,7 @@ for jj = 1:numParamsTSVD
     v_TSVD_Fin = addNans(violinMesh, v_TSVD);
     
     % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-    v_TSVD_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TSVD_Fin)], xData, yData, pX, pY, false);
+    v_TSVD_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TSVD_Fin)], xData.', yData.', pX, pY, false);
     
     v_TSVD_Fin = v_TSVD_Fin(:);
     
