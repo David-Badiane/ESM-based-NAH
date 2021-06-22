@@ -40,44 +40,22 @@ for jj = 1:nEqSourceGrids
             lambda_l = l_curve (U,s,pressure);
             k_l = l_curve (U,s,pressure,'tsvd');
 
-            [velocityErrorsL, desiredAlphaL] = errorVelocity(v_ex_vector, violinMesh, xData, yData, pressure,...
-                G_p_omega, G_v_omega, [lambda_l lambda_l],...
-                [k_l k_l], 1, 1, omega, rho, deleteIndexesVirt, pX, pY, experimentalData);
-            
-            
-% %             % APPROACH 2) metrics parametrization
-%             rangeTIK = [0,100]; % range of value for the regularization parameter
-%             TSVDup = min([length(G_p_omega(1,:)), length(G_p_omega(:,1))]);
-%             rangeTSVD = [1,TSVDup]; % range of value for the regularization parameter
-%             numParamsTIK = 1e2;
-%             numParamsTSVD = TSVDup-1;
-% 
-%             [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
-%                 xData, yData, pressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
-%                 numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY, experimentalData);
-
+            [velocityErrorsL] = errorVelocity(v_ex_vector, violinMesh, ...
+xData, yData, pressure, G_p, G_v, lambda_L, k_L,... 
+omega, rho)
             % store results
             ZreguDataLine(1) =  zVals(zz);                           % 'zVal'
             ZreguDataLine(2) =  lambda_l;                            % 'lambda_L' 
             ZreguDataLine(3) =  k_l;                                 % 'k_L' 
-            ZreguDataLine(4) =  desiredAlphaL(1,1);                  % nmseTIK_L
-            ZreguDataLine(5) =  desiredAlphaL(2,1);                  % nccTIK_L
-            ZreguDataLine(6) =  desiredAlphaL(3,1);                  % normcTIK_L
-            ZreguDataLine(7) =  desiredAlphaL(4,1);                  % reTIK_L
-            ZreguDataLine(8) =  desiredAlphaL(5,1);                  % nmseTSVD_L
-            ZreguDataLine(9) =  desiredAlphaL(6,1);                  % nccTSVD_L
-            ZreguDataLine(10) =  desiredAlphaL(7,1);                  % normcTSVD_L
-            ZreguDataLine(11) =  desiredAlphaL(8,1);                  % reTSVD_L
-% 
-%             ZreguDataLine(8) =  desiredAlpha(3,2);                   % lambda_nmse_M 
-%             ZreguDataLine(9) =  desiredAlpha(4,2);                   % k_nmse_M
-%             ZreguDataLine(10) = desiredAlpha(1,2);                   % k_ncc_M 
-%             ZreguDataLine(11) = desiredAlpha(2,2);                   % lambda_ncc_M
-%             ZreguDataLine(12) = desiredAlpha(3,1);                   % nmseTSVD_M
-%             ZreguDataLine(13) = desiredAlpha(4,1);                   % nccTSVD_M
-%             ZreguDataLine(14) = desiredAlpha(1,1);                   % nmseTIK_M
-%             ZreguDataLine(15) = desiredAlpha(2,1);                   % nccTIK_M 
-%             
+            ZreguDataLine(4) =  velocityErrorsL.nmseTIK;             % nmseTIK_L
+            ZreguDataLine(5) =  velocityErrorsL.nccTIK;              % nccTIK_L
+            ZreguDataLine(6) =  velocityErrorsL.normcTIK;            % normcTIK_L
+            ZreguDataLine(7) =  velocityErrorsL.reTIK;               % reTIK_L
+            ZreguDataLine(8) =  velocityErrorsL.nmseTSVD;            % nmseTSVD_L
+            ZreguDataLine(9) =  velocityErrorsL.nccTSVD;             % nccTSVD_L
+            ZreguDataLine(10) =  velocityErrorsL.normcTSVD;          % normcTSVD_L
+            ZreguDataLine(11) =  velocityErrorsL.reTSVD;             % reTSVD_L
+       
             ZreguData = [ZreguData; ZreguDataLine];
             
        end

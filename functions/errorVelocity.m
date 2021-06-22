@@ -1,131 +1,74 @@
-function [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh, ...
-xData, yData, measuredPressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD, numParamsTIK,...
- numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY, experimentalData)
+function [velocityErrors] = errorVelocity(v_ex_vector, violinMesh, ...
+xData, yData, measuredPressure, G_p, G_v, lambda_L, k_L,... 
+omega, rho)
+
+names = {'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD' };
 
 %ERRORVELOCITY 
-
-%  take the parameters
-alphaTIK  = linspace(rangeTIK(1), rangeTIK(2), numParamsTIK);
-alphaTSVD = round(linspace(rangeTSVD(1), rangeTSVD(2), numParamsTSVD));
-
-% preallocate variables
-nmseTIK  = zeros(1, numParamsTIK);
-nccTIK  = zeros(1, numParamsTIK);
-normcTIK = zeros(1, numParamsTIK);
-reTIK = zeros(1, numParamsTIK);
-nmseTSVD = zeros(1, numParamsTSVD);
-nccTSVD = zeros(1, numParamsTSVD); 
-normcTSVD = zeros(1, numParamsTSVD); 
-reTSVD = zeros(1, numParamsTSVD); 
+pX = length(unique(violinMesh(:,1)));
+pY = length(unique(violinMesh(:,2)));
 
 % compact singular value decomposition
-[U,s,V] = csvd (G_p_omega);
+[U,s,V] = csvd (G_p);
 
 % exact velocity norm
 normV = norm(v_ex_vector,2);
+[Qs, v_TSVD, v_TIK] = reguResults( k_L, lambda_L, measuredPressure, omega, rho, G_p, G_v );
+q_TIK = Qs.qTIK; 
+q_TSVD = Qs.qTSVD;
 
-% TIK cycle for every parameters
-for ii = 1:numParamsTIK
-    q_TIK = (1/(1i*omega*rho)).*tikhonov(U,s,V, measuredPressure  , alphaTIK(ii)); % reconstructed source streghts
-    v_TIK = G_v_omega*q_TIK; 
-    v_TIK_Fin = v_TIK;
-    % adds nan to create a mesh to interpolate
-    v_TIK_Fin = addNans(violinMesh, v_TIK);
-    % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-    v_TIK_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) v_TIK_Fin], xData.', yData.', pX, pY, false);
+% adds nan to create a mesh to interpolate
+v_TIK_Fin = addNans(violinMesh, v_TIK);
+% interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
+v_TIK_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) v_TIK_Fin], xData.', yData.', pX, pY, false);
+% make vector and delete NaNs
+v_TIK_Fin = v_TIK_Fin(:);
+cancelindex = find(isnan(v_TIK_Fin));
+v_TIK_Fin(cancelindex) = [];
 
-    v_TIK_Fin = v_TIK_Fin(:);
+% metrics
+[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_ex_vector, normV);
 
-    % cancel nan from velocity vector
-    cancelindex = find(isnan(v_TIK_Fin));
-    v_TIK_Fin(cancelindex) = [];
+  
+% adds nan to create a mesh to interpolate
+v_TSVD_Fin = addNans(violinMesh, v_TSVD);
+% interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
+v_TSVD_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TSVD_Fin)], xData.', yData.', pX, pY, false);
+v_TSVD_Fin = v_TSVD_Fin(:);
+% cancel nan from velocity vector
+cancelindex = find(isnan(v_TSVD_Fin));
+v_TSVD_Fin(cancelindex) = [];
     
-    %NMSE
-    nmseTIK(ii)  = 10*log(norm(v_TIK_Fin - abs(v_ex_vector))^2 / (normV^2));
-    
-    %NCC
-    nccTIK(ii) = (abs(v_TIK_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TIK_Fin),2)*norm(abs(v_ex_vector),2));
-    
-    %Normalized Correlation
-    normcTIK(ii) = abs(v_TIK_Fin'*v_ex_vector) / (norm(v_TIK_Fin)*norm(v_ex_vector));
-   
-    %Reconstruction Error
-    reTIK (ii) = (norm((v_ex_vector - v_TIK_Fin) ,2)^2) / (norm(v_ex_vector ,2))^2 ;
-    
-end
-
-% TSVD cycle for every parameters
-for jj = 1:numParamsTSVD
-    
-    q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, measuredPressure  , alphaTSVD(jj)); % reconstructed source streghts
-    v_TSVD = -G_v_omega*q_TSVD; 
-    
-    % adds nan to create a mesh to interpolate
-    v_TSVD_Fin = addNans(violinMesh, v_TSVD);
-    
-    % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-    v_TSVD_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TSVD_Fin)], xData.', yData.', pX, pY, false);
-    
-    v_TSVD_Fin = v_TSVD_Fin(:);
-    
-    % cancel nan from velocity vector
-    cancelindex = find(isnan(v_TSVD_Fin));
-    v_TSVD_Fin(cancelindex) = [];
-    
-    %NMSE
-    nmseTSVD(jj)  = 10*log(norm(v_TSVD_Fin - abs(v_ex_vector))^2 / (normV^2));
-    
-    %NCC
-    nccTSVD(jj) = (abs(v_TSVD_Fin)'*abs(v_ex_vector)) / (norm(abs(v_TSVD_Fin),2)*norm(abs(v_ex_vector),2));
-    
-    %Normalized Correlation
-    normcTSVD(jj) = abs(v_TSVD_Fin'*v_ex_vector) / (norm(v_TSVD_Fin)*norm(v_ex_vector));
-
-    %Reconstruction Error
-    reTSVD (jj) = (norm((v_ex_vector - v_TSVD_Fin) ,2)^2) / (norm(v_ex_vector ,2))^2;
-    
-end
-
-errors = {nmseTIK, nccTIK, normcTIK, reTIK, nmseTSVD, nccTSVD, normcTSVD, reTSVD};
-alphaVectors = {alphaTIK; alphaTSVD};
-
-desiredAlpha = zeros(8,2);
-
-
-names = {'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD'};
-namesAlpha = {'alphaTIK' 'alphaTSVD' };
-
-% figure()
-for ii = 1:length(errors)
-    discriminator = mod(ii,4);
-    if discriminator == 1
-      [val, loc] =  min( errors{ii});  %NMSE    
-    elseif discriminator == 2
-      [val, loc] =  max( errors{ii});  %NCC
-    elseif discriminator == 3
-      [val, loc] =  max( errors{ii});  %normc 
-    else  
-      [val, loc] =  max( errors{ii});  %re
-    end
-    desiredAlpha(ii,:) = [val,loc];
-    
-    if ii == 1 || ii == 2 || ii==3 || ii==4
-        alphaIndex = 1;
-    else 
-        alphaIndex = 2;
-    end
-
-%     subplot (2,2, ii)
-%     plot(alphaVectors{alphaIndex}, errors{ii});
-%     hold on
-%     stem(alphaVectors{alphaIndex}(loc), val);
-%     xlabel(namesAlpha{alphaIndex});
-%     ylabel(names{ii});   
-    desiredAlpha(ii,2) = alphaVectors{alphaIndex}(loc);
-
-end   
+[nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_ex_vector, normV);
 
 velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, normcTIK, names{4}, reTIK,...
     names{5}, nmseTSVD, names{6}, nccTSVD, names{7}, normcTSVD, names{8}, reTSVD);
+end
+
+
+function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
+    % NMSE
+    vGroundTruth = addNans(violinMesh, vGroundtruth); 
+%      figure(1111)
+%     plot(1:length(vRegu), abs(vRegu), 'lineWidth', 1.2);
+%     hold on; 
+%     plot(1:length(vGroundtruth), abs(vGroundtruth))
+%     hold off;
+% 
+   
+    nmse  = 10*log10(norm( abs(vGroundtruth)/max(abs(vGroundtruth)) ...
+                           - abs(vRegu)/max(abs(vRegu)) )^2 / ...
+                        (norm(abs(vGroundtruth)/max(abs(vGroundtruth)))^2) );
+    
+%     nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / ...
+%                       (normV)^2) ;
+    %NCC
+    ncc   = (abs(vRegu)'*abs(vGroundtruth)) / (norm(vRegu)*normV);
+    
+    %Normalized Correlation
+    normc = abs(vRegu'*vGroundtruth) / (norm(vRegu)*normV);
+   
+    %Reconstruction Error (Relative Error)
+    re    = (norm((vGroundtruth - vRegu) ,2)^2) / (normV)^2 ;
 end
 

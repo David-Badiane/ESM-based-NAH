@@ -7,8 +7,10 @@ function [Qs, v_TSVD, v_TIK] = reguResults( k, lambda, pressure, omega, rho, G_p
     v_TSVD = - G_v*q_TSVD; % reconstructed velocity with truncated SVD
     v_TIK = - G_v*q_TIK; % reconstructed velocity with Tikhonov
     Qs = struct('qTSVD', q_TSVD, 'qTIK', q_TIK);
-    figure(10)
-    virtualPoints(~isnan(virtualPoints(:,3)),3) = abs(q_TIK);
-    plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 );
+    if nargin >= 8
+        figure(10)
+        virtualPoints(~isnan(virtualPoints(:,3)),3) = abs(q_TIK);
+        plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 );
+    end
 end
 

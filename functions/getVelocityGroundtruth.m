@@ -1,8 +1,8 @@
-function [X,Y,surfV] = getVelocityGroundtruth(v_ex_vector)
+function [X,Y,surfV] = getVelocityGroundtruth(v_ex_vector, velocityFilename, figureNum)
 %GETVELOCITYGROUNDTRUTH Summary of this function goes here
 %   Detailed explanation goes here
-violinMesh = table2array(readtable('grid65x25.csv')); 
-velocityData = table2array(readtable('velocityData.csv')); 
+violinMesh = table2array(readtable('grid75x35.csv')); 
+velocityData = readmatrix([velocityFilename, '.csv']); 
 
 pX = length(unique(violinMesh(:, 1)));
 pY = length(unique(violinMesh(:, 2)));
@@ -22,15 +22,15 @@ zVel(isnan(reshape(Z,[pX*pY,1]))) = nan;
 
 surfV = reshape(zVel, [ vRows, vCols]);
 
-figure(301)
+figure(figureNum)
 subplot 121
-surf(X,Y,vq1)
+surf(X,Y,vq1); view(2);
 xlabel('X   [m]');
 ylabel('Y   [m]');
 
 
 subplot 122
-surf(X,Y,surfV)
+surf(X,Y,surfV); view(2);
 xlabel('X   [m]');
 ylabel('Y   [m]');
 

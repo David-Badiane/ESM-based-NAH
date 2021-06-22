@@ -5,6 +5,7 @@ clc
 
 addpath('functions')
 addpath(genpath('Data'))
+addpath('acq_11_06')
 % compute FRF of the velocity
 
 
@@ -18,14 +19,8 @@ signalLength = duration*Fs;
 numberPoints = 27; % number of measurement points in the violin plate
 numberAcquisitions = 6; % number of measurements for each point
 
-estimatorMatrix = zeros(3989,numberPoints); % store the H1 estimator
-cleanEstimatorMatrix = zeros(3989,numberPoints); % store the H1 estimator denoised
-MobilityMatrix = zeros(3989,numberPoints); % store the mobility transfer function (fft(Y)/fft(X))
-cleanMobilityMatrix = zeros(3989,numberPoints);% store the Mobility denoised
-
-% import raw data 
-
-measurementPts = [-3 4; -2 4; 0 4; 2 4; 3 4; %coordinates of the measurement points
+%coordinates of the measurement points
+measurementPts = [-3 4; -2 4; 0 4; 2 4; 3 4; 
                   -2 2;  0 2; 2 2;
                   -1 1;  1 1;
                   -2 0;  0 0; 2 0;
@@ -36,157 +31,201 @@ measurementPts = [-3 4; -2 4; 0 4; 2 4; 3 4; %coordinates of the measurement poi
                   -2 -6; 0 -6; 2 -6;
                    0 -8];
 
+% preallocation
+estimatorMatrix = []; % store the H1 estimator
+mobilityMatrix = []; % store the mobility transfer function (fft(Y)/fft(X))        
+  
+highCut = 2000;
+lowCut = 5;
+smoothCut = 0.01; % smoother by a low frequency low pass filter performing average
+
 % temportary file to compute the frequency responses
 forceTemp = zeros(signalLength, numberAcquisitions);
 accelerationTemp = zeros(signalLength, numberAcquisitions);
 FRFTemp = zeros(signalLength/2, numberAcquisitions);
 
-
 for jj = 1:numberPoints
-    
     cd(accFolder)
     fileName = ['x=', int2str(measurementPts(jj,1)),' y=',int2str(measurementPts(jj,2)),'_acq_'];
-    
     for ii = 1:numberAcquisitions
-        
-        tempFileName = [fileName, int2str(ii-1),'.txt'];
-        rawTemp = importdata([accFolder,'\', tempFileName]);
-        rawTemp = strrep(rawTemp, ',', '.');
-        rawMes = zeros(length(rawTemp), 3);
-        
-        for k = 1:length(rawTemp) % convert txt file into arrays
-            rawMes(k,:) = str2num(rawTemp{k});
-        end
-        
-        forceTemp(:,ii) = rawMes(:,1);
-        accelerationTemp(:,ii) = rawMes(:,2);
-        
-        
+        tempAcqFilename = [fileName, int2str(ii-1),'.csv'];
+        rawAccMeasurements = table2array(readtable(tempAcqFilename));
+        forceTemp(:,ii) = rawAccMeasurements(:,1);
+        accelerationTemp(:,ii) = rawAccMeasurements(:,2);
+
         % compute the FFT for each acquisition
-            Y1 = fft(accelerationTemp(:,ii));
-            X = fft(forceTemp(:,ii));           
-            Y1 = abs(Y1/signalLength); Y1_cut = Y1(1:signalLength/2); Y1_cut(2:end-1) = 2*Y1_cut(2:end-1);
-            X = abs(X/signalLength); X_cut = X(1:signalLength/2); X_cut(2:end-1) = 2*X_cut(2:end-1);
-            
-            freq = Fs*(0:(signalLength/2)-1)/signalLength;          
-            freq(1) = 1;
-            freq = freq';
-            FRFTemp(:,ii) =  (1./(1i*2*pi*freq)).*(Y1_cut./X_cut);
-        
+        Y1 = FFT(accelerationTemp(:,ii));
+        X = FFT(forceTemp(:,ii));           
+        freq = (Fs*(1:(signalLength/2))/signalLength).';      
+        FRFTemp(:,ii) =  (1./(1i*2*pi*freq)).*(Y1./X);        
     end
     
     [pxy1, f] = cpsd(accelerationTemp, forceTemp,[],[],signalLength, Fs);
     [pxx, f] = cpsd(forceTemp,forceTemp,[],[],signalLength, Fs);
+   
+    % smooth the signal in frequency domain applying a low pass
+    Pxy1 = lowpass(pxy1,smoothCut);
+    Pxx = lowpass(pxx,smoothCut);
+    cutIdxs = find(f <highCut & f>lowCut );
     
+    fAxis = f(cutIdxs); Pxx = pxx(cutIdxs,:);Pxy1 = Pxy1(cutIdxs,:); 
         
-    cutIdxs = find(f <2000 & f>5 );
-    f = f(cutIdxs); pxx = pxx(cutIdxs,:);pxy1 = pxy1(cutIdxs,:); 
-    
-    pxy1 = 1./(1i*2*pi*f).*pxy1;
-    
-    H1 = sum(pxy1,2)./sum(pxx,2);
-    
-    estimatorMatrix(:,jj) = H1;
-    
-    MobilityMatrix(:,jj) = mean(FRFTemp(cutIdxs,:),2);
-    
+    H1 =  1./(1i*2*pi*fAxis).*sum(Pxy1,2)./sum(Pxx,2);
+%     figure(114)
+%     semilogy(f, abs(H1));
+%     xlim([0,2000]);
+%    
+    estimatorMatrix = [estimatorMatrix H1];
+    mobilityMatrix =[ mobilityMatrix   mean(FRFTemp(cutIdxs,:),2)]; 
 end
 
 figure(808)
 subplot 211
-semilogy(f, (abs(estimatorMatrix)))
+semilogy(fAxis, (abs(estimatorMatrix)))
 title('H1 without SVD')
 subplot 212
-semilogy(f, (abs(MobilityMatrix)))
+semilogy(fAxis, (abs(mobilityMatrix)))
 title('Y/X')
+
 
 %% apply SVD to H1 estimator and Mobility function
 
 % SVD Parameters
-M = 10;
-thresholdIdx = 1;
+singValsNum = 20;
+usedSingVals = 1;
+
+cleanEstimatorMatrix = []; % store the H1 estimator denoised
+cleanMobilityMatrix = [];% store the Mobility denoise       
+
+% to choose correct parameters for SVD
+[H1_clean,singularVals] = SVD(H1.', fAxis, singValsNum, usedSingVals, true);
 
 for ii = 1:numberPoints
     H1Temp = estimatorMatrix(:,ii);
-    [H1_clean,singularVals] = SVD(H1Temp.', f, M, thresholdIdx, false);
-    cleanEstimatorMatrix(:,ii) = H1_clean;
+    [H1_clean,singularVals] = SVD(H1Temp.', fAxis, singValsNum, usedSingVals, false);
+    cleanEstimatorMatrix = [cleanEstimatorMatrix H1_clean.'];
+    
+    mobilityTemp = mobilityMatrix(:,ii);
+    [mobility_clean,singularVals] = SVD(mobilityTemp.', fAxis,singValsNum, usedSingVals, false);
+    cleanMobilityMatrix = [ cleanMobilityMatrix mobility_clean.'];
 end
 
 figure(809)
-semilogy(f, (abs(cleanEstimatorMatrix)))
+semilogy(fAxis, (abs(cleanEstimatorMatrix)))
 title('H1 with SVD')
 
-for ii = 1:numberPoints
-    H1Temp = MobilityMatrix(:,ii);
-    [H1_clean,singularVals] = SVD(H1Temp.', f, M, thresholdIdx, false);
-    cleanMobilityMatrix(:,ii) = H1_clean;
-end
-
 figure(890)
-semilogy(f, (abs(cleanMobilityMatrix)))
+semilogy(fAxis, (abs(cleanMobilityMatrix)))
 title('Mobility with SVD')
 
-cd(matDataFolder)
+% cd(matDataFolder)
 
 save('velocityH1.mat','estimatorMatrix');
 save('velocityH1cleaned.mat','cleanEstimatorMatrix');
-save('velocityMobility.mat','MobilityMatrix');
+save('velocityMobility.mat','mobilityMatrix');
 save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
 
 cd(baseFolder)
 %% find resonance frequencies from velocity
+% min peak prominence and min peak width B - high setting
+highPeaksParams = [120,20];
+% min peak prominence and min peak width A - low setting
+lowPeaksParams = [3,10];
+% fCut low for peaks to ignore
+ignorePeaksLow = 50;
+% fCut high for peaks to ignore
+ignorePeaksHigh = 1400;
+% frequency threshold for peak finders A - B configuration
+fThreshold = 250;
 
-[peakPositions] = peaks(cleanMobilityMatrix, f);
-fpeakPositions = f(peakPositions);
-idxPks = find(fpeakPositions > 1400);
-fpeakPositions(idxPks) = [];
+[peakPositions, fPeaks] = peaks(cleanEstimatorMatrix, fAxis, fThreshold,...
+    ignorePeaksLow, ignorePeaksHigh, highPeaksParams, lowPeaksParams);
+
 
 figure(899)
-semilogy(f, (abs(cleanMobilityMatrix)))
-hold on
-for i = 1:length(fpeakPositions)
-    
-    xline(fpeakPositions(i))
-    
-end
+semilogy(fAxis, (abs(cleanMobilityMatrix)))
+hold on  
+xline(fPeaks) 
 hold off
 title('Mobility with SVD')
 
 
-%% Fill the velcoity matrix from H1 with pressure peaks
-
-eigenFreqPress = readmatrix('eigenFreqPress.csv');
-eigenFreqPressIdx = eigenFreqPress*2;
-
-velocitiesMatrix = zeros(numberPoints, length(eigenFreqPressIdx));
+%% Fill the velocity matrix 
+nPeaks = length(peakPositions);
+velocitiesMatrix = zeros(numberPoints, nPeaks);
 
 for ii = 1:numberPoints
-    for jj = 1:length(eigenFreqPress)
-        velocitiesMatrix(ii,jj)= abs(cleanEstimatorMatrix(eigenFreqPressIdx(jj),ii));
+    for jj = 1:nPeaks
+        velocitiesMatrix(ii,jj)= cleanEstimatorMatrix(peakPositions(jj),ii);
     end
+end
+
+velocitiesMatrix2 = zeros(numberPoints, nPeaks);
+for ii = 1:numberPoints
+        [Hv,f0, fLocs, csis, Q, modeShapes] = EMASimple(cleanEstimatorMatrix(:,ii), fAxis, 1e-4, 8, false);
+        
+        map = [];
+        tracked = [];
+        for jj = 1:nPeaks
+            diff = abs(f0 - fPeaks(jj));
+            [minVal, minLoc] = min(diff);
+            map = [map minLoc];
+            
+            if minVal >= 0.1*fPeaks(jj) & ii > 1
+                tracked = [tracked 0];
+            else
+                tracked = [tracked 1];
+            end
+        end
+        
+        disp([ 'fPeaks = ' num2str(fPeaks.')]);
+        disp([ 'f0     = ' num2str(f0(map).')]);
+        disp(['tracked = ' num2str(tracked)]);
+        
+        modeShapes = Hv(fLocs(map));
+        modeShapes(~tracked) = abs(Hv(peakPositions(~tracked)));
+        velocitiesMatrix(ii,:)= modeShapes;
 end
 
 %% store velocities in the grid points
 
-xyCoord = readmatrix('velocityPoints.csv');
-xyCoord(:,3) = [];
-xyCoord = xyCoord*10;
+velocityData = readmatrix('velocityPoints.csv');
+velocityData(:,3) = [];
+velocityData = velocityData*0.001;
 
-for ii = 1:length(eigenFreqPress)
-    xyCoord = [xyCoord velocitiesMatrix(:,ii)];
+for ii = 1:nPeaks
+    velocityData = [velocityData velocitiesMatrix(:,ii)];
 end
 
-xyCoordSorted = sortrows(xyCoord);
+xyCoordVelSorted = sortrows(velocityData);
 
-label ={'x' 'y'};
-    freqLabel = round(eigenFreqPress);
+realVel = real(velocityData);
+imagVel = [real(velocityData(:,1:2)), imag(velocityData(:,3:end))];
+velocityData = sortrows(realVel) + 1i*(sortrows(imagVel));
+velocityData(:,1:2) = real(velocityData(:,1:2));
 
-for ii = 1: length(eigenFreqPress)
-    label{ii+2} = ['f',num2str(ii),' = ', num2str(freqLabel(ii))];
+
+velocityLabel ={'x' 'y'};
+freqLabel = round(fPeaks);
+
+for ii = 1: length(fPeaks)
+    velocityLabel{ii+2} = ['f_{',num2str(ii),'} = ', num2str(freqLabel(ii)), ' Hz'];
+end
+
+velocityTable = array2table(velocityData, 'variableNames', velocityLabel);
+writeMat2File(velocityData, 'velocity_Data2.csv', velocityLabel, length(velocityLabel), true);
+
+%% Take a look on the velocities
+velocityFilename = 'velocity_Data2';
+velocityData = readmatrix([velocityFilename,'.csv']);
+for ii = 1:nPeaks
+    
+    [X,Y,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, ii);
+    title(['f_{', int2str(ii),'} = ', num2str(fPeaks(ii)), 'Hz'])
 end
 
 
-%% export the velocity grid
+%% Link the velocity on the measured grid on the violin
 
 % auto approach 
 geomData = readtable('geometryVelocity.xlsx');
@@ -210,8 +249,6 @@ for ii = 1: numberPoints
     disp(orderedPoints(ii,:));
     disp([xx,yy]);
     zData(xx,yy,:) = velocitiesMatrix(ii,:);
-%   orderedPoints(ii,3) = velocities(ii); 
-%   zData(xx,yy) = velocities(ii);
 end  
 save('zDataVInMeasurements', 'zData');
 
@@ -225,4 +262,3 @@ writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true );
 % plot3(x, y, z, '.');
 % subplot 122
 % surf(xData, yData, zData);
-

@@ -66,15 +66,14 @@ normalPoints = [reshape(nx, [nNormPoints,1]),...
 %% START
 nEqSourceGrids = 1;
 cd(virtualPointsFolder);
-gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
-                    'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
-                    'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
-                    'nmseTIK_M', 'nccTIK_M', };
+gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L',...
+                   'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK'...
+                   'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD'};
 dataCell = cell(nModes,1);
 ZreguFreq = cell(nModes,1);
 
 
-for mode = 1:nModes
+for mode = 5:nModes
     tStart = tic;
     % Setup of local variables
     omega = eigenFreqzRad(mode); % current eigenfreq mode
@@ -83,7 +82,7 @@ for mode = 1:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-    %measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
+    measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   
@@ -105,16 +104,29 @@ for mode = 1:nModes
     experimentalData = false;
     
     
-    [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
-                           nZpoints, zCenter, zSearch, X, Y , v_ex_vector,...
-                           rho, pX, pY,gridTablesNames , transposeGrids, plotData, experimentalData);
-    
-         
-    tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
-       
-    dataCell{mode} = tempTable;
-    ZreguFreq{ii} = ZreguDatas;  
-    disp(toc(tStart));
+    fun = @(x) getBestGridSimple( measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
+                           x, X, Y , v_ex_vector,...
+                           rho, gridTablesNames, transposeGrids, plotData, experimentalData );
+                       
+   options = optimset('fminsearch');
+   options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',30,'MaxIter', 5e3,...
+    'DiffMinChange', 1, 'DiffMaxChange', 200); 
+
+   % minimization
+   [zpar,fval, exitflag, output] = fminsearch(fun, [zCenter 1], options);
+      
+
+
+%     [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
+%                            nZpoints, zCenter, zSearch, X, Y , v_ex_vector,...
+%                            rho, pX, pY,gridTablesNames , transposeGrids, plotData, experimentalData);
+%     
+%          
+%     tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
+%        
+%     dataCell{mode} = tempTable;
+%     ZreguFreq{ii} = ZreguDatas;  
+%     disp(toc(tStart));
 
     
 %     v_ex = velocityFields{mode};   

@@ -90,9 +90,9 @@ for ii = 1:numFreqBins
 %     surf(X,Y,abs(velocityFields{ii}));
 %     title('Velocity field surface - f1');
 %     
-%     figure(3)
-%     plot3(violinMesh(:,1), violinMesh(:,2), abs(vel),'.');
-%     pause(0.01);
+% %     figure(3)
+% %     plot3(violinMesh(:,1), violinMesh(:,2), abs(vel),'.');
+%     pause(0.5);
 end
 
 

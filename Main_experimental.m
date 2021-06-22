@@ -1,11 +1,4 @@
 
-% fv1 = stlread('NAH_ESM_mesh_light v15.stl');
-% fv = stlread('NAH_ESM_mesh_A.stl');
-% points = sortrows(fv.Points);
-% 
-% nrows = 35; ncols = 35; fileName = ['grid',int2str(nrows),'x',int2str(ncols)];
-% [outMatrix] = downsampling_regular(pts, nrows, ncols, fileName);
-% [pts] = downsampling_regular(outMatrix, 128, 128)
  
 %% INIT
 %{
@@ -18,7 +11,7 @@ nrows = 45; ncols = 15; fileName = ['grid',int2str(nrows),'x',int2str(ncols)];
 [pts] = downsampling_regular(outMatrix, 128, 128)
 %}
 
-clear all
+% clear all
 close all
 clc
 %% NEAR FIELD ACOUSTIC HOLOGRAPHY - ESM METHOD %%
@@ -65,14 +58,14 @@ Z(zNan) = 0; % for boundaries normal vector
                                  % surfnorm(X',Y',Z') to invert the vector
                                  % direction
 Z(zNan) = nan;
-normalPoints = [reshape(nx, [nViolinPoints,1]),...
-                reshape(ny, [nViolinPoints,1]),...
-                reshape(nz, [nViolinPoints,1]) ];
+normalPoints = [reshape(nx.', [nViolinPoints,1]),...
+                reshape(ny.', [nViolinPoints,1]),...
+                reshape(nz.', [nViolinPoints,1]) ];
 normalPoints = sortrows(normalPoints);
 
-pressureData = table2array(readtable('pressure_Data.csv'));
+pressureData = table2array(readtable('pressure_Data2.csv'));
 
-hologramDistance = 0.02;
+hologramDistance = 0.028;
 zHologram = max(Z(:)) + hologramDistance; 
 hologramPoints =  [pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
 hologramMeshX = reshape( pressureData(:,1) , [nMeas, nMics]).'; 
@@ -80,59 +73,24 @@ hologramMeshY = reshape( pressureData(:,2) , [nMeas, nMics]).';
 
 for ii = 1:(length(pressureData(1,:)) -2)
     figure(300)
-    zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]);
+    zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]).';
     surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
     xlabel('X   [m]');
     ylabel('Y   [m]');
     title(['f_{', int2str(ii), '}']);
 end
 
-velocityData = table2array(readtable('velocityData.csv'));   
+velocityData = readmatrix('velocity_Data2.csv');   
 load('xyDataVlnMeasurements.mat');
 
-XX = xData.';
-YY = yData.';
-% for ii = 1:10
-%    if ii <= 7
-%    XX(ii, isnan(XX(ii,:))) = mean(XX(ii, ~isnan(XX(ii,:))));
-%    end
-%    YY( isnan(YY(:,ii)), ii) = mean(YY( ~isnan(YY(:, ii)), ii));
-% end
-% 
-% for ii = 1:length(velocityData(1,:)) -2
-%     figure(301)
-%     F1 = scatteredInterpolant(velocityData(:,1),velocityData(:,2), abs(velocityData(:,2+ii)));
-%     figure
-%     vq1 = F1(X,Y);
-%     
-%     subplot 121
-%     surf(X,Y,vq1)
-%     xlabel('X   [m]');
-%     ylabel('Y   [m]');
-%     title(['f_{', int2str(ii), '}']);
-%     
-%     vRows = length(vq1(:,1)); vCols = length(vq1(1,:));
-%     zVel = reshape(vq1, [ vCols*vRows, 1 ]);
-%     zVel(isnan(reshape(Z,[pX*pY,1]))) = nan;
-%     
-%     vq = reshape(zVel, [ vRows, vCols]);
-%     subplot 122
-%     
-%     surf(X,Y,vq)
-%     xlabel('X   [m]');
-%     ylabel('Y   [m]');
-%     title(['f_{', int2str(ii), '}']);
-%     
-% end
 
 
 %% STRUCT AND TABLE INIT
 nEqSourceGrids = 1;
 nZpoints = 1;
-gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L', 'nmseTSVD_L', 'nccTSVD_L',...
-                    'nmseTIK_L','nccTIK_L', 'lambda_nmse_M', 'k_nmse_M', ...
-                    'k_ncc_M', 'lambda_ncc_M', 'nmseTSVD_M', 'nccTSVD_M', ...
-                    'nmseTIK_M', 'nccTIK_M', };
+gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L',...
+                   'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK'...
+                   'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD'};
 structNames = {'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11'};
                
 dataCell = cell(length(eigenFreqz),1);
@@ -140,13 +98,15 @@ ZreguFreq = cell(length(eigenFreqz),1);
 
 
 %% COMPUTATION LOOP 
-bestZ = table2array(readtable('bestZ.csv'));
+bestZ = zeros(length(eigenFreqz), 3);
+bestZ = readmatrix('bestZ.csv');
+
  for ii = 1:length(eigenFreqz) 
   tStart = tic;
   omega = eigenFreqz(ii);
   disp(['f = ', num2str(omega/(2*pi))]);
-  measuredPressure = pressureData(:,ii);
-  v_ex_vector = velocityData(:,  ii);
+  measuredPressure = pressureData(:,ii+2);
+  v_ex_vector = velocityData(:,ii+2);
   
     xAx = unique(hologramPoints(:,1));
     yAx = unique(hologramPoints(:,2));
@@ -158,31 +118,31 @@ bestZ = table2array(readtable('bestZ.csv'));
   transposeGrids = false;
   plotData = true;
   experimentalData = true;
+% 
+%   [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
+%                            nZpoints, zCenter, zSearch, xData, yData , v_ex_vector,...
+%                            rho,gridTablesNames, transposeGrids, plotData, experimentalData);
+%   
+  fun = @(x) getBestGridSimple( measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
+                           x, xData, yData , v_ex_vector,...
+                           rho, gridTablesNames, transposeGrids, plotData, experimentalData );
+                       
+  options = optimset('fminsearch');
+  options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',1,'MaxIter', 1,...
+    'DiffMinChange', 1, 'DiffMaxChange', 200); 
 
-  [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
-                           nZpoints, zCenter, zSearch, xData, yData , v_ex_vector,...
-                           rho, pX, pY,gridTablesNames, transposeGrids, plotData, experimentalData);
-  
-%   fun = @(x) getBestGridSimple( measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
-%                            x, xData, yData , v_ex_vector,...
-%                            rho, pX, pY,gridTablesNames(2:8), transposeGrids, plotData, experimentalData );
-%                        
-%   options = optimset('fminsearch');
-%   options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',2e2,'MaxIter', 5e3,...
-%     'DiffMinChange', 1, 'DiffMaxChange', 200); 
-
-%   % minimization
-%   [zpar,fval, exitflag, output] = fminsearch(fun, zCenter, options);
-%                        
-  tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
-       
-    dataCell{ii} = tempTable;
-    dataStruct = cell2struct(dataCell, structNames, 1);
-    ZreguFreq{ii} = ZreguDatas;
-    disp(toc(tStart))
-%   bestZ(2,ii)= zpar;
+  % minimization
+  [zpar,fval, exitflag, output] = fminsearch(fun, [zCenter, 1], options);
+                      
+%   tempTable = array2table( reguData , 'VariableNames',gridTablesNames);
+%        
+%     dataCell{ii} = tempTable;
+%     dataStruct = cell2struct(dataCell, structNames, 1);
+%     ZreguFreq{ii} = ZreguDatas;
+%     disp(toc(tStart))
+  bestZ(2:3,ii)= zpar;
  end
-%  writeMat2File(bestZ, ['bestZ.csv'], {'f'} , 1, false);
+writeMat2File(bestZ(1:3,:), ['bestZ.csv'], {'f'} , 1, false);
  
  %% plot metrics
  
@@ -287,7 +247,7 @@ xlabel('f [Hz]')
  q_TIK =  (1/(1i*omega*rho)).* tikhonov(U,s,V,measuredPressure,bestLambda);
  v_TIK = G_v_omega*q_TIK;
  v_TIK_Fin = addNans(violinMesh, v_TIK);
- surfVelRecTIK = reshape( v_TIK_Fin , [pX, pY]); 
+ surfVelRecTIK = reshape( v_TIK_Fin.' , [pX, pY]); 
  
  figure(500)
  surf(X, Y, abs(surfVelRecTIK))

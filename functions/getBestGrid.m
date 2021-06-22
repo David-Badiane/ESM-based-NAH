@@ -1,6 +1,6 @@
 function [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, pressure, hologramPoints, normalPoints, violinMesh , omega,...
                            nZpoints, zCenter, zSearch, xData, yData , v_ex_vector,...
-                           rho, pX, pY,gridTablesNames, transposeGrids, plotData, experimentalData )     
+                           rho, gridTablesNames, transposeGrids, plotData, experimentalData )     
 
 reguData = [];
 ZreguDatas = cell(nEqSourceGrids,1);
@@ -27,57 +27,34 @@ for jj = 1:nEqSourceGrids
             
             % compute Green functions matrix ( hologram 2 virtual points ) 
             [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega );
-            G_p_omega = G_p{1}; 
+            G_p = G_p{1}; 
 
             % compute gradient Green functions matrix 
             % ( virtual points 2 reconstruction plane = violin )
             [G_v] = normalGradient(virtualPoints, violinMesh , omega, normalPoints);
-            G_v_omega = G_v{1};
+            G_v = G_v{1};
 
             % APPROACH 1 ) L curve solution       
             % 1) Inverse - individuation of regularization parameter (lambda) 
-            [U,s,V] = csvd (G_p_omega);
-            lambda_l = l_curve (U,s,pressure);
-            k_l = l_curve (U,s,pressure,'tsvd');
+            [U,s,V] = csvd (G_p);
+            lambda_L = l_curve (U,s,pressure);
+            k_L = l_curve (U,s,pressure,'tsvd');
 
-            [velocityErrorsL, desiredAlphaL] = errorVelocity(v_ex_vector, violinMesh, xData, yData, pressure,...
-                G_p_omega, G_v_omega, [lambda_l lambda_l],...
-                [k_l k_l], 1, 1, omega, rho, deleteIndexesVirt, pX, pY, experimentalData);
-            
-            
-% %             % APPROACH 2) metrics parametrization
-%             rangeTIK = [0,100]; % range of value for the regularization parameter
-%             TSVDup = min([length(G_p_omega(1,:)), length(G_p_omega(:,1))]);
-%             rangeTSVD = [1,TSVDup]; % range of value for the regularization parameter
-%             numParamsTIK = 1e2;
-%             numParamsTSVD = TSVDup-1;
-% 
-%             [velocityErrors, desiredAlpha] = errorVelocity(v_ex_vector, violinMesh,...
-%                 xData, yData, pressure, G_p_omega, G_v_omega, rangeTIK, rangeTSVD,...
-%                 numParamsTIK, numParamsTSVD, omega, rho, deleteIndexesVirt, pX, pY, experimentalData);
-
+            [velocityErrors] = errorVelocity(v_ex_vector, violinMesh, ...
+                xData, yData, pressure, G_p, G_v, lambda_L, k_L, omega, rho);
             % store results
             ZreguDataLine(1) =  zVals(zz);                           % 'zVal'
-            ZreguDataLine(2) =  lambda_l;                            % 'lambda_L' 
-            ZreguDataLine(3) =  k_l;                                 % 'k_L' 
-            ZreguDataLine(4) =  velocityErrorsL.nmseTIK;                 % nmseTIK_L
-            ZreguDataLine(5) =  velocityErrorsL.nccTIK;                  % nccTIK_L
-            ZreguDataLine(6) =  velocityErrorsL.normcTIK;                  % normcTIK_L
-            ZreguDataLine(7) =  velocityErrorsL.reTIK;                  % reTIK_L
-            ZreguDataLine(8) =  velocityErrorsL.nmseTSVD;                  % nmseTSVD_L
-            ZreguDataLine(9) =  velocityErrorsL.nccTSVD;                 % nccTSVD_L
-            ZreguDataLine(10) =  velocityErrorsL.normcTSVD;                 % normcTSVD_L
-            ZreguDataLine(11) =  velocityErrorsL.reTSVD;                 % reTSVD_L
-% 
-%             ZreguDataLine(8) =  desiredAlpha(3,2);                   % lambda_nmse_M 
-%             ZreguDataLine(9) =  desiredAlpha(4,2);                   % k_nmse_M
-%             ZreguDataLine(10) = desiredAlpha(1,2);                   % k_ncc_M 
-%             ZreguDataLine(11) = desiredAlpha(2,2);                   % lambda_ncc_M
-%             ZreguDataLine(12) = desiredAlpha(3,1);                   % nmseTSVD_M
-%             ZreguDataLine(13) = desiredAlpha(4,1);                   % nccTSVD_M
-%             ZreguDataLine(14) = desiredAlpha(1,1);                   % nmseTIK_M
-%             ZreguDataLine(15) = desiredAlpha(2,1);                   % nccTIK_M 
-%             
+            ZreguDataLine(2) =  lambda_L;                            % 'lambda_L' 
+            ZreguDataLine(3) =  k_L;                                 % 'k_L' 
+            ZreguDataLine(4) =  velocityErrors.nmseTIK;             % nmseTIK_L
+            ZreguDataLine(5) =  velocityErrors.nccTIK;              % nccTIK_L
+            ZreguDataLine(6) =  velocityErrors.normcTIK;            % normcTIK_L
+            ZreguDataLine(7) =  velocityErrors.reTIK;               % reTIK_L
+            ZreguDataLine(8) =  velocityErrors.nmseTSVD;            % nmseTSVD_L
+            ZreguDataLine(9) =  velocityErrors.nccTSVD;             % nccTSVD_L
+            ZreguDataLine(10) =  velocityErrors.normcTSVD;          % normcTSVD_L
+            ZreguDataLine(11) =  velocityErrors.reTSVD;             % reTSVD_L
+       
             ZreguData = [ZreguData; ZreguDataLine];
             
        end
@@ -92,18 +69,16 @@ for jj = 1:nEqSourceGrids
     reguDataLine = [jj, ZreguData(zminLoc,:)];
     reguData = [reguData; reguDataLine];
     
-    reg = array2table(reguDataLine, 'variableNames', gridTablesNames)
+    reguTable = array2table(reguDataLine, 'variableNames', gridTablesNames)
+    
     if plotData
-% 4 3 --> L curve
-% 9 8 --> M curve
-       [LQs, Lv_TSVD, Lv_TIK] = reguResults( reguDataLine(4), reguDataLine(3), pressure, omega, rho, G_p_omega, G_v_omega, virtualPoints );
-            %[LQs, Lv_TSVD, Lv_TIK] = reguResults( ZreguDataLine(10), ZreguDataLine(11), pressure, omega, rho, G_p_omega, G_v_omega);
-        titleStr = ['L curve  f = ',num2str(omega/2/pi), '  \\  z = ', num2str(reguDataLine(2)), ' \\ ' , virtualPtsFilename];
         figureNum = 660;
+       [LQs, Lv_TSVD, Lv_TIK] = reguResults( reguDataLine(4), reguDataLine(3), pressure, omega, rho, G_p, G_v, virtualPoints );
+        titleStr = ['L curve  f = ',num2str(omega/2/pi), '  \\  z = ', num2str(reguDataLine(2)), ' \\ ' , virtualPtsFilename];
         if experimentalData 
             reguFiguresExperimental(violinMesh, Lv_TSVD, Lv_TIK,  v_ex_vector,virtualPoints, titleStr  , figureNum);
         else
-            reguFiguresSynthetic(violinMesh, Lv_TSVD, Lv_TIK,  v_ex_vector,virtualPoints, titleStr  , figureNum);                    
+            reguFiguresSynthetic(violinMesh, Lv_TSVD, Lv_TIK,  v_ex_vector,virtualPoints, titleStr  , pressure, figureNum);                    
         end
     end
 
