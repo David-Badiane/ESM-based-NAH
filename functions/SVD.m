@@ -1,14 +1,19 @@
 function [HvSVD, singularVals] = SVD(frf, freq, M, thresholdIdx, plotData)
 % SVD Summary of this function goes here
-%
-% frf  (array)  = signal on which perform SVD,
-% freq (array)  = frequency axis relative to the signal
-% M    (int)    = max number of singular values computed
-% thresholdIdx (double) = set threshold for useful singular values in percentage of
-%                          the maximum value of the singularValues 
-%                          (ex. thresholdIdx = 30 --> 30%)
-% samplesNames (cell array) = cell array containing the names of the samples
-% counter (int)             = value indicating the sample number
+
+%   INPUTS
+%   frf          (array)      = signal on which perform SVD;
+%   freq         (array)      = frequency axis relative to the signal;
+%   M            (int)        = max number of singular values computed;
+%   thresholdIdx (double)     = set threshold for useful singular values in percentage of
+%                               the maximum value of the singularValues 
+%                               (ex. thresholdIdx = 30 --> 30%);
+%   samplesNames (cell array) = cell array containing the names of the samples;
+%   counter      (int)        = value indicating the sample number;
+
+%   OUTPUTS
+%   HvSVD        (2Darray)    = H1 estimator after SVD;
+%   singularVals (array)      = sigualar values;
 
 % a) Generate Hankel matrix and preallocation of variables
 H = hankel(frf);

@@ -2,19 +2,15 @@ function [Qs, v_TSVD, v_TIK] = reguResults( k, lambda, pressure, omega, rho, G_p
 %UNTITLED Summary of this function goes here
 
 %   INPUTS
-%   k             (2Darray) = ;
-%   lambda        (2Darray) = ;
-%   pressure      (2Darray) = ;
-%   omega         (2Darray) = ;
-%   rho           (2Darray) = ;
-%   G_p           (2Darray) = ;
-%   G_v           (2Darray) = ;
-%   virtualPoints (2Darray) = ;
-
+%   k
+%   lambda
+%   pressure
+%   omega
+%   rho
+%   G_p
+%G_v, virtualPoints    (2Darray) = ;
 %   OUTPUTS
-%   Qs            (2Darray) = ;
-%   v_TSVD        (2Darray) = ;
-%   v_TIK         (2Darray) = ;
+
 
     [U,s,V] = csvd (G_p);
     q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, pressure , k); % perform the TSVD -> estimate the source strength

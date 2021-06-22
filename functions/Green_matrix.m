@@ -2,7 +2,7 @@ function [G, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints, o
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION COMPUTES THE GREEN'S MATRIX                              %%%%%%%%%%%%
+%%% GREEN_MATRIX this funtion compute the Green's matrix                   %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

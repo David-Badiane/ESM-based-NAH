@@ -1,6 +1,6 @@
 function [outMatrix] = downsampling(inputMatrix, nrows, ncols)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION PERFORMS DOWNSAMPLING ON A MATRIX OR ARRAY               %%%%%%%%%%%%
+%%% DOWNSAMPLING this fucntion performs donwnsapling on a matrix or array  %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

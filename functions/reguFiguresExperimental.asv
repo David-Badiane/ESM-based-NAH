@@ -2,14 +2,9 @@ function [] = reguFiguresExperimental(violinMesh, v_TSVD, v_TIK, v_ex_vector, vi
 %REGUFIGURES Summary of this function goes here
 
 %   INPUTS
-%   violinMesh        (2Darray) = ;
-%   v_TSVD            (2Darray) = ;
-%   v_TIK             (2Darray) = ;
-%   v_ex_vector       (2Darray) = ;
-%   virtualPoints     (2Darray) = ;
-%   titleStr          (2Darray) = ;
-%   measuredPressure  (2Darray) = ;
-%   figureNum         (2Darray) = ;
+%   violinMesh
+%   v_TSVD
+%   v_TIK, v_ex_vector, virtualPoints, titleStr, measuredPressure,figureNum)
     
     pressureData = readmatrix('pressure_Data.csv');
     pX = length(unique(violinMesh(:, 1)));

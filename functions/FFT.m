@@ -1,5 +1,13 @@
 function frequencySignal = FFT(timeSignal)
-% computes the single sided magnitude of the spectrum of the time signal
+% FFT computes the single sided magnitude of the spectrum of the time signal
+
+%   INPUT
+%   timeSignal      (array) = input time signal to transform
+
+%   OUPUT
+%   frequencySignal (array) = signal transformed
+
+%   OUTPUT
     L = length(timeSignal);
     frequencySignal = fft(timeSignal);
     frequencySignal = frequencySignal(1:L/2);

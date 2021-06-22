@@ -1,7 +1,19 @@
 function [peaksLoc, fpeakPositions] = peaks(matrix, f, fThreshold, ignorePeaksLow, ignorePeaksHigh,...
     highPeaksParams, lowPeaksParams)
-%PEAKS find peaks of the FRF
-%   Detailed explanation goes here
+%PEAKS find peaks of the fRF
+
+%   INPUTS
+%   matrix           (2Darray) = matrix of the H1 estimator;
+%   f                (array)   = rfequency axis;
+%   fThreshold       (double)  = frequency thershold for peak fining;
+%   ignorePeaksLow   (double)  = parameter for ignore the low peaks for findpeaks function;
+%   ignorePeaksHigh  (double)  = parameter for ignore the high peaks for findpeaks function;
+%   highPeaksParams  (array)   = parameter for findpeaks function;
+%   lowPeaksParams   (array)   = parameter for findpeaks function;
+
+%   OUTPUTS
+%   peaksLoc         (array)   = peaks location values;
+%   fpeakPositions   (array)   = peaks location indices;
 
 absMat = abs(matrix);
 absMat = absMat ./ mean(absMat);
