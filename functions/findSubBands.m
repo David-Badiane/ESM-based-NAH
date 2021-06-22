@@ -1,6 +1,13 @@
  function [freqIndexes, coarseIndexes] = findSubBands(Hv, fAxis, fAmps, fLocs, deltafLocs, plotData)
-%FIND707BAND Summary of this function goes here
-%   Detailed explanation goes here
+%FINDSUBBANDs find subbands of a FRF
+
+%   INPUTS
+%   
+
+%   OUTPUTS
+%
+
+
     if plotData
      figure()
      semilogy(fAxis, abs(Hv), 'lineWidth', 1.2);

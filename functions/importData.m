@@ -1,8 +1,8 @@
 function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName, resampleX, resampleY)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION READS THE CSV OF PRESSURE AND NORMAL VELOCITY,             %%%%%%%%%%%%
-%%% EXTRACTS THEIR DATA AND STORES THEM IN CELL ARRAYS                       %%%%%%%%%%%%
+%%% INPORTDATA this function read the csv pressure and normal velocity       %%%%%%%%%%%%
+%%% extract their data and sotre the in a cell arrays                        %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

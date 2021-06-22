@@ -1,6 +1,17 @@
 function [X,Y,surfV] = getVelocityGroundtruth(v_ex_vector, velocityFilename, figureNum)
-%GETVELOCITYGROUNDTRUTH Summary of this function goes here
-%   Detailed explanation goes here
+% GETVELOCITYGROUNDTRUTH this function calculate the array velocity into
+% surface
+
+%   INPUTS
+%   v_ex_vector      (array)   = vector of the velocities groung truth ;
+%   velocityFilename (cell)    = names of the file to choose;
+%   figureNum        (double)  = number of the figure to plot;
+
+%   OUTPUTS
+%   X                (array)   = x coordinates of the mesh;
+%   Y                (array)   = y coordinates of the mesh;
+%   surfV            (2Darray) = z value of the velocity;
+
 violinMesh = table2array(readtable('grid75x35.csv')); 
 velocityData = readmatrix([velocityFilename, '.csv']); 
 

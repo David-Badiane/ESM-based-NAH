@@ -1,7 +1,31 @@
 function [reguData, ZreguDatas] = getBestGrid(nEqSourceGrids, pressure, hologramPoints, normalPoints, violinMesh , omega,...
                            nZpoints, zCenter, zSearch, xData, yData , v_ex_vector,...
                            rho, gridTablesNames, transposeGrids, plotData, experimentalData )     
+% GETBESTGRID find the best virtual points grid
+                     
+%   INPUTS
+%   nEqSourceGrids   (double)  = number of grids of equivalent sources;
+%   pressure         (array)   = vector of pressure measured;
+%   hologramPoints   (2Darray) = mesh of the hologram points;
+%   normalPoints     (2Darray) = matrix of components of normal vector of the reconstrucet surface;
+%   violinMesh       (2Darray) = mesh of the geometry
+%   omega            (double)  = radians frequency where evaluate the function;
+%   nZpoints         (double)  = number of z point where to search
+%   zCenter          (double)  = where the grid is centered;
+%   zSearch          (double)  = percentage of the deviation;
+%   xData            (array)   = value of x for the interpolation;
+%   yData            (array)   = value of y for the interpolation;
+%   v_ex_vector      (array)   = vector of the velocities groung truth ;
+%   rho              (double)  = air density;
+%   gridTablesNames  (cell)    = where the name of the grid and its values are stored;
+%   transposeGrids   (boolean) = choose if the grid have to be transposed;
+%   plotData         (boolean) = choose if the plot have to be displayed
+%   experimentalData (boolean) = choose if the plot shown;
 
+%   OUPUTS
+%   reguData         (2Darray) = best grid regularization data;
+%   ZreguDatas       (2Darray) = regularization data for each z searched;           
+                       
 reguData = [];
 ZreguDatas = cell(nEqSourceGrids,1);
 zVals = linspace(zCenter*(1- zSearch),zCenter *(1+ zSearch), nZpoints );

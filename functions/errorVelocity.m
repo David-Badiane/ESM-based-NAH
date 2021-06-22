@@ -2,6 +2,28 @@ function [velocityErrors] = errorVelocity(v_ex_vector, violinMesh, ...
 xData, yData, measuredPressure, G_p, G_v, lambda_L, k_L,... 
 omega, rho)
 
+% ERRORVELOCITY this function calculate the error through different metrics
+% [nmseTIK, nccTIK, normcTIK, reTIK] and save it into a struct
+
+%   INPUT
+%   v_ex_vector      (array)  = vector of the velocities groung truth ;
+%   violinMesh       (2Darray) = mesh of the geometry to interpolate with v_ex_vector in 
+%                               order to find the correspondent value of velocity in the 
+%                               same indeces;
+%   xData            (array)   = value of x for the interpolation;
+%   yData            (array)   = value of y for the interpolation;
+%   measuredPressure (array)   = hologram pressure for the given radians frequency 
+%                               omega;
+%   G_p              (2Darray) = Green's matrix for the pressure;
+%   G_v              (2Darray) = Green's matrix for the velocity;
+%   lambda_L         (double)  = Thikonov parameter;
+%   k_L              (double)  = TSVD parameter;
+%   omega            (double)  = radians frequency where evaluate the function;
+%   rho              (double)  = air density;
+
+%   OUPUT
+%   velocityErrors   (struct) = struct where the metric values are stored;
+
 names = {'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD' };
 
 %ERRORVELOCITY 
