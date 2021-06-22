@@ -73,7 +73,7 @@ dataCell = cell(nModes,1);
 ZreguFreq = cell(nModes,1);
 
 
-for mode = 5:nModes
+for mode = 1:nModes
     tStart = tic;
     % Setup of local variables
     omega = eigenFreqzRad(mode); % current eigenfreq mode
