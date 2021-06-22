@@ -1,12 +1,15 @@
 function [out] = whiteNoise(in, SNR)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION ADDS WHITE GAUSSIAN NOISE TO THE VECTOR IN %%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% WHITENOISE this function adds white gaussian noise to the input %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% ATTENTION: COMUNICATION TOOLBOX IN NEEDED                %%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   INPUTS
+%   in   (array)   = input array;
+%   SNR  (double)  = signal to noise ratio;
+
+%   OUTPUT
+%   out  (array)   = output array;
 
 snr = SNR; % [dB] Signal to Noise ratio
 

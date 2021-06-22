@@ -3,14 +3,14 @@ function [dataTable] = writeMat2File(data,dstFileName, name, numVars, singleTitl
 
 
 %   INPUTS
-%   data         (2Darray) = ;
-%   dstFileName  (2Darray) = ;
-%   name         (2Darray) = ;
-%   numVars      (2Darray) = ;
-%   singleTitles (2Darray) = ;
+%   data
+%   dstFileName
+%   name
+%   numVars
+%   singleTitles
 
 %   OUTPUT
-%   dataTable    (2Darray) = ;
+%   dataTable
 
 columns = length(data(1,:));
 names = cell(1,columns);

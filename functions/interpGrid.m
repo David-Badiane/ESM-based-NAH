@@ -4,15 +4,15 @@ function [zCordsinter] = interpGrid(meshPoints, xData, yData, pX, pY, plotData)
 % coordinates
 
 %   INPUTS
-%   meshPoints  (double)  =   
+%   meshPoints  (2Darray) = points of the grid   
 %   xData       (array)   = value of x for the interpolation;
 %   yData       (array)   = value of y for the interpolation;
-%   pX          (double)  = 
-%   pY          (double)  = 
-%   plotData    (double)  = 
+%   pX          (array)   = x coordinates of the mesh;
+%   pY          (array)   = y coordinates of the mesh;
+%   plotData    (boolean) = choose if the plot have to be shown;
 
 %   OUPUTS
-%   xCordInter  (double)  = 
+%   zCordInter  (array)   = z value of the coordinates interpolated;
 
 xCords = reshape(meshPoints(:,1), [pY,pX]).';
 yCords = reshape(meshPoints(:,2), [pY,pX]).';

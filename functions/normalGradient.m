@@ -1,7 +1,8 @@
 function [G_v] = normalGradient(virtualPoints , platePoints , omega, normalPoints)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% THIS FUNCTION COMPUTES THE NORMAL GRADIENT OF THE GREEN'S MATRIX       %%%%%%%%%%%%
+%%% NORMAL GRADIENT tis functinon compute the normal gradient of the       %%%%%%%%%%%%
+%%% Green's matrix                                                         %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
