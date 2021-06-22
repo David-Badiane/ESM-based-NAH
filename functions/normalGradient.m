@@ -36,7 +36,6 @@ normalPoints(deleteIndexesPlate, :) = [];
 G_v = cell(length(omega),1);
 % preallocate temporary matrix
 G_w = zeros(length(platePoints(:, 1)), length(virtualPoints(:, 1)));  %Green's function init
-platePoints(:,3) = 0;
 
 for component = 1:length(normalGradientComponents)   % for each component (x,y,z)
     for kk = 1:length(omega)            % for each eigenfrequency
