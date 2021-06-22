@@ -48,8 +48,7 @@ end
 
 function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
     % NMSE
-    vGroundTruth = addNans(violinMesh, vGroundtruth); 
-%      figure(1111)
+%     figure(1111)
 %     plot(1:length(vRegu), abs(vRegu), 'lineWidth', 1.2);
 %     hold on; 
 %     plot(1:length(vGroundtruth), abs(vGroundtruth))

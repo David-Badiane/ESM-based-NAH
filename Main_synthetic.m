@@ -82,7 +82,7 @@ for mode = 5:nModes
     measuredPressure = pressureFields{mode};
     meshSize = numel(measuredPressure);
     measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-    measuredPressure = whiteNoise(measuredPressure, 10); % add white gaussian noise to the mesurement
+    measuredPressure = whiteNoise(measuredPressure, 20); % add white gaussian noise to the mesurement
 
     % velocity vector setup
     v_ex = velocityFields{mode};   
