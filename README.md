@@ -21,9 +21,11 @@ This projects adopts equivalent source method (ESM) based NAH to a violin back-p
 ### Dependencies
 
 * Prerequisites: MATLAB® 2020 or later installed.
-* Libraries: Regularization Tools by Hansen.
-
-### Executing program
+* Libraries : 
+  * [Regularization Tools](https://it.mathworks.com/matlabcentral/fileexchange/52-regtools) by Per Christian Hansen - included in the repo.
+  * stlread(https://it.mathworks.com/matlabcentral/fileexchange/22409-stl-file-reader) function - included in the repo
+  
+### Executing programs
 
 * *Main_experimental.m* - apply ESM on experimental data.
 * *Main_synthetic.m* - apply ESM on synthetic data.
