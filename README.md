@@ -5,7 +5,7 @@ Raw measurements : https://polimi365-my.sharepoint.com/:f:/g/personal/10743504_p
 
 ## Introduction
 
-<p align="center"><img src="https://github.com/David-Badiane/ESM-based-NAH/blob/main/simulationSetupPicDiagram.png" width=70% height=70% centered>
+<p align="center"><img src="https://github.com/David-Badiane/ESM-based-NAH/blob/main/Figures/simulationSetupPicDiagram.png" width=70% height=70% centered>
   
 NAH is a powerful inverse method that allows the estimation of the velocity and pressure field of a vibrating body from pressure measurements. Typically, the pressure field is captured in the close proximity of the object through a planar grid of microphones, called hologram. The pressure acquisitions are successively used to recover the velocity field on the source by back-propagation. By taking near-field pressure measurements we capture the evanescent waves, which are essential to reconstruct the surface vibration velocity.
 
@@ -22,9 +22,9 @@ In our work we propose the application of ESM based NAH to a violin back plate i
 
 ### Executing program
 
-* *Main_experimental.m* applies the ESM method to experimental data.
-* *Main_synthetic.m* apllies the ESM method to synthetic data.
-* *platePoints.m* imports from the .csv file the plate points.
+* *Main_experimental.m* - apply ESM on experimental data.
+* *Main_synthetic.m* - apply ESM on synthetic data.
+* *platePoints.m* imports from the .stl scanned mesh of the violin.
 * *preprocessing_pressure.m* is used to compute the pressure data in the hologram point from measurement data. Loads the audio files, cuts the different acquisition for every channel and apply to them a temporal exponential filter. From this cleaned files calculates the H1 estimator and extract the pressure field for every eigen freqencies.
 * *symmetrizeViolinMesh.m* symmetrizes the point of the violin scanned grid.
 * *velocityGroundTruth.m* computes the grid with the velocity ground truth value and coordinates, from the .csv file of measurement data, for every eigen frequencies.
@@ -40,8 +40,9 @@ In our work we propose the application of ESM based NAH to a violin back plate i
 * **VPGrids**: virtual point grids.
 
 ### Important functions
-* *errorVelocity.m* this function calculate the error through different metrics and save it into a struct.
-* *getVelocityGroundtruth.m* this function calculate the array velocity into surface.
+* *applyESM.m* this function applies all ESM steps = (problem solution) + metrics + figures  
+* *errorVelocity.m* this function computes the error through different metrics and save it into a struct.
+* *getVelocityGroundtruth.m* this function calculates the array velocity into surface.
 * *getVirtualPoints.m* this function calculates the virtual points grid.
 * *Green_matrix.m* this funtion compute the Green's matrix.
 * *importData.m* this function read the csv pressure and normal velocity extract their data and sotre the in a cell arrays
