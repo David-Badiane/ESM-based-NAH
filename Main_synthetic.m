@@ -89,6 +89,7 @@ experimentalData = false;
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
+%% OPTIMIZATION
 
 if userControl == 0
     % OPTIMIZATION
@@ -128,7 +129,7 @@ if userControl == 0
         % minimization
         [zpar,fval, exitflag, output] = fminsearch(fun, [zCenter 1 1].', options);
         zpar(1) = -(abs(zpar(1)) + abs(zBound));
-        VP_Params(ii,:)= zpar;
+        VP_Params(:,ii)= zpar;
     end
     
     %SAVE RESULTS 
@@ -140,8 +141,10 @@ if userControl == 0
     
     writeMat2File(VP_Params(1:3,:), ['VP_Params_', int2str(numFile),'.csv'], {'z [m]' 'scaleX' 'scaleY'} , 3, true)
     cd(baseFolder)
-    
-    elseif userControl == 1
+end
+
+%% ESM CHOOSING Z  or LOOK AT PREVIOUS OPTIMUM
+if userControl == 1
     % CHOOSE z - LOOK PREVIOUS OPTIMUM
     msg = 'want to see previous optimized results ? [0,1] : ';
     paramsSet = input(msg);

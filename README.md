@@ -13,6 +13,8 @@ This projects adopts equivalent source method (ESM) based NAH to a violin back-p
   
   The basic idea of ESM is that the acoustic field of the vibrating object can be approximated to the field produced by a set of virtual point sources, called equivalent sources, located on a surface right behind the vibrating object. Finding the complex weights of the equivalent sources from the pressure measurements means solving an undetermined problem. ESM is a two steps method: first, we obtain the weights through regularization techniques; then, the weights are back-propagated to the reconstruction surface by the means of the proper driving functions (based on 3D Green's functions) to estimate the vibration velocity of the object.
   
+  <p align="center"><img src="https://github.com/David-Badiane/ESM-based-NAH/blob/main/Figures/ESM.png" width=70% height=70% centered>
+  
   The free parameters of the method are the number of equivalent sources, their position and their distance with respect to the vibrating object. The choice of the free parameters has a strong impact on the method accuracy, so a careful and correct choice of those parameters is necessary. It is important to note that the parameters space of ESM is so wide that individuating the best solution is still an unresolved issue. Here a block diagram of the method, where Gp is the Green's function matrix hologram to virtual sources and Gv is the normal gradient of the Green's functions matrix virtual sources to reconstruction surface.
 
   In our work we propose the application of ESM on both synthetic and experimental data, taken by us at the anechoic chamber of Politecnico di Milano, Cremona, Italy and in the Musical Acoustics Lab of Politecnico di Milano, Museo del Violino - Cremona - Italy.  The code is MATLAB® based.
@@ -24,7 +26,7 @@ This projects adopts equivalent source method (ESM) based NAH to a violin back-p
 * Prerequisites: MATLAB® 2020 or later installed.
 * Libraries : 
   * [Regularization Tools](https://it.mathworks.com/matlabcentral/fileexchange/52-regtools) by Per Christian Hansen - included in the repo.
-  * stlread(https://it.mathworks.com/matlabcentral/fileexchange/22409-stl-file-reader) function - included in the repo
+  * [stlread](https://it.mathworks.com/matlabcentral/fileexchange/22409-stl-file-reader) function - included in the repo
   
 ### Executing programs
 

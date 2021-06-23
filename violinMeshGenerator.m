@@ -1,4 +1,20 @@
-pts = mesh128;
+%% Import grid ( downsampling or the already computed one )
+baseFolder = pwd;
+violinMeshesFolder = [baseFolder,'\violinMeshes'];
+addpath(genpath('functions'));
+
+readSTL = false;
+
+if readSTL
+    fv = stlread('NAH_ESM_mesh_A.stl');
+    points = sortrows(fv.Points);
+    [pts] = downsampling_regular(outMatrix, 128, 128);
+else
+    pts = readmatrix('grid128x128Fin.csv');
+end
+
+%% SYMMETRIZE A SCANNED GRID (asymmetries may arise because of sampling)
+
 uniqueY = unique(pts(:,2));
 uniqueX = unique(pts(:,1));
 
@@ -44,3 +60,10 @@ for ii = 1:length(uniqueY)
     end
 end
 
+%% Downsample a mesh - (violinMeshes generator);
+cd(violinMeshesFolder)
+nrows = 85; ncols = 55; 
+fileName = ['grid',int2str(nrows),'x',int2str(ncols)];
+saveData = true;
+[outMatrix] = downsampling_regular(pts, nrows, ncols, fileName, saveData);
+cd(baseFolder);

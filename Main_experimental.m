@@ -130,6 +130,7 @@ disp(fileList(3:end));
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
 
+%% OPTIMIZATION
 if userControl == 0
     maxIter = input('max n of iterations?: ');
     maxFun = input('max n of func evaluations=: ');
@@ -164,9 +165,10 @@ if userControl == 0
     disp(['writing File VP_Params_', num2str(numFile),'.csv']);
     writeMat2File(VP_Params(1:3,:), ['VP_Params_', int2str(numFile),'.csv'], {'z [m]' 'scaleX' 'scaleY'} , 3, true)
     cd(baseFolder)
+end
 
- 
-elseif userControl == 1
+%% ESM CHOOSING Z  or LOOK AT PREVIOUS OPTIMUM
+if userControl == 1
     
     msg = 'want to see previous optimized results ? [0,1] : ';
     paramsSet = input(msg);
