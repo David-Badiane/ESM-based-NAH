@@ -33,17 +33,17 @@ zVel(isnan(reshape(Z,[pX*pY,1]))) = nan;
 
 surfV = reshape(zVel, [ vRows, vCols]);
 
-% figure(figureNum)
-% subplot 121
-% surf(X,Y,vq1); view(2);
-% xlabel('X   [m]');
-% ylabel('Y   [m]');
-% 
-% 
-% subplot 122
-% surf(X,Y,surfV); view(2);
-% xlabel('X   [m]');
-% ylabel('Y   [m]');
+figure(figureNum)
+subplot 121
+surf(X,Y,vq1); view(2);
+xlabel('X   [m]');
+ylabel('Y   [m]');
+
+
+subplot 122
+surf(X,Y,surfV); view(2);
+xlabel('X   [m]');
+ylabel('Y   [m]');
 
 end
 

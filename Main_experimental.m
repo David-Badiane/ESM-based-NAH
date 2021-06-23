@@ -11,7 +11,7 @@ addpath(genpath('functions'));
 addpath(genpath('Data'));
 addpath('violinMeshes');
 addpath(virtualPointsFolder)
-addpath(genpath(estimationsFolder))
+addpath(estimationsFolder)
 
 %% global variables
 
@@ -61,7 +61,9 @@ for ii = 1:(length(pressureData(1,:)) -2)
     surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
     xlabel('X   [m]');
     ylabel('Y   [m]');
-    title(fNames{2+ii});
+    titleStr = strrep(strrep(fNames{2+ii},'__', ' '),'_','.');
+    title([titleStr(1), titleStr(3:end), ' Hz']);
+    hold off;
     pause(0.2);
 end
 
@@ -122,6 +124,9 @@ plotData = true;
 experimentalData = true;
 
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
+fileList = cellstr(ls(virtualPointsFolder));
+disp(fileList(3:end));
+
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
 

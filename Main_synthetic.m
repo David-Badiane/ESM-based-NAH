@@ -4,10 +4,12 @@ clc
 VPfilename = 'VPGrids';
 addpath(genpath('CSV')); 
 addpath(genpath('functions'));
+
 baseFolder = pwd;
+estimationsFolder = [baseFolder, '\Estimations\Synthetic'];
 virtualPointsFolder = [baseFolder,'\',VPfilename];%VP_Grids'];
 addpath(virtualPointsFolder)
-
+addpath(estimationsFolder)
 
 %% read the synthetic data - csv
 nMics = 8;
