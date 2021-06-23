@@ -1,11 +1,13 @@
 close all
-clear all
+%clear all
 clc
 %% Ground truth computation
 
 addpath('functions')
 addpath(genpath('Data'))
 addpath('acq_11_06')
+
+
 % compute FRF of the velocity
 
 
@@ -15,6 +17,7 @@ matDataFolder = [baseFolder, '\Data\matData'];
 
 Fs = 48000; % sampling frequency
 duration = 2; % [s]
+t = [0:1/Fs:duration - 1/Fs].';
 signalLength = duration*Fs;
 numberPoints = 27; % number of measurement points in the violin plate
 numberAcquisitions = 6; % number of measurements for each point
@@ -37,7 +40,8 @@ mobilityMatrix = []; % store the mobility transfer function (fft(Y)/fft(X))
   
 highCut = 2000;
 lowCut = 5;
-smoothCut = 0.01; % smoother by a low frequency low pass filter performing average
+alpha = 10; % exponential filter decay constant
+offsetFilter = 0.1 * Fs; % 100 ms of offset
 
 % temportary file to compute the frequency responses
 forceTemp = zeros(signalLength, numberAcquisitions);
@@ -49,9 +53,12 @@ for jj = 1:numberPoints
     fileName = ['x=', int2str(measurementPts(jj,1)),' y=',int2str(measurementPts(jj,2)),'_acq_'];
     for ii = 1:numberAcquisitions
         tempAcqFilename = [fileName, int2str(ii-1),'.csv'];
-        rawAccMeasurements = table2array(readtable(tempAcqFilename));
-        forceTemp(:,ii) = rawAccMeasurements(:,1);
-        accelerationTemp(:,ii) = rawAccMeasurements(:,2);
+        expFilter = circshift(exp(-alpha*t),offsetFilter);
+        expFilter(1:offsetFilter) = ones(1,offsetFilter);
+        
+        rawAccMeasurements = readmatrix(tempAcqFilename);
+        forceTemp(:,ii) = expFilter.*rawAccMeasurements(:,1);
+        accelerationTemp(:,ii) = expFilter.*rawAccMeasurements(:,2);
 
         % compute the FFT for each acquisition
         Y1 = FFT(accelerationTemp(:,ii));
@@ -61,20 +68,17 @@ for jj = 1:numberPoints
     end
     
     [pxy1, f] = cpsd(accelerationTemp, forceTemp,[],[],signalLength, Fs);
-    [pxx, f] = cpsd(forceTemp,forceTemp,[],[],signalLength, Fs);
+    [pxx , f] = cpsd(forceTemp,forceTemp,[],[],signalLength, Fs);
    
-    % smooth the signal in frequency domain applying a low pass
-    Pxy1 = lowpass(pxy1,smoothCut);
-    Pxx = lowpass(pxx,smoothCut);
     cutIdxs = find(f <highCut & f>lowCut );
     
-    fAxis = f(cutIdxs); Pxx = pxx(cutIdxs,:);Pxy1 = Pxy1(cutIdxs,:); 
+    fAxis = f(cutIdxs); pxx = pxx(cutIdxs,:);pxy1 = pxy1(cutIdxs,:); 
         
-    H1 =  1./(1i*2*pi*fAxis).*sum(Pxy1,2)./sum(Pxx,2);
+    H1 =  1./(1i*2*pi*fAxis).*sum(pxy1,2)./sum(pxx,2);
 %     figure(114)
 %     semilogy(f, abs(H1));
 %     xlim([0,2000]);
-%    
+
     estimatorMatrix = [estimatorMatrix H1];
     mobilityMatrix =[ mobilityMatrix   mean(FRFTemp(cutIdxs,:),2)]; 
 end
@@ -91,7 +95,7 @@ title('Y/X')
 %% apply SVD to H1 estimator and Mobility function
 
 % SVD Parameters
-singValsNum = 20;
+singValsNum = 7;
 usedSingVals = 1;
 
 cleanEstimatorMatrix = []; % store the H1 estimator denoised
@@ -128,11 +132,11 @@ save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
 cd(baseFolder)
 %% find resonance frequencies from velocity
 % min peak prominence and min peak width B - high setting
-highPeaksParams = [120,20];
+highPeaksParams = [120,10];
 % min peak prominence and min peak width A - low setting
-lowPeaksParams = [3,10];
+lowPeaksParams = [100,5];
 % fCut low for peaks to ignore
-ignorePeaksLow = 50;
+ignorePeaksLow = 100;
 % fCut high for peaks to ignore
 ignorePeaksHigh = 1400;
 % frequency threshold for peak finders A - B configuration
@@ -162,7 +166,7 @@ end
 
 velocitiesMatrix2 = zeros(numberPoints, nPeaks);
 for ii = 1:numberPoints
-        [Hv,f0, fLocs, csis, Q, modeShapes] = EMASimple(cleanEstimatorMatrix(:,ii), fAxis, 1e-4, 8, false);
+        [Hv,f0, fLocs, csis, Q, shapes] = EMASimple(cleanEstimatorMatrix(:,ii), fAxis, 1e-4, 8, false);
         
         map = [];
         tracked = [];
@@ -171,7 +175,7 @@ for ii = 1:numberPoints
             [minVal, minLoc] = min(diff);
             map = [map minLoc];
             
-            if minVal >= 0.1*fPeaks(jj) & ii > 1
+            if minVal >= 0.05*fPeaks(jj) & ii > 1
                 tracked = [tracked 0];
             else
                 tracked = [tracked 1];
@@ -183,7 +187,7 @@ for ii = 1:numberPoints
         disp(['tracked = ' num2str(tracked)]);
         
         modeShapes = Hv(fLocs(map));
-        modeShapes(~tracked) = abs(Hv(peakPositions(~tracked)));
+        modeShapes(~tracked) = Hv(peakPositions(~tracked));
         velocitiesMatrix(ii,:)= modeShapes;
 end
 
@@ -191,11 +195,10 @@ end
 
 velocityData = readmatrix('velocityPoints.csv');
 velocityData(:,3) = [];
-velocityData = velocityData*0.001;
+velocityData = velocityData;
 
-for ii = 1:nPeaks
-    velocityData = [velocityData velocitiesMatrix(:,ii)];
-end
+velocityData = [velocityData velocitiesMatrix];
+
 
 xyCoordVelSorted = sortrows(velocityData);
 
@@ -203,7 +206,6 @@ realVel = real(velocityData);
 imagVel = [real(velocityData(:,1:2)), imag(velocityData(:,3:end))];
 velocityData = sortrows(realVel) + 1i*(sortrows(imagVel));
 velocityData(:,1:2) = real(velocityData(:,1:2));
-
 
 velocityLabel ={'x' 'y'};
 freqLabel = round(fPeaks);
@@ -213,19 +215,26 @@ for ii = 1: length(fPeaks)
 end
 
 velocityTable = array2table(velocityData, 'variableNames', velocityLabel);
-writeMat2File(velocityData, 'velocity_Data2.csv', velocityLabel, length(velocityLabel), true);
+writeMat2File(velocityData, 'velocity_Data.csv', velocityLabel, length(velocityLabel), true);
 
 %% Take a look on the velocities
-velocityFilename = 'velocity_Data2';
+velocityFilename = 'velocity_Data';
 velocityData = readmatrix([velocityFilename,'.csv']);
 for ii = 1:nPeaks
     
     [X,Y,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, ii);
     title(['f_{', int2str(ii),'} = ', num2str(fPeaks(ii)), 'Hz'])
+    
+
 end
 
+%     figure(ii+100)
+%     plot3(velocityData(:,1), velocityData(:,2), abs(velocityData(:,ii+2)),'.')
 
-%% Link the velocity on the measured grid on the violin
+
+%% Once you have the velocity, link the velocity 
+  % on the measured grid of the violin - needed to interpolate on the
+  % ESM resulting surface 
 
 % auto approach 
 geomData = readtable('geometryVelocity.xlsx');
