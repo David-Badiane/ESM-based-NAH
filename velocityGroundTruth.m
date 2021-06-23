@@ -1,20 +1,27 @@
 close all
-%clear all
+clear all
 clc
 %% Ground truth computation
 
 addpath('functions')
 addpath(genpath('Data'))
-addpath('acq_11_06')
-
+addpath('violinMeshes');
+baseFolder = pwd;
+addpath(genpath('Exp_Measurements'))
 
 % compute FRF of the velocity
 
 
 baseFolder = pwd;
-accFolder = [baseFolder, '\acq_11_06'];
-matDataFolder = [baseFolder, '\Data\matData'];
+matDataFolder = [baseFolder, '\Data\matData\Velocity'];
+csvDataFolder = [baseFolder, '\Data\csvData'];
 
+expFolder = [baseFolder, '\Exp_Measurements'];
+accFolder = [expFolder, '\ACC_acq_11_06'];
+
+velocityFilename = 'velocity_Data.csv';
+
+%% READ DATA
 Fs = 48000; % sampling frequency
 duration = 2; % [s]
 t = [0:1/Fs:duration - 1/Fs].';
@@ -122,14 +129,13 @@ figure(890)
 semilogy(fAxis, (abs(cleanMobilityMatrix)))
 title('Mobility with SVD')
 
-% cd(matDataFolder)
-
+cd(matDataFolder)
 save('velocityH1.mat','estimatorMatrix');
 save('velocityH1cleaned.mat','cleanEstimatorMatrix');
 save('velocityMobility.mat','mobilityMatrix');
 save('velocityMobilitycleaned.mat','cleanMobilityMatrix');
-
 cd(baseFolder)
+
 %% find resonance frequencies from velocity
 % min peak prominence and min peak width B - high setting
 highPeaksParams = [120,10];
@@ -215,11 +221,13 @@ for ii = 1: length(fPeaks)
 end
 
 velocityTable = array2table(velocityData, 'variableNames', velocityLabel);
-writeMat2File(velocityData, 'velocity_Data.csv', velocityLabel, length(velocityLabel), true);
 
+cd(csvDataFolder)
+writeMat2File(velocityData, velocityFilename, velocityLabel, length(velocityLabel), true);
+cd(baseFolder)
 %% Take a look on the velocities
-velocityFilename = 'velocity_Data';
-velocityData = readmatrix([velocityFilename,'.csv']);
+
+velocityData = readmatrix(velocityFilename);
 for ii = 1:nPeaks
     
     [X,Y,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, ii);
@@ -258,9 +266,10 @@ for ii = 1: numberPoints
     disp(orderedPoints(ii,:));
     disp([xx,yy]);
     zData(xx,yy,:) = velocitiesMatrix(ii,:);
-end  
+end 
+cd(matDataFolder)
 save('zDataVInMeasurements', 'zData');
-
+cd(baseFolder)
 writeMat2File(orderedPoints, 'velocityPoints.csv', {'x' 'y' 'z'}, 3, true );
 % x = reshape(xData, numberPoints,1);
 % y = reshape(yData, numberPoints,1);

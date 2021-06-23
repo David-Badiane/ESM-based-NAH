@@ -8,10 +8,19 @@
 path(pathdef);
 clear all;
 close all;
+baseFolder = pwd;
 addpath(genpath('Exp_Measurements')); % contains the hologram measurements
-addpath(genpath('Data'))
-addpath(genpath('functions'))
+addpath(genpath('Data'));
+addpath(genpath('functions'));
 
+baseFolder = pwd;
+matDataFolder = [baseFolder, '\Data\matData\Pressure'];
+csvDataFolder = [baseFolder, '\Data\csvData'];
+
+pressureFilename = 'pressure_Data.csv';
+eigFilename = 'eigenFreqPress.csv';
+
+%% READ SIGNALS
 % store in a cell the set of measurements of the  8 mic array 
 % +1 reference microphone over 8.
 nMics_acq = 8;
@@ -40,8 +49,10 @@ for ii = 1:nMeasurements
 end
 
 % save the pressure and force cells into .mat files
+cd(matDataFolder)
 save('mics_Data.mat', 'mics_Data', '-v7.3'); % must be saved with older version because the file is too big
 save('impulseData.mat','impulseData');
+cd(baseFolder)
 
 %% import mat files
 load('mics_Data.mat'); %  microphone
@@ -56,9 +67,9 @@ for ii = 1:length(impulseData(:,1))
     end
     forces{ii} = tempImpulses;
 end
-
+cd(matDataFolder)
 save('forces.mat','forces');
-
+cd(baseFolder)
 %% cut the pressure measurement signals e
 
 Fs = 48000; % sampling frequency
@@ -219,13 +230,16 @@ end
 
 
 % save the H1 estimator (both with and without SVD)
-
+cd(matDataFolder)
 save('H1.mat','H1');
 % 
 save('H1_cleaned.mat','H1_cleaned');
+%
+save('freqAxis_Pressure','f');
+cd(baseFolder)
 
 %% import data
-
+load('freqAxis_Pressure');
 load('H1.mat');
 load('H1_cleaned.mat');
 load('forces.mat');
@@ -342,14 +356,10 @@ imagPress = [real(pressureData(:,1:2)), imag(pressureData(:,3:end))];
 pressureData = sortrows(realPress) + 1i*(sortrows(imagPress));
 pressureData(:,1:2) = 0.001* real(pressureData(:,1:2));  
 
-% [xSorted idxSorted] = sort(xyCoord(:,1));
-% 
-% xyCoord(:,2:end) = xyCoord(idxSorted,2:end);
-% xyCoordSorted = flip(xyCoord);
-
 pressureNames ={'x' 'y'};
 freqLabel = round(fPeaks,1);
 
+% delete peak - appears only on pressure FRFs
 toDelete = 3;
 pressureData(:,2+toDelete) = [];
 freqLabel(toDelete) = [];
@@ -358,9 +368,8 @@ fPeaks(toDelete) = [];
 for ii = 1: length(fPeaks)
     pressureNames{ii+2} = ['f_{',num2str(ii),'} = ', num2str(freqLabel(ii))];
 end
-% delete peak
 
-
-
-writeMat2File(pressureData, ['pressure_Data.csv'], pressureNames , length(pressureNames), true);
-writeMat2File(fPeaks, ['eigenFreqPress.csv'], {'f'} , 1, false);
+cd(csvDataFolder);
+writeMat2File(pressureData, pressureFilename, pressureNames , length(pressureNames), true);
+writeMat2File(fPeaks, eigFilename, {'f'} , 1, false);
+cd(baseFolder);
