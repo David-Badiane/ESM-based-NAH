@@ -1,16 +1,19 @@
-function [] = reguFiguresExperimental(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtualPoints, titleStr, measuredPressure,figureNum)
-%REGUFIGURES Summary of this function goes here
-%   Detailed explanation goes here
+function [] = reguFiguresExperimental(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtualPoints, titleStr, measuredPressure,figureNum)
+%reguFiguresExperimental - plots estimation figures for experimental data
 
 %   INPUTS
-%   violinMesh        (2Darray) = ;
-%   v_TSVD            (2Darray) = ;
-%   v_TIK             (2Darray) = ;
-%   v_ex_vector       (2Darray) = ;
-%   virtualPoints     (2Darray) = ;
-%   titleStr          (2Darray) = ;
-%   measuredPressure  (2Darray) = ;
-%   figureNum         (2Darray) = ;
+
+%   violinMesh      (2DArray) = matrix with the violin Points (nPoints x 3) 
+%   v_TSVD          (1DArray) = estimated velocity TSVD
+%   v_TIK           (1DArray) = estimated velocity TIK
+%   v_GT_vector     (1DArray) = groundtruth velocity vector
+%   virtualPoints   (2DArray) = matrix with virtual Points (nPoints x 3)
+%   titleStr        (string)  = string of the title of the images
+%   measuredPressure(1Darray) = hologram pressure vector for the given omega;
+%   figureNum       (double)  = figure number
+
+% OUTPUTS
+% ~
 
     velocityFilename = 'velocity_Data';
     pressureFilename = 'pressure_Data';
@@ -27,7 +30,7 @@ function [] = reguFiguresExperimental(violinMesh, v_TSVD, v_TIK, v_ex_vector, vi
     v_TIKF = addNans(violinMesh, v_TIK);
 %     v_ex = addNans(violinMesh, v_ex_vector);
 
-[XX,YY,surfV] = getVelocityGroundtruth(v_ex_vector, velocityFilename, figureNum-1);
+[XX,YY,surfV] = getVelocityGroundtruth(v_GT_vector, velocityFilename, figureNum-1);
 %     surf_v = reshape(v_ex, [pY,pX]).';
     
     surf_vTSVD = reshape(v_TSVDF, [pY,pX]).';

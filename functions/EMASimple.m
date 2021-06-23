@@ -1,20 +1,24 @@
 function [Hv,f0, fLocs, csis, Q, modeShapes] = EMASimple(HvSVD, fAxis,minPeakVal, minPeakWidth, plotData)
-%EMASIMPLE Simplified modal analysis algorithm retrieving eigenfrequencies, modal
-% damping ratios and modeshape value in the point
+%EMASIMPLE Simplified (not using least squares minimization) modal analysis algorithm 
+% retrieving eigenfrequencies, modal damping ratios, merit factors and
+% modeshape value in the point where we take the FRF
+
+% modal damping ratios obtained by fitting a parabola into the peak (found by using findSubBands.m)
+% and then using half power point method;
 
 %   INPUTS
-%   HvSVD        (array)   = spectrum to analyse;
-%   fAxis        (array)   = frequency axis of the spectrum;
+%   HvSVD        (1DArray)   = spectrum to analyse;
+%   fAxis        (1DArray)   = frequency axis of the spectrum;
 %   minPeakVal   (double)  = minimum value of the peaks for peak analysis;
 %   minPeakWidth (double)  = minimum value of the width of the maximum;
 
 %   OUTPUTS
-%   Hv           (array)   = cutted H1 estimator;
-%   f0           (array)   = frequency locations of the peaks;
-%   fLocs        (array)   = index locations of the peaks;
-%   csis         (array)   = adimensional damping ratios;
-%   Q            (array)   = quality factors;
-%   modeSHapes   (array)   = modeshapes value in the point;
+%   Hv           (1DArray)   = cutted H1 estimator;
+%   f0           (1DArray)   = frequency locations of the peaks;
+%   fLocs        (1DArray)   = index locations of the peaks;
+%   csis         (1DArray)   = adimensional damping ratios;
+%   Q            (1DArray)   = quality factors;
+%   modeShapes   (1DArray)   = modeshapes value in the point;
     
     Hv = HvSVD(1:length(fAxis));
     fHigh = fAxis(end);

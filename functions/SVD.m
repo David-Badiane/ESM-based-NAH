@@ -1,15 +1,14 @@
-function [HvSVD, singularVals] = SVD(frf, freq, M, thresholdIdx, plotData)
-% SVD Summary of this function goes here
+function [HvSVD, singularVals] = SVD(frf, freq, M, nUsedSingVals, plotData)
+% SVD - Singular Values Decomposition - reduces noise
+% computes SVD of an FRF thourgh the hankel matrix, uses nUsedSingVals to
+% reconstruct
 
 %   INPUTS
-%   frf          (array)      = signal on which perform SVD;
-%   freq         (array)      = frequency axis relative to the signal;
+%   frf          (1Darray)    = FRF on which perform SVD;
+%   freq         (1Darray)    = frequency axis relative to the FRF;
 %   M            (int)        = max number of singular values computed;
-%   thresholdIdx (double)     = set threshold for useful singular values in percentage of
-%                               the maximum value of the singularValues 
-%                               (ex. thresholdIdx = 30 --> 30%);
-%   samplesNames (cell array) = cell array containing the names of the samples;
-%   counter      (int)        = value indicating the sample number;
+%   nUsedSingVals (double)    = number of singular values used to reconstruct 
+%   plotData     (boolean     = true if you want to generate images;
 
 %   OUTPUTS
 %   HvSVD        (2Darray)    = H1 estimator after SVD;
@@ -29,7 +28,7 @@ singularVals = diag(S);
 
 % c) Set threshold in percentage of maximum value between all singular values
 
-singVals = singularVals(1:thresholdIdx);
+singVals = singularVals(1:nUsedSingVals);
 nRec = length(singVals);
 Vp = V';
 
@@ -64,6 +63,7 @@ for ii = 1:N
     HvSVD(ii) = 1/(k-l+1)*sum; 
 end
 
+%g) show results
 if plotData
     figure(18)
     semilogy(freq, abs(frf(1:length(freq))));

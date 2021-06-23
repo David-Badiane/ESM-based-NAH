@@ -5,14 +5,13 @@ function [out] = whiteNoise(in, SNR)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %   INPUTS
-%   in   (array)   = input array;
+%   in   (1Darray)   = input array;
 %   SNR  (double)  = signal to noise ratio;
 
 %   OUTPUT
-%   out  (array)   = output array;
+%   out  (1Darray)   = output array;
 
 snr = SNR; % [dB] Signal to Noise ratio
-
 out = awgn( in , snr, 'measured');
 
 end

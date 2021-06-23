@@ -1,28 +1,30 @@
-function [velocityErrors, ESM_Results] = errorVelocity(v_ex_vector, violinMesh, ...
+function [velocityErrors, ESM_Results] = errorVelocity(v_GT_vector, violinMesh, ...
 xData, yData, measuredPressure, G_p, G_v, lambda_L, k_L,... 
 omega, rho)
 
-% ERRORVELOCITY this function calculates the error through different metrics
-% [nmseTIK, nccTIK, normcTIK, reTIK] and saves it into a struct
+% ERRORVELOCITY this function perform the whole ESM method,
+% interpolates over the measured points( xDAta, yData) the estimated velocity,
+% calculates the metrics [nmseTIK, nccTIK, normcTIK, reTIK]
+% and saves it back into a struct
 
 %   INPUT
-%   v_ex_vector      (array)  = vector of the velocities groung truth ;
-%   violinMesh       (2Darray) = mesh of the geometry to interpolate with v_ex_vector in 
-%                               order to find the correspondent value of velocity in the 
-%                               same indeces;
-%   xData            (array)   = value of x for the interpolation;
-%   yData            (array)   = value of y for the interpolation;
-%   measuredPressure (array)   = hologram pressure for the given radians frequency 
+%   v_GT_vector      (1DArray)   = vector of the velocity groundtruth;
+%   violinMesh       (2DArray)   = mesh of the geometry;
+%   xData            (2DArray)   = x matrix for the interpolation over the measured points;
+%   yData            (2DArray)   = y matrix for the interpolation over the measured points;
+%   measuredPressure (1DArray)   = hologram pressure for the given radians frequency 
 %                               omega;
-%   G_p              (2Darray) = Green's matrix for the pressure;
-%   G_v              (2Darray) = Green's matrix for the velocity;
-%   lambda_L         (double)  = Thikonov parameter;
-%   k_L              (double)  = TSVD parameter;
+%   G_p              (2DArray) = Green's matrix for the pressure;
+%   G_v              (2DArray) = Green's matrix for the velocity;
+%   lambda_L         (double)  = Thikonov regularization parameter;
+%   k_L              (double)  = TSVD regularization parameter;
 %   omega            (double)  = radians frequency where evaluate the function;
-%   rho              (double)  = air density;
+%   rho              (double)  = medium density;
 
-%   OUPUT
+%   OUTPUT
 %   velocityErrors   (struct) = struct where the metric values are stored;
+%   ESM_Results      (struct) = struct containing ew sources weights and
+%                               estimated velocities;
 
 names_Metrics = {'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD' };
 names_Results = {'qTIK' 'qTSVD' 'vTIK' 'vTSVD' 'vTIK_Fin' 'vTSVD_Fin'};
@@ -32,19 +34,19 @@ names_Results = {'qTIK' 'qTSVD' 'vTIK' 'vTSVD' 'vTIK_Fin' 'vTSVD_Fin'};
 [U,s,V] = csvd (G_p);
 
 % exact velocity norm
-normV = norm(v_ex_vector,2);
+normV = norm(v_GT_vector,2);
 [Qs, v_TSVD, v_TIK] = reguResults( k_L, lambda_L, measuredPressure, omega, rho, G_p, G_v );
 q_TIK = Qs.qTIK; 
 q_TSVD = Qs.qTSVD;
 
 v_TIK_Fin = getSameOrdering(v_TIK, violinMesh, xData, yData);   
 % metrics
-[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_ex_vector, normV);
+[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_GT_vector, normV);
 
   
 
 v_TSVD_Fin = getSameOrdering(v_TSVD, violinMesh, xData, yData);   
-[nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_ex_vector, normV);
+[nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_GT_vector, normV);
 
 velocityErrors = struct(names_Metrics{1}, nmseTIK,  names_Metrics{2}, nccTIK, names_Metrics{3}, normcTIK, names_Metrics{4}, reTIK,...
     names_Metrics{5}, nmseTSVD, names_Metrics{6}, nccTSVD, names_Metrics{7}, normcTSVD, names_Metrics{8}, reTSVD);

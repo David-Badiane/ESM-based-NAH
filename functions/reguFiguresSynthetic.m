@@ -1,7 +1,19 @@
-function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtualPoints, titleStr, figureNum)
-%REGUFIGURES Summary of this function goes here
-%   Detailed explanation goes here
-    
+function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtualPoints, titleStr, figureNum)
+% reguFiguresSynthetic - plots estimation figures for synthetic data
+
+%   INPUTS
+
+%   violinMesh      (2DArray) = matrix with the violin Points (nPoints x 3) 
+%   v_TSVD          (1DArray) = estimated velocity TSVD
+%   v_TIK           (1DArray) = estimated velocity TIK
+%   v_GT_vector     (1DArray) = groundtruth velocity vector
+%   virtualPoints   (2DArray) = matrix with virtual Points (nPoints x 3)
+%   titleStr        (string)  = string of the title of the images
+%   figureNum       (double)  = figure number
+
+% OUTPUTS
+% ~
+
     pX = length(unique(violinMesh(:, 1)));
     pY = length(unique(violinMesh(:, 2))); 
    
@@ -10,7 +22,7 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtu
 
     v_TSVD_F = addNans(violinMesh, v_TSVD); 
     v_TIK_F = addNans(violinMesh, v_TIK);
-    v_ex = addNans(violinMesh, v_ex_vector);
+    v_ex = addNans(violinMesh, v_GT_vector);
 
     surfVelRecTSVD = reshape( v_TSVD_F, [pY, pX]).'; 
     surfVelRecTIK = reshape( v_TIK_F , [pY, pX]).'; 

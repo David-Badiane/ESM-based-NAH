@@ -17,6 +17,7 @@ function [G_v] = normalGradient(virtualPoints , platePoints , omega, normalPoint
 %%% OUTPUTS                                                                %%%%%%%%%%%%
 %%% G_v = normal gradient of Green's matrix for each omega (cell array)    %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 c = 343; % [m/s] speed of sound
 
 % preallocate cell array

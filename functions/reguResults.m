@@ -1,23 +1,22 @@
 function [Qs, v_TSVD, v_TIK] = reguResults( k, lambda, pressure, omega, rho, G_p, G_v, virtualPoints )
-% reguResults - Carries on 
-%   Detailed explanation goes here
-
-%UNTITLED Summary of this function goes here
+% reguResults - Carries on ESM calculations - 
+% (regularization inverse problem) + (solution direct problem) 
+%   
 
 %   INPUTS
-%   k             (2Darray) = ;
-%   lambda        (2Darray) = ;
-%   pressure      (2Darray) = ;
-%   omega         (2Darray) = ;
-%   rho           (2Darray) = ;
-%   G_p           (2Darray) = ;
-%   G_v           (2Darray) = ;
-%   virtualPoints (2Darray) = ;
+%   k             (double)  = regularization parameter TSVD;
+%   lambda        (double)  = regularization parameter TIK;
+%   pressure      (1Darray) = hologram vector;
+%   omega         (double)  = radians frequency;
+%   rho           (double)  = medium density;
+%   G_p           (2Darray) = Green matrix - pressure;
+%   G_v           (2Darray) = normal gradient Green matrix - velocity;
+%   virtualPoints (2Darray) = virtual points matrix (nPts x 3);
 
 %   OUTPUTS
-%   Qs            (2Darray) = ;
-%   v_TSVD        (2Darray) = ;
-%   v_TIK         (2Darray) = ;
+%   Qs            (struct) =  eq sources weight struct - members = qTIK  qTSVD;
+%   v_TSVD        (1Darray) = estimated velocity TSVD;
+%   v_TIK         (1Darray) = estimated velocity TIK;
 
     [U,s,V] = csvd (G_p);
     q_TSVD = (1/(1i*omega*rho)).*tsvd (U,s,V, pressure , k); % perform the TSVD -> estimate the source strength

@@ -1,16 +1,16 @@
 function [X,Y,surfV] = getVelocityGroundtruth(v_ex_vector, velocityFilename, figureNum)
-% GETVELOCITYGROUNDTRUTH this function calculate the array velocity into
-% surface
+% GETVELOCITYGROUNDTRUTH this function converts the scattered points of the
+% velocity vector into a surface through the fx. ScatteredInterpolant
 
 %   INPUTS
-%   v_ex_vector      (array)   = vector of the velocities groung truth ;
-%   velocityFilename (cell)    = names of the file to choose;
+%   v_ex_vector      (1Darray) = vector of the velocities groung truth ;
+%   velocityFilename (string)  = name of the velocityData.csv file to see;
 %   figureNum        (double)  = number of the figure to plot;
 
 %   OUTPUTS
-%   X                (array)   = x coordinates of the mesh;
-%   Y                (array)   = y coordinates of the mesh;
-%   surfV            (2Darray) = z value of the velocity;
+%   X                (2Darray)   = x matrix of the mesh;
+%   Y                (2Darray)   = y matrix of the mesh;
+%   surfV            (2Darray)   = z matrix of the velocity;
 
 violinMesh = readmatrix('grid35x25.csv'); 
 

@@ -1,18 +1,18 @@
 
 function [zCordsinter] = interpGrid(meshPoints, xData, yData, pX, pY, plotData)
-% INTERPGRID this function interpolate one grid with a couple of
-% coordinates
+% INTERPGRID this function interpolates in the surface defined by meshPoints 
+%            over the points of coordinate xData and yData
 
 %   INPUTS
-%   meshPoints  (2Darray) = points of the grid   
-%   xData       (array)   = value of x for the interpolation;
-%   yData       (array)   = value of y for the interpolation;
-%   pX          (array)   = x coordinates of the mesh;
-%   pY          (array)   = y coordinates of the mesh;
-%   plotData    (boolean) = choose if the plot have to be shown;
+%   meshPoints  (2Darray)  = points of the grid on which we interpolate   
+%   xData       (2Darray)  = X matrix - target points for the interpolation;
+%   yData       (2Darray)  = Y matrix - target points for the interpolation;
+%   pX          (double)   = number x coordinates of the mesh;
+%   pY          (double)   = number y coordinates of the mesh;
+%   plotData    (boolean)  = choose if the plot have to be shown;
 
 %   OUPUTS
-%   zCordInter  (array)   = z value of the coordinates interpolated;
+%   zCordInter  (2Darray)  = Z matrix of the interpolated coordinates;
 
 xCords = reshape(meshPoints(:,1), [pY,pX]).';
 yCords = reshape(meshPoints(:,2), [pY,pX]).';

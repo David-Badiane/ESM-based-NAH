@@ -1,13 +1,16 @@
 function [outMatrix] = downsampling_regular(inputMatrix, nrows, ncols, fileName, saveData)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% DOWNSAMPLING this fucntion performs donwnsapling on a matrix or array  %%%%%%%%%%%%
+%%% DOWNSAMPLING this fucntion performs donwnsapling over a rectangular    %%%%%%%%%%%%
+%%%              grid on a matrix                                          %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INPUTS                                                                 %%%%%%%%%%%%
 %%% inputMatrix = matrix to downsample (2DArray)                           %%%%%%%%%%%%
-%%% nrows = target number of rows (double)                                 %%%%%%%%%%%%
-%%% ncols = target number of columns (double)                              %%%%%%%%%%%%
+%%% nrows    = target number of rows (double)                              %%%%%%%%%%%%
+%%% ncols    = target number of columns (double)                           %%%%%%%%%%%%
+%%% fileName = fileName for saving [only the name, not .csv] (double)      %%%%%%%%%%%%
+%%% saveData = true if you want to save data on .csv file (boolean)        %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

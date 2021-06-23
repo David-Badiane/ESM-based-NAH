@@ -1,6 +1,35 @@
 function [lossFx, ESM_metrics_table , ESM_Results] = applyESM( controlParams, boundZ, pressure, hologramPoints, normalPoints, violinMesh , omega,...
                             xData, yData , v_GT_vector, virtualPtsFilename,...
-                            gridTablesNames, plotData, experimentalData )     
+                            gridTablesNames, plotData, experimentalData )   
+
+% applyESM - this function applies the whole ESM method, saving metrics and results
+
+% INPUTS
+
+% controlParams  ([3x1] Array) = control Params of the virtual points grids
+%                                to be driven for minimization 
+%                                [virtualPts z distance  scaleX   scaleY]
+% boundZ         (double)      = to bound Z to a minimum value for minimization
+% pressure       (1DArray)     = pressure vector
+% hologramPoints (2DArray)     = hologram points coordinates
+% normalPoints   (2DArray)     = normal points coordinates
+% violinMesh     (2DArray)     = violin points coordinates
+% omega          (double)      = radians frequency
+% xData          (2DArray)     = X query measured points to interpolate
+% yData          (2DArray)     = Y query measured points to interpolate
+% v_GT_vector    (1DArray)     = velocity groundtruth vector
+% virtualPtsFilename (string)  = string of the filename of virtual points
+% gridTablesNames    (cell)    = names for the table
+% plotData           (boolean) = to plot figures
+% experimentalData
+
+% OUTPUTS
+
+% lossFx            (double) = loss function over which we minimize value
+% ESM_metrics_table (table)  = table containing the metrics
+% ESM_Results       (struct) = struct containing the results 
+%                              virtual points weights, estimated veloicies,
+%                              velocities surfaces
 
 rho = 1.2;
 zVal = controlParams(1);

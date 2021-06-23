@@ -1,15 +1,15 @@
 function [peaksLoc, fpeakPositions] = peaks(matrix, f, fThreshold, ignorePeaksLow, ignorePeaksHigh,...
     highPeaksParams, lowPeaksParams)
-%PEAKS find peaks of the fRF
+%PEAKS finds peaks of the FRF by analysing their cumulative sum
 
 %   INPUTS
 %   matrix           (2Darray) = matrix of the H1 estimator;
-%   f                (array)   = rfequency axis;
-%   fThreshold       (double)  = frequency thershold for peak fining;
-%   ignorePeaksLow   (double)  = parameter for ignore the low peaks for findpeaks function;
-%   ignorePeaksHigh  (double)  = parameter for ignore the high peaks for findpeaks function;
-%   highPeaksParams  (array)   = parameter for findpeaks function;
-%   lowPeaksParams   (array)   = parameter for findpeaks function;
+%   f                (1Darray)   = frequency axis;
+%   fThreshold       (double)  = frequency threshold for peak fining (we use two find peaks);
+%   ignorePeaksLow   (double)  = low threshold - ignore peaks at lower frequency than it;
+%   ignorePeaksHigh  (double)  = high threshold - ignore peaks at higher frequency than it;
+%   highPeaksParams  (1Darray) = [2x1] = minPeakProminence, minPeak width for highFreq findpeaks;
+%   lowPeaksParams   (1Darray) = [2x1] = minPeakProminence, minPeak width for lowFreq findpeaks;
 
 %   OUTPUTS
 %   peaksLoc         (array)   = peaks location values;
@@ -21,7 +21,7 @@ absMat = sum(absMat, 2).^2;
 
 [~,low2HighIdx] = min(abs(f - (fThreshold*ones(size(f))) ));
 [~, peaksLocHigh] = findpeaks(absMat(low2HighIdx+1:end), 'MinPeakProminence', highPeaksParams(1), 'minPeakWidth', highPeaksParams(2));
-[~, peaksLocLow] = findpeaks(absMat(1:low2HighIdx), 'MinPeakProminence', lowPeaksParams(1), 'minPeakWidth', lowPeaksParams(2));
+[~, peaksLocLow]  = findpeaks(absMat(1:low2HighIdx), 'MinPeakProminence', lowPeaksParams(1), 'minPeakWidth', lowPeaksParams(2));
 
 peaksLocHigh =low2HighIdx + peaksLocHigh;
 peaksLoc = [ peaksLocLow; peaksLocHigh];

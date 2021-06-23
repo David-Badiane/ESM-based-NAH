@@ -1,10 +1,11 @@
-function [nanVel] = addNans(virtualPoints, velocity)
-%ADDNANS this function create a binary mask in an array taking index 
-% positions where NaNs are present in another array
+function [nanVel] = addNans(points, velocity)
+%ADDNANS this function creates an array of size [length(points(:,3),1]
+% where the output array has the same nan indexes of points(:,3)
+% and its not nan indexes are filled by the value of velocity
 
 %   INPUTS
 %   virtualPoints (array) = signal on which the mask is applied;
-%   velocity      (array) = singla where NaNs index positons are taken;
+%   velocity      (array) = singal where NaNs index positons are taken;
 
 %   OUTPUT
 %   nanVel        (array) = output signal with NaNs inserted;
@@ -19,8 +20,8 @@ function [nanVel] = addNans(virtualPoints, velocity)
 % plot3(virtualPoints(:,1),virtualPoints(:,2),nanVelocity, '.')
 
 
-notNanIdxs = find(~isnan(virtualPoints(:,3)));
-nanVel = virtualPoints(:,3);
+notNanIdxs = find(~isnan(points(:,3)));
+nanVel = points(:,3);
 nanVel(notNanIdxs) = velocity;
 
 %{
