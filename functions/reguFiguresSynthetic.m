@@ -31,21 +31,29 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtu
     figure(figureNum) 
         
     subplot 311
-    surf(X, Y, abs(surfVel)); view(2);
+    surf(X, Y, abs(surfVel),'EdgeColor','none'); view(2);
+    xlabel('x [m]')
+    ylabel('y [m]')
     title('Exact velocity')
     colorbar 
     subplot 312
-    surf(X, Y, abs(surfVelRecTSVD));view(2);
+    surf(X, Y, abs(surfVelRecTSVD),'EdgeColor','none');view(2);
+    xlabel('x [m]')
+    ylabel('y [m]')
     title('TSVD velocity')
     colorbar 
     caxis([0 max(abs(surfVel(:)))])
     subplot 313
-    surf(X, Y, abs(surfVelRecTIK));view(2);
+    surf(X, Y, abs(surfVelRecTIK),'EdgeColor','none');view(2);
+    xlabel('x [m]')
+    ylabel('y [m]')
     title('Tik velocity')
     colorbar 
     caxis([0 max(abs(surfVel(:)))])
     sgtitle(titleStr);  
-  
+
+    
+    
     figure(figureNum+1)
     
     plot3(virtualPoints(:,1), virtualPoints(:,2), virtualPoints(:,3), '.', 'markerSize', 8 );

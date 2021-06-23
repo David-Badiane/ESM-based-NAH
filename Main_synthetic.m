@@ -31,7 +31,7 @@ end
 
 %% Setup of global variables 
 
-nModes = 20;
+nModes = 46;
 rho = 1.2; % [Kg/m3] air density 
 
 freqzNames = cell(nModes,1);
