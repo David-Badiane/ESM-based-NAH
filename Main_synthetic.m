@@ -99,6 +99,7 @@ if userControl == 0
     zBound = 0.0075; % minimum value bound on z
 
     for mode = 1:nModes
+        
         tStart = tic;
         % Setup of local variables
         omega = eigenFreqzRad(mode); % current eigenfreq mode
@@ -129,6 +130,7 @@ if userControl == 0
         zpar(1) = -(abs(zpar(1)) + abs(zBound));
         VP_Params(ii,:)= zpar;
     end
+    
     %SAVE RESULTS 
     cd([estimationsFolder, '\controlParams'])
     filesList = ls(estimationsFolder);
@@ -180,7 +182,7 @@ if userControl == 0
         end
         
         estimationCell{ii} = ESM_metrics; 
-        disp(toc(tStart))
+        disp(toc(tStart)) 
     end
     
     cd([estimationsFolder,'\metrics'])

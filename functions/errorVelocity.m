@@ -63,8 +63,10 @@ function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
 %     hold on; 
 %     plot(1:length(vGroundtruth), abs(vGroundtruth))
 %     hold off;
-    vGroundthruth = abs(vGroundtruth)/max(abs(vGroundtruth));
-    vRegu = abs(vRegu)/max(abs(vRegu));
+
+%     IN CASE OF NORMALIZATION
+%     vGroundthruth = abs(vGroundtruth)/max(abs(vGroundtruth));
+%     vRegu = abs(vRegu)/max(abs(vRegu));
    
 %     nmse  = 10*log10(norm( abs(vGroundtruth)/max(abs(vGroundtruth)) ...
 %                            - abs(vRegu)/max(abs(vRegu)) )^2 / ...
