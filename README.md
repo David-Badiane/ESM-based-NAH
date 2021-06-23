@@ -30,6 +30,22 @@ In our work we propose the application of ESM based NAH to a violin back plate i
 * *violinMeshGenerator.m* creates the violin mesh from a grid of points.
 * *virtualPointsGenerator.m* generates the grid of virtual points through the user input arguments.
 
+### Folders
+* **acq_11_06**: velocity acquisitions of the accelerometer (.csv).
+* **CSV**: synthetic data of pressure and velocity (.csv).
+* **Data**: file .mat and .csv of sensible data of the code, useful to run it without reading all the experimental or synthetic data everytime the code is launched.
+* **functions**: contains all the function used in the scripts.
+* **VioliniMeshes**: different dimensions of grids for the violin mesh.
+* **VPGrids**: virtual point grids.
+
+### Important functions
+* *errorVelocity.m* this function calculate the error through different metrics and save it into a struct.
+* *getVelocityGroundtruth.m* this function calculate the array velocity into surface.
+* *getVirtualPoints.m* this function calculates the virtual points grid.
+* *Green_matrix.m* this funtion compute the Green's matrix.
+* *importData.m* this function read the csv pressure and normal velocity extract their data and sotre the in a cell arrays
+* *normalGradient.m* this functinon compute the normal gradient of the Green's matrix
+
 ## Help
 
 Any advise for common problems or issues.
