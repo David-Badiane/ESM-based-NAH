@@ -120,7 +120,7 @@ yStep = abs(yAx - circshift(yAx,+1));
 % The distance should be lattice/2  
 % lattice = min(Dxhologram, Dyhologram) = min spacial sampling sampling step
 zCenter = -0.5*min([min(xStep), min(yStep)]);
-plotData = true;
+plotData = false;
 experimentalData = true;
 
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
@@ -211,6 +211,6 @@ if userControl == 1
     filesList(1:2,:) = [];
     numFile = length(filesList) +1;
     disp(['writing File estimationStruct', num2str(numFile),'.mat']);   
-    save(['estimationStruct_', num2str(numFile),'.mat'], estimationStruct);
+    save(['estimationStruct_', num2str(numFile),'.mat'], 'estimationStruct');
     cd(baseFolder)
 end
