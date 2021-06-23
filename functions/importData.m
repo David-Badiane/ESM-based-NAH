@@ -127,11 +127,6 @@ for ii = 1:length(hologramInfos) % useful to plot the reconstructed pressure.
     hologramInfos{ii} = downsampling(hologramInfos{ii}, resampleX, resampleY);    
 end
 
-% Show first frequency pressure field
-
-
-
-
 hologramMesh =  [reshape(hologramInfos{1}, [resampleX*resampleY, 1]),...
                  reshape(hologramInfos{2}, [resampleX*resampleY, 1]),...
                  reshape(hologramInfos{3}, [resampleX*resampleY, 1])];
@@ -149,7 +144,7 @@ for ii = 1:length(pressureFields)
     hold off
     
     figure(6)
-    surf(X, Y, abs(reshape(pressMatrix(:,ii), [pY, pX]).'))
+    surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{ii}))
 end
 
    

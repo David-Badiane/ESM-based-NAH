@@ -1,9 +1,9 @@
-function [velocityErrors] = errorVelocity(v_ex_vector, violinMesh, ...
+function [velocityErrors, ESM_Results] = errorVelocity(v_ex_vector, violinMesh, ...
 xData, yData, measuredPressure, G_p, G_v, lambda_L, k_L,... 
 omega, rho)
 
-% ERRORVELOCITY this function calculate the error through different metrics
-% [nmseTIK, nccTIK, normcTIK, reTIK] and save it into a struct
+% ERRORVELOCITY this function calculates the error through different metrics
+% [nmseTIK, nccTIK, normcTIK, reTIK] and saves it into a struct
 
 %   INPUT
 %   v_ex_vector      (array)  = vector of the velocities groung truth ;
@@ -24,11 +24,9 @@ omega, rho)
 %   OUPUT
 %   velocityErrors   (struct) = struct where the metric values are stored;
 
-names = {'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD' };
+names_Metrics = {'nmseTIK' 'nccTIK' 'normcTIK' 'reTIK' 'nmseTSVD' 'nccTSVD' 'normcTSVD' 'reTSVD' };
+names_Results = {'qTIK' 'qTSVD' 'vTIK' 'vTSVD' 'vTIK_Fin' 'vTSVD_Fin'};
 
-%ERRORVELOCITY 
-pX = length(unique(violinMesh(:,1)));
-pY = length(unique(violinMesh(:,2)));
 
 % compact singular value decomposition
 [U,s,V] = csvd (G_p);
@@ -39,50 +37,38 @@ normV = norm(v_ex_vector,2);
 q_TIK = Qs.qTIK; 
 q_TSVD = Qs.qTSVD;
 
-% adds nan to create a mesh to interpolate
-v_TIK_Fin = addNans(violinMesh, v_TIK);
-% interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-v_TIK_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) v_TIK_Fin], xData.', yData.', pX, pY, false);
-% make vector and delete NaNs
-v_TIK_Fin = v_TIK_Fin(:);
-cancelindex = find(isnan(v_TIK_Fin));
-v_TIK_Fin(cancelindex) = [];
-
+v_TIK_Fin = getSameOrdering(v_TIK, violinMesh, xData, yData);   
 % metrics
 [nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_ex_vector, normV);
 
   
-% adds nan to create a mesh to interpolate
-v_TSVD_Fin = addNans(violinMesh, v_TSVD);
-% interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-v_TSVD_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(v_TSVD_Fin)], xData.', yData.', pX, pY, false);
-v_TSVD_Fin = v_TSVD_Fin(:);
-% cancel nan from velocity vector
-cancelindex = find(isnan(v_TSVD_Fin));
-v_TSVD_Fin(cancelindex) = [];
-    
+
+v_TSVD_Fin = getSameOrdering(v_TSVD, violinMesh, xData, yData);   
 [nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_ex_vector, normV);
 
-velocityErrors = struct(names{1}, nmseTIK,  names{2}, nccTIK, names{3}, normcTIK, names{4}, reTIK,...
-    names{5}, nmseTSVD, names{6}, nccTSVD, names{7}, normcTSVD, names{8}, reTSVD);
+velocityErrors = struct(names_Metrics{1}, nmseTIK,  names_Metrics{2}, nccTIK, names_Metrics{3}, normcTIK, names_Metrics{4}, reTIK,...
+    names_Metrics{5}, nmseTSVD, names_Metrics{6}, nccTSVD, names_Metrics{7}, normcTSVD, names_Metrics{8}, reTSVD);
+
+ESM_Results = struct(names_Results{1}, q_TIK , names_Results{2}, q_TSVD , names_Results{3}, v_TIK ,...
+    names_Results{4}, v_TSVD , names_Results{5},v_TIK_Fin ,names_Results{6},v_TSVD_Fin );
 end
 
 
 function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
     % NMSE
-%     figure(1111)
+    %     figure(111)
 %     plot(1:length(vRegu), abs(vRegu), 'lineWidth', 1.2);
 %     hold on; 
 %     plot(1:length(vGroundtruth), abs(vGroundtruth))
 %     hold off;
-% 
+    vGroundthruth = abs(vGroundtruth)/max(abs(vGroundtruth));
+    vRegu = abs(vRegu)/max(abs(vRegu));
    
-    nmse  = 10*log10(norm( abs(vGroundtruth)/max(abs(vGroundtruth)) ...
-                           - abs(vRegu)/max(abs(vRegu)) )^2 / ...
-                        (norm(abs(vGroundtruth)/max(abs(vGroundtruth)))^2) );
-    
-%     nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / ...
-%                       (normV)^2) ;
+%     nmse  = 10*log10(norm( abs(vGroundtruth)/max(abs(vGroundtruth)) ...
+%                            - abs(vRegu)/max(abs(vRegu)) )^2 / ...
+%                         (norm(abs(vGroundtruth)/max(abs(vGroundtruth)))^2) );    
+     nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / ...
+                       (normV)^2) ;
     %NCC
     ncc   = (abs(vRegu)'*abs(vGroundtruth)) / (norm(vRegu)*normV);
     
@@ -92,4 +78,23 @@ function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
     %Reconstruction Error (Relative Error)
     re    = (norm((vGroundtruth - vRegu) ,2)^2) / (normV)^2 ;
 end
+
+
+function vRegu_Fin = getSameOrdering(vRegu, violinMesh, xData, yData)
+
+    pX = length(unique(violinMesh(:,1)));
+    pY = length(unique(violinMesh(:,2)));
+    
+    % adds nan to create a mesh to interpolate
+    vRegu_Fin = addNans(violinMesh, vRegu);
+    % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
+    vRegu_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(vRegu_Fin)], xData.', yData.', pX, pY, false);
+    vRegu_Fin = vRegu_Fin(:);
+    % cancel nan from velocity vector
+    vRegu_Fin(isnan(vRegu_Fin)) = [];
+end
+
+
+
+
 

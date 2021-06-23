@@ -16,7 +16,6 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_ex_vector, virtu
     surfVelRecTIK = reshape( v_TIK_F , [pY, pX]).'; 
     surfVel = reshape( v_ex , [pY, pX]).';
 
-    
     figure(figureNum) 
         
     subplot 311

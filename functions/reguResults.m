@@ -1,4 +1,7 @@
 function [Qs, v_TSVD, v_TIK] = reguResults( k, lambda, pressure, omega, rho, G_p, G_v, virtualPoints )
+% reguResults - Carries on 
+%   Detailed explanation goes here
+
 %UNTITLED Summary of this function goes here
 
 %   INPUTS
