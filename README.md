@@ -11,6 +11,7 @@ We adopt a  the equivalent source method (ESM), also known as wave superposition
 
 In our work we propose the application of ESM based NAH to a violin back plate in order to retrieve its normal velocity. ESM has been applied on both synthetic and experimental data. The code is MATLAB® based.
 
+![Alt text](Image URL)
 
 ## Getting Started
 
