@@ -1,6 +1,13 @@
 function [intPts] = innerVirtualPoints(pts, xBorder, yBorder, zVal)
-%FORMpts Summary of this function goes here
-%   Detailed explanation goes here
+%innerVirtualPoints form a grid with the inner points of the geometry
+% INPUTS
+% pts  [nPts x 3] (2DArray) = points of the mesh
+% xBorder         (double)  = how many points interior to the border along X
+% yBorder         (double)  = how many points interior to the border along y
+% zVal            (double)  = value of the z coordinate of the grid
+% OUTPUTS
+% intPts [nPts x 3](2DArray) = grid with the inner points of the geometry
+
 close all
 
     x = pts(:,1);

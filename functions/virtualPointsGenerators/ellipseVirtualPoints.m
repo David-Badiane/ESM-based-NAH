@@ -1,6 +1,15 @@
 function [ellipse] = ellipseVirtualPoints(pts, maxRx, maxRy,minRx, minRy,zVal)
-%FORMVIRTUALPOINTS Summary of this function goes here
-%   Detailed explanation goes here
+%ellipseVirtualPoints - creates an ellipsoidal grid
+% INPUTS
+% pts  [nPts x 3] (2DArray) = points of the mesh
+% maxRx         (double)  = max radius along x of the ellipsoidal grid
+% maxRy         (double)  = max radius along y of the ellipsoidal grid
+% minRx         (double)  = min radius along x of the ellipsoidal grid
+% minRy         (double)  = min radius along y of the ellipsoidal grid
+% zVal          (double)  = value of the z coordinate of the grid
+% OUTPUTS
+% ellipse [nPts x 3](2DArray) = ellipsoidal grid of points
+
 
     x = pts(:,1); y = pts(:,2); z = pts(:,3);
     maxX = max(x); maxY = max(y);

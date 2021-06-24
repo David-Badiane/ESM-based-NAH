@@ -4,20 +4,10 @@ function [nanVel] = addNans(points, velocity)
 % and its not nan indexes are filled by the value of velocity
 
 %   INPUTS
-%   virtualPoints (array) = signal on which the mask is applied;
-%   velocity      (array) = singal where NaNs index positons are taken;
-
+%   points        (2Darray) = matrix of points whose nans mask is taken;
+%   velocity      (1Darray) = signal on which the mask is applied;
 %   OUTPUT
-%   nanVel        (array) = output signal with NaNs inserted;
-
-
-% nanIndexes = find(isnan(virtualPoints(:,3)));
-% nanVelocity = zeros(size(virtualPoints(:,1)));
-% nanVelocity(nanIndexes) = nan;
-% notNanIndexes = find(~isnan(nanVelocity));
-% nanVelocity(notNanIndexes) = velocity;
-% figure()
-% plot3(virtualPoints(:,1),virtualPoints(:,2),nanVelocity, '.')
+%   nanVel        (1Darray) = output signal with NaNs inserted;
 
 
 notNanIdxs = find(~isnan(points(:,3)));

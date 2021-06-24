@@ -1,6 +1,16 @@
 function [rectPts] = rectVirtPoints(pts, xRect, yRect, xCenter, yCenter, zVal)
-%RECTVIRTPOINTS Summary of this function goes here
-%   Detailed explanation goes here
+%RECTVIRTPOINTS creates a rectangular grid
+
+% INPUTS
+% pts  [nPts x 3] (2DArray) = points of the mesh
+% xRect           (double)  = edgeX value
+% yRect           (double)  = edgeY value
+% xCenter         (double)  = x coordinate of the center
+% y Center        (double)  = y coordinate of the center
+% zVal            (double)  = value of the z coordinate of the grid
+
+% OUTPUTS
+% rectPts [nPts x 3](2DArray) = rectangluar grid points
     x = xRect/2*pts(:,1)/max(pts(:,1));
     y = yRect/2*pts(:,2)/max(pts(:,2));
     z = pts(:,3);
