@@ -83,7 +83,7 @@ lossTSVD = ESM_metrics(8) + 10*log10( 1 - ESM_metrics(9));
 lossTIK  = ESM_metrics(4) + 10*log10( 1 - ESM_metrics(5));
 lossFx = mean([lossTIK],2);
 
-ESM_metrics_table = array2table(ESM_metrics, 'variableNames', gridTablesNames(2:end));
+ESM_metrics_table = array2table(ESM_metrics, 'variableNames', gridTablesNames(2:end))
 
 if plotData
     v_TSVD = ESM_Results.vTSVD;

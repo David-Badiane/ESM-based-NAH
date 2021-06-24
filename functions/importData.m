@@ -1,4 +1,4 @@
-function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName, resampleX, resampleY)
+function [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = importData(velocityFileName, pressureFileName, resampleX, resampleY, plotData)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INPORTDATA this function read the csv pressure and normal velocity       %%%%%%%%%%%%
@@ -58,12 +58,12 @@ X =  reshape(violinMesh(:,1), [pY, pX]).';
 Y =  reshape(violinMesh(:,2), [pY, pX]).'; 
 Z =  reshape(violinMesh(:,3), [pY, pX]).';
 
-%{
+if plotData
 figure(1)
 surf(X,Y,Z);
 title('Violin surface');
-%zlim([0,100]);
-%}
+zlim([0,100]);
+end
 
 violinInfos = {X,Y,Z, violinMesh}; 
 %% Velocity Fields
@@ -85,18 +85,16 @@ for ii = 1:numFreqBins
     vel(isnan(violinMesh(:,3))) = nan;
     vel(idxWrongPts) = vel(idxGoodPts);
     velocityFields{ii} = reshape(vel, [pY, pX]).';
-    
-%     figure(2)
-%     surf(X,Y,abs(velocityFields{ii}));
-%     title('Velocity field surface - f1');
-%     
-% %     figure(3)
-% %     plot3(violinMesh(:,1), violinMesh(:,2), abs(vel),'.');
-%     pause(0.5);
+    if plotData
+        figure(2)
+        surf(X,Y,abs(velocityFields{ii}));
+        title('Velocity field surface - f1');
+
+        figure(3)
+        plot3(violinMesh(:,1), violinMesh(:,2), abs(vel),'.');
+        pause(0.5);
+    end
 end
-
-
-
 
 %% Reconstruct the hologram geometry
 
@@ -107,10 +105,11 @@ X =  reshape(hologramMesh(:,1), [pY, pX]).'; % useless?
 Y =  reshape(hologramMesh(:,2), [pY, pX]).'; % useless?
 Z =  reshape(hologramMesh(:,3), [pY, pX]).';  % rename?
 
-figure(3)
-surf(X,Y,Z);
-title('Hologram surface');
-
+if plotData
+    figure(3)
+    surf(X,Y,Z);
+    title('Hologram surface');
+end
 
 hologramInfos = {X,Y,Z}; % rename Z ad Zh?
 %% Pressure Fields 
@@ -136,23 +135,25 @@ for ii = 1:length(pressureFields)
     pressureFields{ii} = downsampling(pressureFields{ii}, resampleX, resampleY);
     p = reshape(pressureFields{ii}, [resampleX*resampleY,1]);
     press = pressMatrix(:,ii);
-    figure(5)
-    plot3(hologramMesh(:,1), hologramMesh(:,2), abs(p),'.');
-    hold on
-    oldHMesh = table2array(csvPress(:,1:3));
-    plot3(oldHMesh(:,1), oldHMesh(:,2), abs(press), 'o');
-    hold off
-    
-    figure(6)
-    surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{ii}))
+    if plotData
+        figure(5)
+        plot3(hologramMesh(:,1), hologramMesh(:,2), abs(p),'.');
+        hold on
+        oldHMesh = table2array(csvPress(:,1:3));
+        plot3(oldHMesh(:,1), oldHMesh(:,2), abs(press), 'o');
+        hold off
+
+        figure(6)
+        surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{ii}))
+    end
 end
 
    
 hologramInfos = {hologramInfos{1},hologramInfos{2},hologramInfos{3},hologramMesh};
-
-figure(500)
-surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
-title('actual pressure')
-
+if plotData
+    figure(500)
+    surf(hologramInfos{1}, hologramInfos{2}, abs(pressureFields{1}));
+    title('actual pressure')
+end
 end
 
