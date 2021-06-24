@@ -222,34 +222,11 @@ for ii = 1:11
     tikNCCsPlot(ii) = table2array(estimationCell{ii}(1,5));
     tsvdNCCsPlot(ii) = table2array(estimationCell{ii}(1,9));
 end
-figure
-plot(tikNCCsPlot, 'b-o')
+plot(tikNCCsPlot)
 hold on
-plot(tsvdNCCsPlot, 'r-o')
+plot(tsvdNCCsPlot)
 xticks(1:11)
 xticklabels(eigenFreqz./(2*pi))
-xtickangle(90)
-ylim([0.4 1])
 grid on
 xlabel('Hz')
-title('NCC - experimental')
-legend('Tikhonov', 'TSVD')
-
-tikERPlot = zeros(11,1);
-tsvdERPlot = zeros(11,1);
-for ii = 1:11
-    tikERPlot(ii) = table2array(estimationCell{ii}(1,7));
-    tsvdERPlot(ii) = table2array(estimationCell{ii}(1,11));
-end
-figure
-plot(tikERPlot, 'b-o')
-hold on
-plot(tsvdERPlot, 'r-o')
-xticks(1:11)
-xticklabels(eigenFreqz./(2*pi))
-xtickangle(90)
-
-grid on
-xlabel('Hz')
-title('RE % - experimental')
-legend('Tikhonov', 'TSVD')
+title()

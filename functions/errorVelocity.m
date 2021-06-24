@@ -34,19 +34,19 @@ names_Results = {'qTIK' 'qTSVD' 'vTIK' 'vTSVD' 'vTIK_Fin' 'vTSVD_Fin'};
 [U,s,V] = csvd (G_p);
 
 % exact velocity norm
-normV = norm(v_GT_vector,2);
+
 [Qs, v_TSVD, v_TIK] = reguResults( k_L, lambda_L, measuredPressure, omega, rho, G_p, G_v );
 q_TIK = Qs.qTIK; 
 q_TSVD = Qs.qTSVD;
 
 v_TIK_Fin = getSameOrdering(v_TIK, violinMesh, xData, yData);   
 % metrics
-[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_GT_vector, normV);
+[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_GT_vector);
 
   
 
 v_TSVD_Fin = getSameOrdering(v_TSVD, violinMesh, xData, yData);   
-[nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_GT_vector, normV);
+[nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_GT_vector);
 
 velocityErrors = struct(names_Metrics{1}, nmseTIK,  names_Metrics{2}, nccTIK, names_Metrics{3}, normcTIK, names_Metrics{4}, reTIK,...
     names_Metrics{5}, nmseTSVD, names_Metrics{6}, nccTSVD, names_Metrics{7}, normcTSVD, names_Metrics{8}, reTSVD);
@@ -56,7 +56,7 @@ ESM_Results = struct(names_Results{1}, q_TIK , names_Results{2}, q_TSVD , names_
 end
 
 
-function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
+function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth)
     % NMSE
     %     figure(111)
 %     plot(1:length(vRegu), abs(vRegu), 'lineWidth', 1.2);
@@ -65,13 +65,14 @@ function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
 %     hold off;
 
 %     IN CASE OF NORMALIZATION
-%     vGroundthruth = abs(vGroundtruth)/max(abs(vGroundtruth));
+%     vGroundtruth = abs(vGroundtruth)/max(abs(vGroundtruth));
 %     vRegu = abs(vRegu)/max(abs(vRegu));
-   
+     normV = norm(vGroundtruth,2);
+    
 %     nmse  = 10*log10(norm( abs(vGroundtruth)/max(abs(vGroundtruth)) ...
 %                            - abs(vRegu)/max(abs(vRegu)) )^2 / ...
 %                         (norm(abs(vGroundtruth)/max(abs(vGroundtruth)))^2) );    
-     nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / ...
+      nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / ...
                        (normV)^2) ;
     %NCC
     ncc   = (abs(vRegu)'*abs(vGroundtruth)) / (norm(vRegu)*normV);
