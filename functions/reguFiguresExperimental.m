@@ -37,45 +37,60 @@ function [] = reguFiguresExperimental(violinMesh, v_TSVD, v_TIK, v_GT_vector, vi
     surf_vTIK = reshape(v_TIKF, [pY,pX]).';
     
     
-    figure(figureNum+1)
-
-    subplot 131
-    surf(XX,YY, abs(surfV)); view(2);
-    title('velocity groundTruth'); colorbar;
-    
-    subplot 132
-    surf(X,Y, abs(surf_vTSVD)); view(2);
-    title('TSVD velocity'); colorbar;
-     caxis([0 max(abs(surfV(:)))])
-
-    subplot 133
-    surf(X,Y, abs(surf_vTIK )); view(2);
-    title('Tik velocity'); colorbar;
-    sgtitle(titleStr);  
-     caxis([0 max(abs(surfV(:)))])   
-
 %     figure(figureNum+1)
-%     
-%     subplot 311
-%     surf(YY,-XX, abs(flip(surfV,2)),'EdgeColor','none'); view(2);
-%     title('Exact velocity'); colorbar;
-%     xlabel('x [m]')
-%     ylabel('y [m]')
-%     
-%     subplot 312
-%     surf(Y,-X, abs(flip(surf_vTSVD,2)),'EdgeColor','none'); view(2);
-%     title('TSVD velocity'); colorbar;
-%     xlabel('x [m]')
-%     ylabel('y [m]')
-%     caxis([0 max(abs(surfV(:)))])
 % 
-%     subplot 313
-%     surf(Y,-X, abs(flip(surf_vTIK,2) ),'EdgeColor','none'); view(2);
+%     subplot 131
+%     surf(XX,YY, abs(surfV)); view(2);
+%     title('velocity groundTruth'); colorbar;
+%     
+%     subplot 132
+%     surf(X,Y, abs(surf_vTSVD)); view(2);
+%     title('TSVD velocity'); colorbar;
+%      caxis([0 max(abs(surfV(:)))])
+% 
+%     subplot 133
+%     surf(X,Y, abs(surf_vTIK )); view(2);
 %     title('Tik velocity'); colorbar;
 %     sgtitle(titleStr);  
-%     xlabel('x [m]')
-%     ylabel('y [m]')
-%     caxis([0 max(abs(surfV(:)))]) 
+%      caxis([0 max(abs(surfV(:)))])   
+
+    figure(figureNum+1)
+    
+    subplot 311
+    surf(YY,-XX, abs(flip(surfV,2)),'EdgeColor','none'); view(2);
+    title('Exact velocity'); colorbar;
+    xlabel('x [m]')
+    ylabel('y [m]')
+    ax = gca;
+    ax.XMinorTick = 'on';
+    ax.YMinorTick = 'on';
+    ax.TickDir = 'out';
+    ax.FontSize = 12;
+    
+    subplot 312
+    surf(Y,-X, abs(flip(surf_vTSVD,2)),'EdgeColor','none'); view(2);
+    title('TSVD velocity'); colorbar;
+    xlabel('x [m]')
+    ylabel('y [m]')
+    ax = gca;
+    ax.XMinorTick = 'on';
+    ax.YMinorTick = 'on';
+    ax.TickDir = 'out';
+    ax.FontSize = 12;
+    
+    subplot 313
+    surf(Y,-X, abs(flip(surf_vTIK,2) ),'EdgeColor','none'); view(2);
+    title('Tik velocity'); colorbar;
+    sgtitle(titleStr,'fontSize', 18 );  
+
+    xlabel('x [m]')
+    ylabel('y [m]')
+    
+    ax = gca;
+    ax.XMinorTick = 'on';
+    ax.YMinorTick = 'on';
+    ax.TickDir = 'out';
+    ax.FontSize = 12;
      
      
     a=1; 

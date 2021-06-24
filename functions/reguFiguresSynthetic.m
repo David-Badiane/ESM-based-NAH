@@ -36,21 +36,35 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtu
     ylabel('y [m]')
     title('Exact velocity')
     colorbar 
+    ax = gca;
+    ax.XMinorTick = 'on';
+    ax.YMinorTick = 'on';
+    ax.TickDir = 'out';
+    ax.FontSize = 12;
+    
     subplot 312
     surf(X, Y, abs(surfVelRecTSVD),'EdgeColor','none');view(2);
     xlabel('x [m]')
     ylabel('y [m]')
     title('TSVD velocity')
     colorbar 
-    caxis([0 max(abs(surfVel(:)))])
+    ax = gca;
+    ax.XMinorTick = 'on';
+    ax.YMinorTick = 'on';
+    ax.TickDir = 'out';
+    ax.FontSize = 12;
+    
     subplot 313
     surf(X, Y, abs(surfVelRecTIK),'EdgeColor','none');view(2);
     xlabel('x [m]')
     ylabel('y [m]')
     title('Tik velocity')
     colorbar 
-    caxis([0 max(abs(surfVel(:)))])
-    sgtitle(titleStr);  
+    ax = gca;
+    ax.XMinorTick = 'on';
+    ax.YMinorTick = 'on';
+    ax.TickDir = 'out';
+    ax.FontSize = 12;    sgtitle(titleStr,'fontSize', 18 );  
 
     
     

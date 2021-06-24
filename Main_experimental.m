@@ -120,7 +120,7 @@ yStep = abs(yAx - circshift(yAx,+1));
 % The distance should be lattice/2  
 % lattice = min(Dxhologram, Dyhologram) = min spacial sampling sampling step
 zCenter = -0.5*min([min(xStep), min(yStep)]);
-plotData = false;
+plotData = true;
 experimentalData = true;
 
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
