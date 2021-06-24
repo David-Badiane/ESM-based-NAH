@@ -14,7 +14,6 @@ addpath(virtualPointsFolder)
 addpath(estimationsFolder)
 
 %% global variables
-plotHoloAndVel = false;
 
 nMics = 8;
 nMeas = 8;
@@ -40,12 +39,11 @@ X = reshape(violinMesh(:,1), [pY, pX]).';
 Y = reshape(violinMesh(:,2), [pY, pX]).';
 Z = reshape(violinMesh(:,3), [pY, pX]).';
 
-if plotHoloAndVel
-    figure(101)
-    surf(X,Y,Z);
-    xlabel('x  [m]'); ylabel('y  [m]'); zlabel('z  [m]');
-    zlim([0,0.1]); title('Violin Mesh');
-end
+figure(101)
+surf(X,Y,Z);
+xlabel('x  [m]'); ylabel('y  [m]'); zlabel('z  [m]');
+zlim([0,0.1]); title('Violin Mesh');
+
 %% Fetch and see hologram measured data
 pressureData = readtable('pressure_Data.csv');
 fNames = pressureData.Properties.VariableNames;
@@ -56,20 +54,18 @@ zHologram = max(Z(:)) + hologramDistance;
 hologramPoints =  [pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
 hologramMeshX = reshape( pressureData(:,1) , [nMeas, nMics]).'; 
 hologramMeshY = reshape( pressureData(:,2) , [nMeas, nMics]).'; 
-if plotHoloAndVel
-    for ii = 1:(length(pressureData(1,:)) -2)
-        figure(102)
-        zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]).';
-        surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
-        xlabel('X   [m]');
-        ylabel('Y   [m]');
-        titleStr = strrep(strrep(fNames{2+ii},'__', ' '),'_','.');
-        title([titleStr(1), titleStr(3:end), ' Hz']);
-        hold off;
-        pause(0.2);
-    end
-end
 
+for ii = 1:(length(pressureData(1,:)) -2)
+    figure(102)
+    zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]).';
+    surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
+    xlabel('X   [m]');
+    ylabel('Y   [m]');
+    titleStr = strrep(strrep(fNames{2+ii},'__', ' '),'_','.');
+    title([titleStr(1), titleStr(3:end), ' Hz']);
+    hold off;
+    pause(0.2);
+end
 
 %% Fetch and see velocity groundtruth Data
 
@@ -78,12 +74,11 @@ velocityFilename = 'velocity_Data';
 velocityData = readtable([velocityFilename,'.csv']);
 names = velocityData.Properties.VariableNames;
 velocityData = table2array(velocityData);
-if plotHoloAndVel
-    for ii = 1:length(velocityData(1,3:end))
-        [XX,YY,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, 103);
-        sgtitle(names{ii+2}) ;
-        pause(0.2);
-    end
+
+for ii = 1:length(velocityData(1,3:end))
+    [XX,YY,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, 103);
+    sgtitle(names{ii+2}) ;
+    pause(0.2);
 end
 
 %% Calculate normal points wrt the surface for Green's fxs gradient
@@ -125,7 +120,7 @@ yStep = abs(yAx - circshift(yAx,+1));
 % The distance should be lattice/2  
 % lattice = min(Dxhologram, Dyhologram) = min spacial sampling sampling step
 zCenter = -0.5*min([min(xStep), min(yStep)]);
-plotData = true;
+plotData = false;
 experimentalData = true;
 
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
@@ -227,34 +222,11 @@ for ii = 1:11
     tikNCCsPlot(ii) = table2array(estimationCell{ii}(1,5));
     tsvdNCCsPlot(ii) = table2array(estimationCell{ii}(1,9));
 end
-figure
-plot(tikNCCsPlot, 'b-o')
+plot(tikNCCsPlot)
 hold on
-plot(tsvdNCCsPlot, 'r-o')
+plot(tsvdNCCsPlot)
 xticks(1:11)
 xticklabels(eigenFreqz./(2*pi))
-xtickangle(90)
-ylim([0.4 1])
 grid on
 xlabel('Hz')
-title('NCC - experimental')
-legend('Tikhonov', 'TSVD')
-
-tikERPlot = zeros(11,1);
-tsvdERPlot = zeros(11,1);
-for ii = 1:11
-    tikERPlot(ii) = table2array(estimationCell{ii}(1,7));
-    tsvdERPlot(ii) = table2array(estimationCell{ii}(1,11));
-end
-figure
-plot(tikERPlot, 'b-o')
-hold on
-plot(tsvdERPlot, 'r-o')
-xticks(1:11)
-xticklabels(eigenFreqz./(2*pi))
-xtickangle(90)
-
-grid on
-xlabel('Hz')
-title('RE % - experimental')
-legend('Tikhonov', 'TSVD')
+title()

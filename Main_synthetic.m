@@ -74,6 +74,10 @@ gridTablesNames = {'grid n.', 'zVal', 'lambda_L', 'k_L',...
 
 estimationCell = cell(nModes,1);
 
+for ii = 1:nModes
+    structNames{ii} = ['f', int2str(ii)];
+end 
+
 %% COMPUTATION LOOP 
 
 % parameters setup
@@ -197,7 +201,7 @@ if userControl == 1
     filesList(1:2,:) = [];
     numFile = length(filesList) +1;
     disp(['writing File estimationStruct', num2str(numFile),'.mat']);   
-    save(['estimationStruct_', num2str(numFile),'.mat'], estimationStruct);
+    save(['estimationStruct_', num2str(numFile),'.mat'], 'estimationStruct');
     cd(baseFolder)
 end
 
@@ -220,3 +224,40 @@ for ii = 1:length(filesList)
 end
 
 cd(baseFolder)
+
+%% plot of metrics (to delete)
+tikNCCsPlot = zeros(46,1);
+tsvdNCCsPlot = zeros(46,1);
+for ii = 1:46
+    tikNCCsPlot(ii) = table2array(estimationCell{ii}(1,5));
+    tsvdNCCsPlot(ii) = table2array(estimationCell{ii}(1,9));
+end
+figure
+plot(tikNCCsPlot, 'b-o')
+hold on
+plot(tsvdNCCsPlot, 'r-o')
+xticks(1:46)
+xticklabels(eigenFreqz)
+xtickangle(90)
+grid on
+xlabel('Hz')
+title('NCC - numerical')
+legend('Tikhonov', 'TSVD')
+
+tikERPlot = zeros(46,1);
+tsvdERPlot = zeros(46,1);
+for ii = 1:46
+    tikERPlot(ii) = table2array(estimationCell{ii}(1,7));
+    tsvdERPlot(ii) = table2array(estimationCell{ii}(1,11));
+end
+figure
+plot(tikERPlot, 'b-o')
+hold on
+plot(tsvdERPlot, 'r-o')
+xticks(1:46)
+xticklabels(eigenFreqz)
+xtickangle(90)
+grid on
+xlabel('Hz')
+title('RE % - numerical')
+legend('Tikhonov', 'TSVD')
