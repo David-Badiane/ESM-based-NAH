@@ -56,24 +56,19 @@ ESM_Results = struct(names_Results{1}, q_TIK , names_Results{2}, q_TSVD , names_
 end
 
 
-function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth)
-    % NMSE
-    %     figure(111)
-%     plot(1:length(vRegu), abs(vRegu), 'lineWidth', 1.2);
+function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth, normV)
+%     figure(111)
+%     plot(1:length(vRegu), abs(vRegu)/max(abs(vRegu)) , 'lineWidth', 1.2);
 %     hold on; 
-%     plot(1:length(vGroundtruth), abs(vGroundtruth))
+%     plot(1:length(vGroundtruth), abs(vGroundtruth)/max(abs(vGroundtruth)))
 %     hold off;
 
 %     IN CASE OF NORMALIZATION
 %     vGroundtruth = abs(vGroundtruth)/max(abs(vGroundtruth));
 %     vRegu = abs(vRegu)/max(abs(vRegu));
-     normV = norm(vGroundtruth,2);
-    
-%     nmse  = 10*log10(norm( abs(vGroundtruth)/max(abs(vGroundtruth)) ...
-%                            - abs(vRegu)/max(abs(vRegu)) )^2 / ...
-%                         (norm(abs(vGroundtruth)/max(abs(vGroundtruth)))^2) );    
-      nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / ...
-                       (normV)^2) ;
+
+    % NMSE
+    nmse = 10*log10(norm( vGroundtruth - vRegu )^2 / (normV)^2) ;
     %NCC
     ncc   = (abs(vRegu)'*abs(vGroundtruth)) / (norm(vRegu)*normV);
     

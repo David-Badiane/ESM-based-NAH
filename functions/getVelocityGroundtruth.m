@@ -21,7 +21,7 @@ X = reshape(violinMesh(:,1), [pY, pX]).';
 Y = reshape(violinMesh(:,2), [pY, pX]).';
 Z = reshape(violinMesh(:,3), [pY, pX]).';
 
-F1 = scatteredInterpolant(velocityData(:,1),velocityData(:,2), abs(v_ex_vector));
+F1 = scatteredInterpolant(velocityData(:,1),velocityData(:,2), abs(v_ex_vector), 'natural');
 
 vq1 = F1(X,Y);
 vRows = length(vq1(:,1)); 

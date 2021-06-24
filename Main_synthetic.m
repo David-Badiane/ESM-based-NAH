@@ -18,9 +18,11 @@ nMeas = 8;
 velocityFileName = 'vel_1.csv'; 
 pressureFileName = 'acpr_1.csv';
 
+plotImportImgs = false;
+
 % import synthetic data
 [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = ...
-    importData(velocityFileName, pressureFileName, nMics, nMeas);
+    importData(velocityFileName, pressureFileName, nMics, nMeas, plotImportImgs);
 eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 %conversion from [mm] to [m]

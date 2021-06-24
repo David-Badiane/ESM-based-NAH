@@ -14,6 +14,7 @@ addpath(virtualPointsFolder)
 addpath(estimationsFolder)
 
 %% global variables
+plotHoloAndVel = false;
 
 nMics = 8;
 nMeas = 8;
@@ -39,11 +40,12 @@ X = reshape(violinMesh(:,1), [pY, pX]).';
 Y = reshape(violinMesh(:,2), [pY, pX]).';
 Z = reshape(violinMesh(:,3), [pY, pX]).';
 
-figure(101)
-surf(X,Y,Z);
-xlabel('x  [m]'); ylabel('y  [m]'); zlabel('z  [m]');
-zlim([0,0.1]); title('Violin Mesh');
-
+if plotHoloAndVel
+    figure(101)
+    surf(X,Y,Z);
+    xlabel('x  [m]'); ylabel('y  [m]'); zlabel('z  [m]');
+    zlim([0,0.1]); title('Violin Mesh');
+end
 %% Fetch and see hologram measured data
 pressureData = readtable('pressure_Data.csv');
 fNames = pressureData.Properties.VariableNames;
@@ -54,18 +56,20 @@ zHologram = max(Z(:)) + hologramDistance;
 hologramPoints =  [pressureData(:,1:2), zHologram*ones(size(pressureData(:,1)))] ; 
 hologramMeshX = reshape( pressureData(:,1) , [nMeas, nMics]).'; 
 hologramMeshY = reshape( pressureData(:,2) , [nMeas, nMics]).'; 
-
-for ii = 1:(length(pressureData(1,:)) -2)
-    figure(102)
-    zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]).';
-    surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
-    xlabel('X   [m]');
-    ylabel('Y   [m]');
-    titleStr = strrep(strrep(fNames{2+ii},'__', ' '),'_','.');
-    title([titleStr(1), titleStr(3:end), ' Hz']);
-    hold off;
-    pause(0.2);
+if plotHoloAndVel
+    for ii = 1:(length(pressureData(1,:)) -2)
+        figure(102)
+        zPress = reshape(pressureData(:,2+ii), [nMeas, nMics]).';
+        surf(hologramMeshX, hologramMeshY, abs(zPress)); view(2);
+        xlabel('X   [m]');
+        ylabel('Y   [m]');
+        titleStr = strrep(strrep(fNames{2+ii},'__', ' '),'_','.');
+        title([titleStr(1), titleStr(3:end), ' Hz']);
+        hold off;
+        pause(0.2);
+    end
 end
+
 
 %% Fetch and see velocity groundtruth Data
 
@@ -74,11 +78,12 @@ velocityFilename = 'velocity_Data';
 velocityData = readtable([velocityFilename,'.csv']);
 names = velocityData.Properties.VariableNames;
 velocityData = table2array(velocityData);
-
-for ii = 1:length(velocityData(1,3:end))
-    [XX,YY,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, 103);
-    sgtitle(names{ii+2}) ;
-    pause(0.2);
+if plotHoloAndVel
+    for ii = 1:length(velocityData(1,3:end))
+        [XX,YY,surfV] = getVelocityGroundtruth(velocityData(:,ii+2), velocityFilename, 103);
+        sgtitle(names{ii+2}) ;
+        pause(0.2);
+    end
 end
 
 %% Calculate normal points wrt the surface for Green's fxs gradient
