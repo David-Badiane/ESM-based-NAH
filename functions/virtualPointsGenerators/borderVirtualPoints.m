@@ -1,6 +1,14 @@
 function [border] = borderVirtualPoints(pts, xBorder, yBorder, zVal)
-%FORMpts Summary of this function goes here
-%   Detailed explanation goes here
+%borderVirtualPoints this function creates a grid with theì border of the
+%geometry
+% INPUTS
+% pts  [nPts x 3] (2DArray) = points of the mesh
+% xBorder         (double)  = how many points take from the border along X
+% yBorder         (double)  = how many points take from the border along y
+% zVal            (double)  = value of the z coordinate of the grid
+% OUTPUTS
+% border [nPts x 3](2DArray) = grid with the border of the geometry
+
 close all
 
     x = pts(:,1);

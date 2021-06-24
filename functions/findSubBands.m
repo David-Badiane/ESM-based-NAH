@@ -2,7 +2,6 @@
 %findSubBands find the bands around the peaks of an FRF, the bands are
 %             individuated through the computation of the gradient and 
 %             its change of sign
-
 %   INPUTS
 %   Hv          (1DArray) = FRF to analyse;
 %   fAxis       (1DArray) = frequency axis of the FRF;
@@ -11,13 +10,10 @@
 %   deltafLocs  (1DArray) = (fLocs - circshift(fLocs,1)) to coarsely get
 %                           the subbands boundaries
 %   plotData    (boolean) = see images
-
 %   OUTPUTS
-
 %   freqIndexes   (1DArray) = frequency indexes of the bands after gradient
 %       computation - the limit bwLeft is independent of bwRight - subbands 
 %       may be asymmetric;
-
 %   coarseIndexes (1DArray) = coarse indexes obtained by evaluating deltafLocs -
 %                             subbands are symmetric;
 

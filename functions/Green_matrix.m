@@ -2,7 +2,9 @@ function [G, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints, o
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% GREEN_MATRIX this funtion compute the Green's matrix                   %%%%%%%%%%%%
+%  GREEN_MATRIX this funtion computes the Green's matrix, necessary to find
+%  eq sources weights
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

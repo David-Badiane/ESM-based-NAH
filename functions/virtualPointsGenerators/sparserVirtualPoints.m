@@ -1,9 +1,14 @@
 function [outPts] = sparserVirtualPoints(pts,controller, xCut, yCut)
 %SPARSERVIRTUALPOINTS Summary of this function goes here
-%   Detailed explanation goes here
-% controller = 0, modular sparsing
-% controller = 1, random sparsing
-% controller = 2, modular random sparsing
+% INPUTS
+% pts        (2DArray)= points of the mesh
+% controller (double) = 0, modular sparsing
+% controller          = 1, random sparsing
+% controller          = 2, modular random sparsing - modular weighted randomically
+% xCut       (double) = for modular sparsing along x, takes 1 point out of xCut
+% yCut       (double) = for modular sparsing along x, takes 1 point out of xCut
+% OUTPUTS
+% outPs      (2DArray)= out matrix with sparser points
 
     x = pts(:,1); y = pts(:,2); z = pts(:,3);    
     xAxis = unique(x);

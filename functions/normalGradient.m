@@ -1,22 +1,18 @@
 function [G_v] = normalGradient(virtualPoints , platePoints , omega, normalPoints)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% NORMAL GRADIENT tis functinon compute the normal gradient of the       %%%%%%%%%%%%
 %%% Green's matrix                                                         %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% INPUTS                                                                 %%%%%%%%%%%%
 %%% virtualPoints = x,y,z coordinates of the virtual point (2DArray)       %%%%%%%%%%%%
 %%% platePoints  = x,y,z coordinates of surface points (2DArray)           %%%%%%%%%%%%
 %%% omega = eigenfrequencies in radians per seconds (1DArray)              %%%%%%%%%%%%
 %%% normalPoints = x,y,z components of the normal vector (2DArray)         %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%% OUTPUTS                                                                %%%%%%%%%%%%
 %%% G_v = normal gradient of Green's matrix for each omega (cell array)    %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 c = 343; % [m/s] speed of sound
 

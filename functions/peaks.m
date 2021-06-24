@@ -1,7 +1,6 @@
 function [peaksLoc, fpeakPositions] = peaks(matrix, f, fThreshold, ignorePeaksLow, ignorePeaksHigh,...
     highPeaksParams, lowPeaksParams)
 %PEAKS finds peaks of the FRF by analysing their cumulative sum
-
 %   INPUTS
 %   matrix           (2Darray) = matrix of the H1 estimator;
 %   f                (1Darray)   = frequency axis;
@@ -10,7 +9,6 @@ function [peaksLoc, fpeakPositions] = peaks(matrix, f, fThreshold, ignorePeaksLo
 %   ignorePeaksHigh  (double)  = high threshold - ignore peaks at higher frequency than it;
 %   highPeaksParams  (1Darray) = [2x1] = minPeakProminence, minPeak width for highFreq findpeaks;
 %   lowPeaksParams   (1Darray) = [2x1] = minPeakProminence, minPeak width for lowFreq findpeaks;
-
 %   OUTPUTS
 %   peaksLoc         (array)   = peaks location values;
 %   fpeakPositions   (array)   = peaks location indices;

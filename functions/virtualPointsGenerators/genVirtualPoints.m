@@ -1,6 +1,12 @@
 function genVirtualPoints(pts, fileName, controller, zVal,virtualPtsFolder, saveData)
 
-% controller = 0, gen rectangular grids
+% INPUTS
+% pts  [nPts x 3]  (2DArray) = points of the mesh
+% fileName          (string) = name of the .csv file containing the points   
+%
+%   ex ['VP_1'] {.csv NOT NEEDED}
+%
+% controller        (double) = 0, gen rectangular grids
 % controller = 1, gen circular grids
 % controller = 2, gen ellipsoidal grids
 % controller = 3, gen circular + border
@@ -9,6 +15,13 @@ function genVirtualPoints(pts, fileName, controller, zVal,virtualPtsFolder, save
 % CONTROLLER = 6, GEN BORDER ONLY
 % controller = 7, gen inner only
 % controller = 8, gen rect + border + inner
+% zVal             (double) = value of the z coordinate of the grid
+% virtualPtsFolder (string) = filepath to the folder containing the virtual points
+% saveData        (boolean) = if true creates the csv file of name fileName
+
+% OUTPUT
+% ~
+
 baseFolder = pwd;
 cd(virtualPtsFolder)
 switch controller

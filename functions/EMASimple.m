@@ -11,7 +11,6 @@ function [Hv,f0, fLocs, csis, Q, modeShapes] = EMASimple(HvSVD, fAxis,minPeakVal
 %   fAxis        (1DArray)   = frequency axis of the spectrum;
 %   minPeakVal   (double)  = minimum value of the peaks for peak analysis;
 %   minPeakWidth (double)  = minimum value of the width of the maximum;
-
 %   OUTPUTS
 %   Hv           (1DArray)   = cutted H1 estimator;
 %   f0           (1DArray)   = frequency locations of the peaks;

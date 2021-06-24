@@ -1,12 +1,10 @@
 function [X,Y,surfV] = getVelocityGroundtruth(v_ex_vector, velocityFilename, figureNum)
 % GETVELOCITYGROUNDTRUTH this function converts the scattered points of the
 % velocity vector into a surface through the fx. ScatteredInterpolant
-
 %   INPUTS
 %   v_ex_vector      (1Darray) = vector of the velocities groung truth ;
 %   velocityFilename (string)  = name of the velocityData.csv file to see;
 %   figureNum        (double)  = number of the figure to plot;
-
 %   OUTPUTS
 %   X                (2Darray)   = x matrix of the mesh;
 %   Y                (2Darray)   = y matrix of the mesh;
