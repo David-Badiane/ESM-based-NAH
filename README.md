@@ -1,7 +1,7 @@
 # ESM-based-NAH
 Equivalent Source Method for Near-field Acoustic Holography. Project for the Project Course of Polimi Music and Acoustic Engineering
 
-Raw measurements : https://polimi365-my.sharepoint.com/:f:/g/personal/10743504_polimi_it/ElZaXDe-48NIt7RkcwDgemUB_qcxJ5-4a2B1z9xCsb_G9A?e=9uiU2Q
+[download acceleration and pressure measurements](https://polimi365-my.sharepoint.com/:f:/g/personal/10743504_polimi_it/ElZaXDe-48NIt7RkcwDgemUB_qcxJ5-4a2B1z9xCsb_G9A?e=9uiU2Q)
 
 ## Introduction
 
@@ -13,7 +13,7 @@ This projects adopts equivalent source method (ESM) based NAH to a violin back-p
   
   The basic idea of ESM is that the acoustic field of the vibrating object can be approximated to the field produced by a set of virtual point sources, called equivalent sources, located on a surface right behind the vibrating object. Finding the complex weights of the equivalent sources from the pressure measurements means solving an undetermined problem. ESM is a two steps method: first, we obtain the weights through regularization techniques; then, the weights are back-propagated to the reconstruction surface by the means of the proper driving functions (based on 3D Green's functions) to estimate the vibration velocity of the object.
   
-  <p align="center"><img src="https://github.com/David-Badiane/ESM-based-NAH/blob/main/Figures/ESM.png" width=70% height=70% centered>
+  <p align="center"><img src="https://github.com/David-Badiane/ESM-based-NAH/blob/main/Figures/ESM.png" width=70% height=60% centered>
   
   The free parameters of the method are the number of equivalent sources, their position and their distance with respect to the vibrating object. The choice of the free parameters has a strong impact on the method accuracy, so a careful and correct choice of those parameters is necessary. It is important to note that the parameters space of ESM is so wide that individuating the best solution is still an unresolved issue. Here a block diagram of the method, where Gp is the Green's function matrix hologram to virtual sources and Gv is the normal gradient of the Green's functions matrix virtual sources to reconstruction surface.
 
@@ -30,22 +30,30 @@ This projects adopts equivalent source method (ESM) based NAH to a violin back-p
   
 ### Executing programs
 
-* *Main_experimental.m* - apply ESM on experimental data.
-* *Main_synthetic.m* - apply ESM on synthetic data.
-* *platePoints.m* imports from the .stl scanned mesh of the violin.
-* *preprocessing_pressure.m* is used to compute the pressure data in the hologram point from measurement data. Loads the audio files, cuts the different acquisition for every channel and apply to them a temporal exponential filter. From this cleaned files calculates the H1 estimator and extract the pressure field for every eigen freqencies.
-* *symmetrizeViolinMesh.m* symmetrizes the point of the violin scanned grid.
-* *velocityGroundTruth.m* computes the grid with the velocity ground truth value and coordinates, from the .csv file of measurement data, for every eigen frequencies.
-* *violinMeshGenerator.m* creates the violin mesh from a grid of points.
-* *virtualPointsGenerator.m* generates the grid of virtual points through the user input arguments.
-
+* *Main_experimental.m* - apply ESM on experimental data;
+* *Main_synthetic.m* - apply ESM on synthetic data;
+* *preprocessing_pressure.m* is used to compute the pressure data in the hologram point from measurement data;
+* *velocityGroundTruth.m* computes the grid with the velocity ground truth value and coordinates, from the .csv file of measurement data, for every eigen frequencies;
+* *violinMeshGenerator.m* generates violinMesh from large .stl file;
+* *virtualPointsGenerator.m* generates the grid of virtual points of various geometries;
+    
+#### Main experimental // Main Synthetic
+    They have the same structure
+#### preprocessing_pressure
+    
+#### velocityGroundTruth
+    
+#### violinMeshGenerator
+    
+#### virtualPointsGenerator
+    
 ### Folders
-* **acq_11_06**: velocity acquisitions of the accelerometer (.csv).
-* **CSV**: synthetic data of pressure and velocity (.csv).
-* **Data**: file .mat and .csv of sensible data of the code, useful to run it without reading all the experimental or synthetic data everytime the code is launched.
-* **functions**: contains all the function used in the scripts.
-* **VioliniMeshes**: different dimensions of grids for the violin mesh.
-* **VPGrids**: virtual point grids.
+* **Exp_Measurements**: ;
+* **CSV**: synthetic data of pressure and velocity (.csv);
+* **Data**: file .mat and .csv of sensible data of the code, useful to run it without reading all the experimental or synthetic data everytime the code is launched;
+* **functions**: contains all the function used in the scripts;
+* **VioliniMeshes**: different dimensions of grids for the violin mesh;
+* **VPGrids**: virtual point grids;
 
 ### Important functions
 * *applyESM.m* this function applies all ESM steps = (problem solution) + metrics + figures  

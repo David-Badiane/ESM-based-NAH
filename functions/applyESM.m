@@ -89,9 +89,8 @@ if plotData
     v_TSVD = ESM_Results.vTSVD;
     v_TIK = ESM_Results.vTIK;
     
-    titleStr = ['L curve  f = ',num2str(omega/2/pi), ...
-                ' Hz   \\  z = ', num2str(virtualPoints(1,3)), ...
-                ' scale X ', num2str(scaleX), ' Y ',  num2str(scaleY) ];
+    titleStr = ['  f = ',num2str(omega/2/pi), ...
+                ' Hz   \\  z = ', num2str(virtualPoints(1,3)) , '  m' ];
     figureNum = 660;
     if experimentalData 
         reguFiguresExperimental(violinMesh, v_TSVD, v_TIK,  v_GT_vector,virtualPoints, titleStr, pressure  , figureNum);
