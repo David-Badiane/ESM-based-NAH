@@ -1,6 +1,6 @@
 function [velocityErrors, ESM_Results] = errorVelocity(v_GT_vector, violinMesh, ...
 xData, yData, measuredPressure, G_p, G_v, lambda_L, k_L,... 
-omega, rho)
+omega, rho, experimentalData)
 
 % ERRORVELOCITY this function perform the whole ESM method,
 % interpolates over the measured points( xDAta, yData) the estimated velocity,
@@ -38,14 +38,15 @@ names_Results = {'qTIK' 'qTSVD' 'vTIK' 'vTSVD' 'vTIK_Fin' 'vTSVD_Fin'};
 [Qs, v_TSVD, v_TIK] = reguResults( k_L, lambda_L, measuredPressure, omega, rho, G_p, G_v );
 q_TIK = Qs.qTIK; 
 q_TSVD = Qs.qTSVD;
-
-v_TIK_Fin = getSameOrdering(v_TIK, violinMesh, xData, yData);   
+if experimentalData
+    v_TIK_Fin = getSameOrdering(v_TIK, violinMesh, xData, yData); 
+    v_TSVD_Fin = getSameOrdering(v_TSVD, violinMesh, xData, yData);  
+else
+    v_TIK_Fin = v_TIK;
+    v_TSVD_Fin = v_TSVD;
+end
 % metrics
-[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_GT_vector);
-
-  
-
-v_TSVD_Fin = getSameOrdering(v_TSVD, violinMesh, xData, yData);   
+[nmseTIK, nccTIK, normcTIK, reTIK] = metrics(v_TIK_Fin, v_GT_vector); 
 [nmseTSVD, nccTSVD, normcTSVD, reTSVD] = metrics(v_TSVD_Fin, v_GT_vector);
 
 velocityErrors = struct(names_Metrics{1}, nmseTIK,  names_Metrics{2}, nccTIK, names_Metrics{3}, normcTIK, names_Metrics{4}, reTIK,...
@@ -57,6 +58,7 @@ end
 
 
 function [nmse, ncc, normc, re] = metrics(vRegu, vGroundtruth)
+% to debug
 %     figure(111)
 %     plot(1:length(vRegu), abs(vRegu)/max(abs(vRegu)) , 'lineWidth', 1.2);
 %     hold on; 
@@ -89,7 +91,7 @@ function vRegu_Fin = getSameOrdering(vRegu, violinMesh, xData, yData)
     % adds nan to create a mesh to interpolate
     vRegu_Fin = addNans(violinMesh, vRegu);
     % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-    vRegu_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(vRegu_Fin)], xData.', yData.', pX, pY, false);
+    vRegu_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(vRegu_Fin)], xData.', yData.', pX, pY, true);
     vRegu_Fin = vRegu_Fin(:);
     % cancel nan from velocity vector
     vRegu_Fin(isnan(vRegu_Fin)) = [];

@@ -65,7 +65,8 @@ lambda_L = l_curve (U,s,pressure);   % Tikhonov reg params
 k_L = l_curve (U,s,pressure,'tsvd'); % Truncated-SVD reg param
 
 % Compute 
-[velocityErrors, ESM_Results] = errorVelocity(v_GT_vector, violinMesh,xData, yData, pressure, G_p, G_v, lambda_L, k_L, omega, rho);
+[velocityErrors, ESM_Results] = errorVelocity(v_GT_vector, violinMesh,xData, yData, pressure,...
+    G_p, G_v, lambda_L, k_L, omega, rho, experimentalData);
 % store results
 ESM_metrics(1) =  zVal;                                % 'zVal'
 ESM_metrics(2) =  lambda_L;                            % 'lambda_L' 

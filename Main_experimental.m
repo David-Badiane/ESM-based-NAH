@@ -125,7 +125,6 @@ yStep = abs(yAx - circshift(yAx,+1));
 % The distance should be lattice/2  
 % lattice = min(Dxhologram, Dyhologram) = min spacial sampling sampling step
 zCenter = -0.5*min([min(xStep), min(yStep)]);
-plotData = true;
 experimentalData = true;
 
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
@@ -134,6 +133,7 @@ disp(fileList(3:end));
 
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
+plotData = input('plot images of the algorithm?  [true/false]');
 
 %% OPTIMIZATION
 if userControl == 0
@@ -218,16 +218,16 @@ if userControl == 1
     disp(['writing File estimationStruct', num2str(numFile),'.mat']);   
     save(['estimationStruct_', num2str(numFile),'.mat'], 'estimationStruct');
     cd(baseFolder)
-end
-
-%% plot of metrics (to delete)
+    
+    %% plot of metrics
 tikNCCsPlot = zeros(11,1);
 tsvdNCCsPlot = zeros(11,1);
 for ii = 1:11
     tikNCCsPlot(ii) = table2array(estimationCell{ii}(1,5));
     tsvdNCCsPlot(ii) = table2array(estimationCell{ii}(1,9));
 end
-figure
+
+figure(221)
 plot(tikNCCsPlot, 'b-o')
 hold on
 plot(tsvdNCCsPlot, 'r-o')
@@ -236,7 +236,8 @@ xticklabels(eigenFreqz./(2*pi))
 xtickangle(90)
 ylim([0.4 1])
 grid on
-xlabel('Hz')
+xlabel('N modes');
+ylabel('NCC');
 title('NCC - experimental')
 legend('Tikhonov', 'TSVD')
 
@@ -246,7 +247,7 @@ for ii = 1:11
     tikERPlot(ii) = table2array(estimationCell{ii}(1,7));
     tsvdERPlot(ii) = table2array(estimationCell{ii}(1,11));
 end
-figure
+figure(222)
 plot(tikERPlot, 'b-o')
 hold on
 plot(tsvdERPlot, 'r-o')
@@ -255,6 +256,10 @@ xticklabels(eigenFreqz./(2*pi))
 xtickangle(90)
 
 grid on
-xlabel('Hz')
+xlabel('N modes')
+ylabel(' RE %');
 title('RE % - experimental')
 legend('Tikhonov', 'TSVD')
+
+end
+

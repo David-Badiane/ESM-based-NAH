@@ -23,6 +23,8 @@ plotImportImgs = false;
 % import synthetic data
 [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = ...
     importData(velocityFileName, pressureFileName, nMics, nMeas, plotImportImgs);
+fCut = 1400;
+eigenFreqz = eigenFreqz(eigenFreqz<fCut);
 eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
 %conversion from [mm] to [m]
@@ -33,7 +35,7 @@ end
 
 %% Setup of global variables 
 
-nModes = 46;
+nModes = length(eigenFreqz);
 rho = 1.2; % [Kg/m3] air density 
 
 freqzNames = cell(nModes,1);
@@ -89,12 +91,14 @@ yStep = abs(yAx(end) - yAx(end-1));
 % The distance should be lattice/2  
 % lattice = min(Dxhologram, Dyhologram) = min spacial sampling sampling step
 zCenter = -0.5*min([xStep, yStep]);
-plotData = true;
+
 experimentalData = false;
  
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
+plotData = input('plot images of the algorithm?  [true/false]');
+
 %% OPTIMIZATION
 
 if userControl == 0
@@ -129,8 +133,7 @@ if userControl == 0
                                 gridTablesNames, plotData, experimentalData );
 
         options = optimset('fminsearch');
-        options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',1,'MaxIter', 1,...
-        'DiffMinChange', 1, 'DiffMaxChange', 200); 
+        options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',maxFun,'MaxIter', maxIter); 
 
         % minimization
         [zpar,fval, exitflag, output] = fminsearch(fun, [zCenter 1 1].', options);
@@ -172,7 +175,7 @@ if userControl == 1
         measuredPressure = pressureFields{ii};
         meshSize = numel(measuredPressure);
         measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-        measuredPressure = whiteNoise(measuredPressure, 20); % add white gaussian noise to the mesurement
+        measuredPressure = whiteNoise(measuredPressure,20); % add white gaussian noise to the mesurement
 
         % velocity GroundTruth vector setup
         v_GT = velocityFields{ii};   
@@ -203,6 +206,48 @@ if userControl == 1
     disp(['writing File estimationStruct', num2str(numFile),'.mat']);   
     save(['estimationStruct_', num2str(numFile),'.mat'], 'estimationStruct');
     cd(baseFolder)
+    
+    
+% plot of metrics
+tikNCCsPlot = zeros(11,1);
+tsvdNCCsPlot = zeros(11,1);
+for ii = 1:11
+    tikNCCsPlot(ii) = table2array(estimationCell{ii}(1,5));
+    tsvdNCCsPlot(ii) = table2array(estimationCell{ii}(1,9));
+end
+figure(221)
+plot(tikNCCsPlot, 'b-o')
+hold on
+plot(tsvdNCCsPlot, 'r-o')
+xticks(1:11)
+xticklabels(eigenFreqz./(2*pi))
+xtickangle(90)
+ylim([0.4 1])
+grid on
+xlabel('N mode');
+ylabel('NCC');
+title('NCC - synthetic')
+legend('Tikhonov', 'TSVD')
+
+tikNMSEPlot = zeros(11,1);
+tsvdNMSEPlot = zeros(11,1);
+for ii = 1:11
+    tikNMSEPlot(ii) = table2array(estimationCell{ii}(1,4));
+    tsvdNMSEPlot(ii) = table2array(estimationCell{ii}(1,8));
+end
+figure(222)
+plot(tikNMSEPlot, 'b-o')
+hold on
+plot(tsvdNMSEPlot, 'r-o')
+xticks(1:11)
+xticklabels(eigenFreqz./(2*pi))
+xtickangle(90)
+
+grid on
+xlabel('N mode');
+ylabel('NMSE  [dB]')
+title('NMSE - synthetic')
+legend('Tikhonov', 'TSVD')
 end
 
 %% Additional - See Virtual Points grids
@@ -212,52 +257,21 @@ filesList = ls(virtualPointsFolder);
 filesList(1:2,:) = [];
 cd(virtualPointsFolder)
 figure(150)
-
-for ii = 1:length(filesList)
+if length(filesList(:,1)) == 1
+    filesAxis = 1;
+else
+    filesAxis = 1:length(filesList(:,1));
+end
+for ii = filesAxis
   idx = find(filesList(ii,:)== '.');
   virtualPoints = table2array(readtable(filesList(ii,1:idx+3))); 
   plot3(virtualPoints(:,2), virtualPoints(:,1),  virtualPoints(:,3), '.', 'markerSize', 10);
   hold on;
-  plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3));
+  plot3(violinMesh(:,1), violinMesh(:,2), violinMesh(:,3),'x');
   hold off;
   pause(1);
 end
 
 cd(baseFolder)
 
-%% plot of metrics (to delete)
-tikNCCsPlot = zeros(46,1);
-tsvdNCCsPlot = zeros(46,1);
-for ii = 1:46
-    tikNCCsPlot(ii) = table2array(estimationCell{ii}(1,5));
-    tsvdNCCsPlot(ii) = table2array(estimationCell{ii}(1,9));
-end
-figure
-plot(tikNCCsPlot, 'b-o')
-hold on
-plot(tsvdNCCsPlot, 'r-o')
-xticks(1:46)
-xticklabels(eigenFreqz)
-xtickangle(90)
-grid on
-xlabel('Hz')
-title('NCC - numerical')
-legend('Tikhonov', 'TSVD')
 
-tikERPlot = zeros(46,1);
-tsvdERPlot = zeros(46,1);
-for ii = 1:46
-    tikERPlot(ii) = table2array(estimationCell{ii}(1,7));
-    tsvdERPlot(ii) = table2array(estimationCell{ii}(1,11));
-end
-figure
-plot(tikERPlot, 'b-o')
-hold on
-plot(tsvdERPlot, 'r-o')
-xticks(1:46)
-xticklabels(eigenFreqz)
-xtickangle(90)
-grid on
-xlabel('Hz')
-title('RE % - numerical')
-legend('Tikhonov', 'TSVD')

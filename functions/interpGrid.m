@@ -25,10 +25,13 @@ y = reshape(yData, [length(yData(1,:))*length(yData(:,1)),1]);
 zCordsinter = griddata(xCords,yCords,zCords,xData.',yData.');
  
 if plotData
-figure()
+figure(120)
 plot3(xData,yData,zCordsinter, '.', 'markerSize', 20);
 hold on 
 plot3(meshPoints(:,1),meshPoints(:,2),meshPoints(:,3), '.');
+xlabel(' x [m] ');
+ylabel('z [m]');
 
+end
 end
 

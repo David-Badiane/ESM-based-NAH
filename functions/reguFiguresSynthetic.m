@@ -26,7 +26,7 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtu
 
     surfVelRecTSVD = reshape( v_TSVD_F, [pY, pX]).'; 
     surfVelRecTIK = reshape( v_TIK_F , [pY, pX]).'; 
-    surfVel = reshape( v_ex , [pY, pX]).';
+    surfVel = reshape( v_ex , [ pY, pX]).';
 
     figure(figureNum) 
         
