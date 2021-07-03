@@ -30,12 +30,12 @@ This projects adopts equivalent source method (ESM) based NAH to a violin back-p
   
 ### Executing programs
 
-* *Main_experimental.m* - apply ESM on experimental data;
-* *Main_synthetic.m* - apply ESM on synthetic data;
-* *preprocessing_pressure.m* is used to compute the pressure data in the hologram point from measurement data;
-* *velocityGroundTruth.m* computes the grid with the velocity ground truth value and coordinates, from the .csv file of measurement data, for every eigen frequencies;
-* *violinMeshGenerator.m* generates violinMesh from large .stl file;
-* *virtualPointsGenerator.m* generates the grid of virtual points of various geometries;
+* **Main_experimental.m** - apply ESM on experimental data;
+* **Main_synthetic.m** - apply ESM on synthetic data;
+* **preprocessing_pressure.m** is used to compute the pressure data in the hologram point from measurement data;
+* **velocityGroundTruth.m** computes the grid with the velocity ground truth value and coordinates, from the .csv file of measurement data, for every eigen frequencies;
+* **violinMeshGenerator.m** generates violinMesh from large .stl file;
+* **virtualPointsGenerator.m** generates the grid of virtual points of various geometries;
     
 #### Main Synthetic
 Applies ESM on simulated data.
@@ -92,7 +92,7 @@ This script generates grids of virtual points choosing between different geometr
 For each chosen geometry, the user can decide the level of sparsity of the grid,adjust its size and choose the downsampling parameters.  The functions used forthe virtual points generation are in the folder\functions\virtualPointsGenerators.
     
 ### Folders
-* **Exp_Measurements**: ;
+* **Exp_Measurements**: folder containing the experimental data;
 * **CSV**: synthetic data of pressure and velocity (.csv);
 * **Data**: file .mat and .csv of sensible data of the code, useful to run it without reading all the experimental or synthetic data everytime the code is launched;
 * **functions**: contains all the function used in the scripts;
@@ -100,13 +100,13 @@ For each chosen geometry, the user can decide the level of sparsity of the grid,
 * **VPGrids**: virtual point grids;
 
 ### Important functions
-* *applyESM.m* this function applies all ESM steps = (problem solution) + metrics + figures  
-* *errorVelocity.m* this function computes the error through different metrics and save it into a struct.
-* *getVelocityGroundtruth.m* this function calculates the array velocity into surface.
-* *getVirtualPoints.m* this function calculates the virtual points grid.
-* *Green_matrix.m* this funtion compute the Green's matrix.
-* *importData.m* this function read the csv pressure and normal velocity extract their data and sotre the in a cell arrays
-* *normalGradient.m* this functinon compute the normal gradient of the Green's matrix
+* **applyESM.m** this function applies all ESM steps = (problem solution) + metrics + figures  
+* **errorVelocity.m** this function computes the error through different metrics and save it into a struct.
+* **getVelocityGroundtruth.m** this function calculates the array velocity into surface.
+* **getVirtualPoints.m** this function calculates the virtual points grid.
+* **Green_matrix.m** this funtion compute the Green's matrix.
+* **importData.m** this function read the csv pressure and normal velocity extract their data and sotre the in a cell arrays
+* **normalGradient.m** this functinon compute the normal gradient of the Green's matrix
 
 ## Help
 
