@@ -50,7 +50,7 @@ ESM_metrics = zeros(1,length(gridTablesNames)-1);
 % set z coordinate of the virtual points
 % if boundZ is different than zero it is for minimizing and cap z to a
 % minimum value
-virtualPoints( ~isnan(virtualPoints(:,3)), 3) = - (abs(zVal) + boundZ);
+virtualPoints( ~isnan(virtualPoints(:,3)), 3) = - max([abs(zVal),boundZ]);
 
 % compute Green functions matrix ( hologram --> virtual points ) 
 [G_p, deleteIndexesVirt] = Green_matrix(hologramPoints , virtualPoints , omega ); G_p = G_p{1}; 

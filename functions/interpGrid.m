@@ -1,4 +1,3 @@
-
 function [zCordsinter] = interpGrid(meshPoints, xData, yData, pX, pY, plotData)
 % INTERPGRID this function interpolates in the surface defined by meshPoints 
 %            over the points of coordinate xData and yData
@@ -31,6 +30,7 @@ hold on
 plot3(meshPoints(:,1),meshPoints(:,2),meshPoints(:,3), '.');
 xlabel(' x [m] ');
 ylabel('z [m]');
+hold off;
 
 end
 end

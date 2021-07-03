@@ -23,7 +23,7 @@ plotImportImgs = false;
 % import synthetic data
 [violinInfos, velocityFields, hologramInfos, pressureFields, eigenFreqz] = ...
     importData(velocityFileName, pressureFileName, nMics, nMeas, plotImportImgs);
-fCut = 1400;
+fCut = 800;
 eigenFreqz = eigenFreqz(eigenFreqz<fCut);
 eigenFreqzRad = 2*pi*eigenFreqz; % convert in [rad/s]
 
@@ -95,6 +95,8 @@ zCenter = -0.5*min([xStep, yStep]);
 experimentalData = false;
  
 userControl = input('choose z value // optimize z (!! iterations !!)[1,0] : ');
+fileList = cellstr(ls(virtualPointsFolder));
+disp(fileList(3:end));
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
 plotData = input('plot images of the algorithm?  [true/false]');
@@ -133,22 +135,22 @@ if userControl == 0
                                 gridTablesNames, plotData, experimentalData );
 
         options = optimset('fminsearch');
-        options = optimset(options, 'TolFun',1e-8,'TolX',1e-8, 'MaxFunEvals',maxFun,'MaxIter', maxIter); 
+        options = optimset(options, 'TolFun',1e-4,'TolX',1e-6, 'MaxFunEvals',maxFun,'MaxIter', maxIter); 
 
         % minimization
         [zpar,fval, exitflag, output] = fminsearch(fun, [zCenter 1 1].', options);
         zpar(1) = -(abs(zpar(1)) + abs(zBound));
-        VP_Params(:,ii)= zpar;
-    end
+        VP_Params(:,mode)= zpar;
+     end
     
     %SAVE RESULTS 
     cd([estimationsFolder, '\controlParams'])
     filesList = ls(estimationsFolder);
     filesList(1:2,:) = [];
-    numFile = length(filesList) +1;
+    numFile = length(filesList(:,1)) +1;
     disp(['writing File VP_Params_', num2str(numFile),'.csv']);
     
-    writeMat2File(VP_Params(1:3,:), ['VP_Params_', int2str(numFile),'.csv'], {'z [m]' 'scaleX' 'scaleY'} , 3, true)
+    writeMat2File(VP_Params.', ['VP_Params_', int2str(numFile),'.csv'], {'z [m]' 'scaleX' 'scaleY'} , 3, true)
     cd(baseFolder)
 end
 
@@ -162,10 +164,14 @@ if userControl == 1
         msg = ['set distance virtual-violinMesh (theoric = ',num2str(zCenter),') ---> : '];
         zCenter = -abs(input(msg)); 
     else
+       cd([estimationsFolder,'\controlParams']);
+       fileList = ls([estimationsFolder,'\controlParams']);
+       disp(fileList(3:end,:));
        numFile = input('which params file to read [integer]: ');
        VP_Params = readmatrix(['VP_Params_',int2str(numFile),'.csv']);     
+       cd(baseFolder);
     end
-    
+    SNR = input('SNR on the pressure: ');
     for ii = 1:nModes 
         tStart = tic;
         omega = eigenFreqzRad(ii); % current eigenfreq mode
@@ -175,7 +181,7 @@ if userControl == 1
         measuredPressure = pressureFields{ii};
         meshSize = numel(measuredPressure);
         measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-        measuredPressure = whiteNoise(measuredPressure,20); % add white gaussian noise to the mesurement
+        measuredPressure = whiteNoise(measuredPressure,SNR); % add white gaussian noise to the mesurement
 
         % velocity GroundTruth vector setup
         v_GT = velocityFields{ii};   
@@ -220,11 +226,11 @@ plot(tikNCCsPlot, 'b-o')
 hold on
 plot(tsvdNCCsPlot, 'r-o')
 xticks(1:11)
-xticklabels(eigenFreqz./(2*pi))
+xticklabels(eigenFreqz)
 xtickangle(90)
 ylim([0.4 1])
 grid on
-xlabel('N mode');
+xlabel('f  [Hz]');
 ylabel('NCC');
 title('NCC - synthetic')
 legend('Tikhonov', 'TSVD')
@@ -240,11 +246,11 @@ plot(tikNMSEPlot, 'b-o')
 hold on
 plot(tsvdNMSEPlot, 'r-o')
 xticks(1:11)
-xticklabels(eigenFreqz./(2*pi))
+xticklabels(eigenFreqz)
 xtickangle(90)
 
 grid on
-xlabel('N mode');
+xlabel('f  [Hz]');
 ylabel('NMSE  [dB]')
 title('NMSE - synthetic')
 legend('Tikhonov', 'TSVD')

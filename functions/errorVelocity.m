@@ -91,7 +91,7 @@ function vRegu_Fin = getSameOrdering(vRegu, violinMesh, xData, yData)
     % adds nan to create a mesh to interpolate
     vRegu_Fin = addNans(violinMesh, vRegu);
     % interpolate this mesh with v_ex_vector to find the points on the same indeces to do the subtraction
-    vRegu_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(vRegu_Fin)], xData.', yData.', pX, pY, true);
+    vRegu_Fin = interpGrid([violinMesh(:,1) violinMesh(:,2) abs(vRegu_Fin)], xData.', yData.', pX, pY, false);
     vRegu_Fin = vRegu_Fin(:);
     % cancel nan from velocity vector
     vRegu_Fin(isnan(vRegu_Fin)) = [];
