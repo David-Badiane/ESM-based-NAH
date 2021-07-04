@@ -100,7 +100,10 @@ disp(fileList(3:end));
 gridToUse = input('choose grid to use (integer positive): ');
 virtualPtsFilename = ['VP_', int2str(gridToUse),'.csv'];
 plotData = input('plot images of the algorithm?  [true/false]');
-
+addNoise = input('Noise on the pressure? [true/false]: ');
+if addNoise
+SNR = input('Specify Signal To Noise Ratio (SNR): ');
+end
 %% OPTIMIZATION
 
 if userControl == 0
@@ -122,8 +125,9 @@ if userControl == 0
         measuredPressure = pressureFields{mode};
         meshSize = numel(measuredPressure);
         measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-        measuredPressure = whiteNoise(measuredPressure, 20); % add white gaussian noise to the mesurement
-
+        if addNoise
+        measuredPressure = whiteNoise(measuredPressure, SNR); % add white gaussian noise to the mesurement
+        end
         % velocity GroundTruth vector setup
         v_GT = velocityFields{mode};   
         v_GT_vector = reshape( v_GT.', [numel(v_GT), 1]); 
@@ -149,7 +153,6 @@ if userControl == 0
     filesList(1:2,:) = [];
     numFile = length(filesList(:,1)) +1;
     disp(['writing File VP_Params_', num2str(numFile),'.csv']);
-    
     writeMat2File(VP_Params.', ['VP_Params_', int2str(numFile),'.csv'], {'z [m]' 'scaleX' 'scaleY'} , 3, true)
     cd(baseFolder)
 end
@@ -171,7 +174,7 @@ if userControl == 1
        VP_Params = readmatrix(['VP_Params_',int2str(numFile),'.csv']);     
        cd(baseFolder);
     end
-    SNR = input('SNR on the pressure: ');
+%%
     for ii = 1:nModes 
         tStart = tic;
         omega = eigenFreqzRad(ii); % current eigenfreq mode
@@ -181,14 +184,15 @@ if userControl == 1
         measuredPressure = pressureFields{ii};
         meshSize = numel(measuredPressure);
         measuredPressure = reshape(measuredPressure , [meshSize,1]); % convert the measurement matrix into an array... the magnitude of pressure is needed
-        measuredPressure = whiteNoise(measuredPressure,SNR); % add white gaussian noise to the mesurement
-
+        if addNoise
+            measuredPressure = whiteNoise(measuredPressure,SNR); % add white gaussian noise to the mesurement
+        end
         % velocity GroundTruth vector setup
         v_GT = velocityFields{ii};   
         v_GT_vector = reshape( v_GT.', [numel(v_GT), 1]); 
         v_GT_vector(isnan(v_GT_vector)) = 0;
         v_GT_vector(isnan(violinInfos{4}(:,3)),:) = [];
-        
+
         if paramsSet == 1
             [LossFx, ESM_metrics , ESM_results ] = applyESM(VP_Params(ii,:), 0, measuredPressure, hologramPoints, normalPoints, violinMesh , omega,...
                                X, Y, v_GT_vector, virtualPtsFilename,...
@@ -202,13 +206,13 @@ if userControl == 1
         estimationCell{ii} = ESM_metrics; 
         disp(toc(tStart)) 
     end
-    
+    %%
     cd([estimationsFolder,'\metrics'])
     estimationStruct = cell2struct(estimationCell, structNames, 1);
     
     filesList = ls(estimationsFolder);
     filesList(1:2,:) = [];
-    numFile = length(filesList) +1;
+    numFile = length(filesList(:,1)) +1;
     disp(['writing File estimationStruct', num2str(numFile),'.mat']);   
     save(['estimationStruct_', num2str(numFile),'.mat'], 'estimationStruct');
     cd(baseFolder)

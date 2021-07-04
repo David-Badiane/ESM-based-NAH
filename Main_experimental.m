@@ -186,7 +186,7 @@ if userControl == 1
        VP_Params = readmatrix(['VP_Params_',int2str(numFile),'.csv']);     
     end
     
-    for ii = 1:nModes 
+    for ii = 1:nModes
         tStart = tic;
         omega = eigenFreqz(ii);
         disp(['f = ', num2str(omega/(2*pi))]);

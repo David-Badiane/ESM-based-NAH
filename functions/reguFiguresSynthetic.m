@@ -40,7 +40,7 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtu
     ax.XMinorTick = 'on';
     ax.YMinorTick = 'on';
     ax.TickDir = 'out';
-    ax.FontSize = 12;
+    ax.FontSize = 11;
     
     subplot 312
     surf(X, Y, abs(surfVelRecTSVD),'EdgeColor','none');view(2);
@@ -77,9 +77,6 @@ function [] = reguFiguresSynthetic(violinMesh, v_TSVD, v_TIK, v_GT_vector, virtu
     xlabel('x'); ylabel('y');
     hold off;  
     pause(0.01);
-    
-    figure(figureNum+2)
-    plot3(violinMesh(:,1), violinMesh(:,2), abs(v_TIK_F));
     
 end
 
