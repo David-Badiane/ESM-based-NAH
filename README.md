@@ -3,6 +3,8 @@ Equivalent Source Method for Near-field Acoustic Holography. Project for the Pro
 
 [download acceleration and pressure measurements](https://polimi365-my.sharepoint.com/:f:/g/personal/10743504_polimi_it/ElZaXDe-48NIt7RkcwDgemUB_qcxJ5-4a2B1z9xCsb_G9A?e=9uiU2Q)
 
+A more detailed explanation of the code is provided in a documentation
+[download the documentation](https://polimi365-my.sharepoint.com/:b:/g/personal/10743504_polimi_it/ET1L8MuAXGFCganW46N1dGsBKo8Z8QgwFMN5ldGb2ce76g?e=AlN3iQ)
 ## Introduction
 
 <p align="center"><img src="https://github.com/David-Badiane/ESM-based-NAH/blob/main/Figures/simulationSetupPicDiagram.png" width=70% height=70% centered>
